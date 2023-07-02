@@ -1,0 +1,149 @@
+@use '../../styles/global.scss' as *;
+@use '../../styles/globalBreakPoints.scss' as *;
+.status_card {
+    height: 88px;
+    font-size: 20px;
+    padding: 30px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    border-right: 1px solid #ccc;
+    overflow: hidden;
+    z-index: 1;
+    transition: color 0.5s ease 0s;
+    cursor: pointer;
+
+    @media screen and (max-width: $desktop) {
+        border-right: none;
+        border-bottom: 1px solid #ccc;
+    }
+    &:hover {
+        color: var(--txt-white);
+        .number {
+            color: var(--txt-white);
+        }
+        svg {
+            stroke: white
+        }
+    }
+    &::before {
+        content: "";
+        width: 100%;
+        padding-top: 100%;
+        border-radius: 50%;
+        background-image: linear-gradient(to top right, var(--main-color), var(--second-color));
+        position: absolute;
+        left: -50%;
+        top: 20%;
+        transform: scale(0);
+        transition: transform 0.8s ease 0s;
+    }
+    &:hover::before {
+        transform: scale(3);
+    }
+}
+
+.status_card_error {
+    height: 88px;
+    padding: 30px;
+    display: flex;
+    flex-direction: row;
+    font-size: 18px;
+    align-items: center;
+    background-color: var(--main-bg);
+    position: relative;
+    overflow: hidden;
+}
+.empty_data {
+    padding: 1.5px;
+    flex-grow: 1;
+    text-align: center;
+    pointer-events: none;
+}
+
+.loading {
+    width: 100%;
+}
+
+.reload {
+    margin-top: 15px;
+    font-size: 28px;
+    cursor: pointer;
+}
+.txt {
+    font-size: 16px;
+    font-weight: 400;
+    margin: 0;
+    z-index: 999;
+}
+
+.number {
+    margin-top: 15px;
+    font-size: 20px;
+}
+
+.status_card__icon {
+    font-size: 20px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+}
+
+.status_card__info {
+    flex-grow: 1;
+    text-align: center;
+    z-index: 1;
+    &:hover {
+        color: var(--text-white)
+    }
+}
+
+.status_card__info>h4 {
+    margin-bottom: 10px;
+}
+
+span {
+    font-weight: 400;
+}
+
+.redify_color {
+    color: var(--main-color-red);
+}
+
+.error__container {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: start;
+}
+
+.error__img {
+    width: 80px;
+    height: 80px;
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+}
+.error__def {
+    padding: 0 20px;
+    text-align: center;
+    flex: 1;
+}
+
+.try__again_txt {
+    margin:auto;
+}
+.try_again_btn {
+    width: 165px;
+}
+.noData {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 30px;
+}

@@ -1,0 +1,137 @@
+@use '../../styles/fonts.scss'  as *;
+.profile {
+    width: 700px;
+    
+    button{
+        text-transform: capitalize;
+        text-align: center;
+    }
+}
+.profile__form {
+    position: relative;
+}
+.profile__form, .profile__item {
+    display: flex;
+    gap: 50px;
+    align-items: start;
+    padding: 10px;
+}
+
+.profile__item {
+    justify-content: space-between;
+    // position: relative;  
+
+
+}
+
+.user__info {
+    width: 100%;
+
+}
+
+.submit__btn{
+    // position: absolute;
+    // right: 5%;
+    margin-top: 40px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    float: right;
+    button {
+        width: 150px;
+    }
+}
+
+
+
+.errorContainer {
+    // height: 8px;
+    // width: 20%;
+    // border: 1px solid red;
+}
+
+.inputStyle, .field {
+    // flex: 1;
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: 'Panton', sans-serif;
+    font-weight: 500;
+    height: 35px;
+    text-indent: 15px;
+    transition: all .2s ease-in-out;
+}
+
+.inputStyle {
+    width: 210px;
+    padding-right:10px;
+    font-family: 'Panton' sans-serif;
+    background: transparent;
+    font-size: 16px;
+}
+.field {
+    border: 1px solid #ccc;
+    background: rgb(228, 228, 228);
+    border: none;
+}
+
+@keyframes anime {
+    0% {
+        width: 0%;
+    };
+    50% {
+        width: 0%;
+    }
+    100% {
+        width: 0%;
+    }
+}
+
+.img__upload__btn {
+    display: none;
+    margin-top: 15px;
+    text-transform: capitalize;
+}
+.user__img {
+    text-align: center;
+    img {
+        margin-bottom: 10px;
+        border-radius: 50%;
+        border: 1px solid #ccc;
+    }
+}
+.user_upload {
+    border: 1px solid var(--main-color);
+    padding: 4px 6px;
+    display: flex;
+    align-items: center;
+    color: var(--main-color);
+    opacity: 1;
+    border-radius: 8px;
+    &:hover {
+        background-color: var(--main-color);
+        color: white;
+    }
+}
+.role_name {
+    width: 220px;
+    text-indent: 15px;
+    padding: 10px 0;
+    font-weight: 500;
+}
+.dropwDownRole {
+    width: 200px;
+	background: rgb(228, 228, 228);
+	border: none;
+	border-radius: 8px;
+    padding: 10px;
+	font-size: 16px;
+	opacity: 1;
+	transition: all .2s ease-in-out;
+	select {
+		background-color: transparent;
+	    font-family: 'Panton', sans-serif;
+		width: 100%;
+		border:none;
+		font-size: 16px;
+	}
+}

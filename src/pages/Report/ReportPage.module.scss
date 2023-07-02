@@ -1,0 +1,34 @@
+@use '../../styles/globalBreakPoints.scss' as *;
+
+.reportsPageWrapper {
+    margin-top: 90px;
+    // padding: 1.25rem 0;
+}
+
+.tabs {
+    margin-top: 90px;
+    position: relative;
+}
+.tabButtons {
+    border: 1px solid;
+    z-index: 999;
+    position: absolute;
+}
+
+.filterInput {
+    width: 250px;
+    display: flex;
+    justify-content: space-between;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 8px;
+}
+
+.filterSelect {
+    min-width: 160px;
+    max-width: 160px;
+    margin-left: 10px;
+    @media screen and (max-width: $desktop) {
+         margin-left: 0;
+    }
+}
