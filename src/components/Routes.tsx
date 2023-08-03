@@ -6,8 +6,9 @@ import Authmiddleware from "./AuthMiddleware";
 import Auth from "@app/pages/Auth/Auth";
 import Dashboard from "@app/pages/Dashboard";
 import Report from "@app/pages/Report/Report";
-import Forecast from "@app/pages/Forecast/Forecast";
 import CheckAuthMiddleware from "./CheckAuthMiddleware";
+import Map from '@app/pages/Map/Map'
+import Forecast from "@app/pages/Forecast/Forecast";
 
 const routes: Route[] = [
    {
@@ -35,13 +36,22 @@ const routes: Route[] = [
       )
    },
    {
-      path: '/forecast',
+      path: '/map-reference',
       element: (
          <Authmiddleware>
-            <Forecast />
+            <Map /> 
+            {/* Salama Maksat */}
          </Authmiddleware>
       )
    },
+   // {
+   //    path: '/forecast',
+   //    element: (
+   //       <Authmiddleware>
+   //          <Forecast />
+   //       </Authmiddleware>
+   //    )
+   // },
 ]
 
 export default routes;

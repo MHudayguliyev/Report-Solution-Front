@@ -31,6 +31,13 @@
     color: black;
 }
 
+.sidebar_item_image {
+    transition: filter 0.3s ease 0s;
+    &:hover {
+        filter: brightness(0%);
+    }
+}
+
 .active {
     border-radius: var(--border-radius);
     background-image: linear-gradient(to right, var(--main-color), var(--second-color));

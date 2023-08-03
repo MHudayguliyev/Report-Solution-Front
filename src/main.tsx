@@ -5,7 +5,6 @@ import {
   QueryClient,
   QueryClientProvider,
 } from "react-query";
-import { ConnectToSocket } from '@utils/helpers';
 
 // redux
 import { Provider } from "react-redux";
@@ -20,7 +19,7 @@ import "./assets/boxicons-2.0.7/css/boxicons.min.css";
 import "./styles/global.scss";
 import "./styles/theme.scss";
 import "./styles/fonts.scss";
-import { SocketContext } from './context/context';
+
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -32,18 +31,15 @@ const queryClient = new QueryClient({
   },
 });
 
-let socket = ConnectToSocket()
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   // <React.StrictMode>
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-      <SocketContext.Provider value={socket}>
         <I18nextProvider i18n={i18n}>
           <QueryClientProvider client={queryClient}>
             <App />
           </QueryClientProvider>
         </I18nextProvider>
-      </SocketContext.Provider>
       </PersistGate>
     </Provider>
   // </React.StrictMode>

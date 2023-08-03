@@ -26,7 +26,7 @@ const Layout = ({ children }: LayoutProps) => {
             isOpenSideBar ? <Sidebar /> : ''
          }
          <div className={styles.layoutContent}>
-            <TopNavbar setShowModal={setShowModal} showModal={showModal}/>
+            <TopNavbar/>
             <div className={styles.layoutPage}>
                {
                   children

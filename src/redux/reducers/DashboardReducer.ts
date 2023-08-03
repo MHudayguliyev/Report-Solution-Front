@@ -42,6 +42,7 @@ export const initialState: InitialDashboardState<boolean> = {
     renewData: false,
     switched: false,
     fetchData: {details: false, refetch: false},
+    details: [], 
     isDtlTblOpen: false, 
     detailsLoading: false, 
     firmsList: [],
@@ -78,6 +79,10 @@ const DashboardReducer = (state=initialState, action:AnyAction) => {
             return {
                 ...state, fetchData: {...state.fetchData, details: false, refetch: false}
             }
+        case 'SET_DETAILS':
+            return {
+                ...state, details: action.payload
+            }
         case 'OPEN_DTL_TBL':
             return {
                 ...state, isDtlTblOpen: action.state
@@ -96,11 +101,6 @@ const DashboardReducer = (state=initialState, action:AnyAction) => {
             return {
                 ...state, 
                 switched: action.payload
-            }
-        case 'SET_DISACTIVATE_AUTO_REFRESH': 
-            return {
-                ...state, 
-                disactivateAutoRefresh: action.payload
             }
         case 'SET_RENEW_DATA': 
             return {
@@ -230,7 +230,7 @@ const DashboardReducer = (state=initialState, action:AnyAction) => {
                 expensesErr: action.payload
             }
 
-
+            
         case 'SET_CASHES_AMOUNT_LOADING': 
             return {
                 ...state, 
@@ -241,102 +241,57 @@ const DashboardReducer = (state=initialState, action:AnyAction) => {
                 ...state, 
                 cashesErr: action.payload
             }
-
         case 'SET_PURCH_SALE_ORDERS': 
-            // setToStorage({
-            //     ...state,
-            //     purchSaleOrders: action.payload
-            // })
             return {
                 ...state, 
                 purchSaleOrders: action.payload
             }
         case 'SET_SALE_ORD_TOTAL_BY_STATUS': 
-            // setToStorage({
-            //     ...state,
-            //     saleOrdTotalsByStatus: action.payload
-            // })
             return {
                 ...state, 
                 saleOrdTotalsByStatus: action.payload
             } 
         case 'SET_PURCH_SALES_RETURNS': 
-            // setToStorage({
-            //     ...state,
-            //     purchSalesReturns: action.payload
-            // })
             return {
                 ...state, 
                 purchSalesReturns: action.payload
             }
         case 'SET_STOCK_COST_TOTAL': 
-            // setToStorage({
-            //     ...state,
-            //     stockCostTotal: action.payload
-            // })
             return {
                 ...state, 
                 stockCostTotal: action.payload
             }   
         case 'SET_PAYMENTS_RECEIVED': 
-            // setToStorage({
-            //     ...state,
-            //     paymentsReceived: action.payload
-            // })
             return {
                 ...state, 
                 paymentsReceived: action.payload
             }  
         case 'SET_PAYMENTS_MADE': 
-            // setToStorage({
-            //     ...state,
-            //     paymentsMade: action.payload
-            // })
             return {
                 ...state, 
                 paymentsMade: action.payload
             } 
         case 'SET_CREDITS_FROM_SALE': 
-            // setToStorage({
-            //     ...state,
-            //     creditsFromSale: action.payload
-            // })
             return {
                 ...state, 
                 creditsFromSale: action.payload
             } 
         case 'SET_DEBTS_FROM_PURCHASE': 
-            // setToStorage({
-            //     ...state,
-            //     debtsFromPurchase: action.payload
-            // })
             return {
                 ...state, 
                 debtsFromPurchase: action.payload
             } 
         case 'SET_EMPLOYEES_BALANCE': 
-            // setToStorage({
-            //     ...state,
-            //     employeesBalance: action.payload
-            // })
             return {
                 ...state, 
                 employeesBalance: action.payload
             } 
         case 'SET_EXPENSES_AMOUNT': 
-            // setToStorage({
-            //     ...state,
-            //     expensesAmount: action.payload
-            // })
             return {
                 ...state, 
                 expensesAmount: action.payload
             } 
         case 'SET_CASHES_AMOUNT': 
-            // setToStorage({
-            //     ...state,
-            //     cashesAmount: action.payload
-            // })
             return {
                 ...state, 
                 cashesAmount: action.payload

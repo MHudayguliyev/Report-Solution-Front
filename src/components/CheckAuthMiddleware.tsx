@@ -26,7 +26,10 @@ const CheckAuthMiddleware = (props: AuthmiddlewareProps) => {
         if(tokenExpiredDate){
             if(pathname==='/') 
                 navigate({to: '/dashboard', replace: true})
-        }else navigate({to: '/', replace: true})
+        }else {
+            navigate({to: '/', replace: true})
+            // persistor.purge()
+        }
         setLoading(false)
     }, [])
 

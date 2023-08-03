@@ -17,6 +17,7 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
+      "@icons/*": ["src/compLibrary/icons/*"],
       "@utils/*": ["src/utils/*"],
       "@libs/*": ["src/libs/*"],
       "@app/*": ["src/*"],

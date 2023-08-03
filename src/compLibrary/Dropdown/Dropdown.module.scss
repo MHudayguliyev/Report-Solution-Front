@@ -41,14 +41,14 @@
     right: -50%;
     // bottom: calc(100% + 12px);
     width: max-content;
-    max-width: 320px;
-    max-height: 320px;
+    max-width: 370px; // used to be 320px 
+    max-height: 370px;// used to be 320px 
     background-color: var(--main-bg);
     box-shadow: var(--box-shadow);
     border-radius: var(--border-radius);
     overflow: auto;
 
-    transform-origin: top right;
+    // transform-origin: top right;
     transform: scale(0);
     transition: transform animation.$duration ease 0s;
 
@@ -72,6 +72,19 @@
         border-radius: 10px;
         background-color: var(--main-color);
       }
+}
+
+.transformTopRight {
+    transform-origin: top right;
+}
+.transformTopLeft {
+    transform-origin: top left;
+}
+.transformBottomRight {
+    transform-origin: bottom right;
+}
+.transformBottomLeft {
+    transform-origin: bottom left
 }
 
 .up {

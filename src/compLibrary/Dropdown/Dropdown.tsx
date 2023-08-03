@@ -6,6 +6,7 @@ import useClickOutsideDropdown from "@hooks/useClickOutsideDropdown";
 // custom styles
 import styles from "./Dropdown.module.scss";
 import className from "classnames/bind";
+import { capitalize } from "@utils/helpers";
 
 type SearchValues = {
   label: string
@@ -28,14 +29,16 @@ interface DropdownProps<T> {
   /** @default false */
   disabled?: boolean,
   data?: SearchValues[] | any,
-  checkedAll?: boolean,
   onChange?: any
-  arr2?: SearchValues[] | any,
   clientList?: Array<string>,
   warehouseList?: Array<string>,
   statusList?: Array<string>
   usersList?: Array<string>,
-  upPosition?: boolean
+  upPosition?: boolean, 
+  /** @default topRight */
+  transformOrigin?: 'topRight' | 'topLeft' | 'bottomRight' | "bottomLeft"
+  /** @default false */
+  removeOutClick?: boolean
 }
 
 const cx = className.bind(styles);
@@ -54,14 +57,16 @@ function Dropdown<T>(props: DropdownProps<T>) {
     onClick,
     dropDownContentStyle,
     disabled = false,
-    upPosition = false
+    upPosition = false, 
+    transformOrigin = 'topRight', 
+    removeOutClick = false
   } = props;
 
 
   // for dropdown active | deactive
   const dropdown_content_el = useRef(null);
   const toggle_ref = useRef(null);
-  const [showDropdown] = useClickOutsideDropdown(dropdown_content_el, toggle_ref);
+  const [showDropdown] = useClickOutsideDropdown(dropdown_content_el, toggle_ref, removeOutClick);
 
 
   return (
@@ -82,6 +87,7 @@ function Dropdown<T>(props: DropdownProps<T>) {
       <div ref={dropdown_content_el} style={dropDownContentStyle} className={
         cx({
           dropdown__content: true,
+          [`transform${capitalize(transformOrigin)}`]: true, 
           up: upPosition,
           down: !upPosition,
           active: showDropdown

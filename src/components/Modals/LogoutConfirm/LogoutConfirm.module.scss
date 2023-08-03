@@ -3,8 +3,11 @@
   }
 
   .headTxt, .bodyTxt {
-    color: var(--txt-color)
+    color: var(--txt-color);
   }
   .headTxt{
     margin: auto;
+  }
+  .bodyTxt{
+    text-align: center;
   }

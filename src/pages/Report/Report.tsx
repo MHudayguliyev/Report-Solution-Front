@@ -1,52 +1,53 @@
-import React, { useState, useEffect, useContext } from 'react'
-import { useAppDispatch } from '@app/hooks/redux_hooks';
-import { useTranslation } from 'react-i18next';
+import React, { useState, useEffect } from 'react'
+
 // styles
 import styles from './ReportPage.module.scss'
+// children
 import MaterialTable from '@app/components/MaterialTable/MaterialTable';
-import SelectTime from '@app/components/Modals/SelectTime/SelectTime'
-
-import { SocketContext } from '@app/context/context';
+// sockets
+import { socket } from '@app/socket/socket';
+// redux selector
 import { useAppSelector } from '@app/hooks/redux_hooks';
+import { useAppDispatch } from '@app/hooks/redux_hooks';
+import { useTranslation } from 'react-i18next';
 /// redux actions
 import ReportAction from '@redux/actions/ReportAction'
-import FormAction from '@redux/actions/FormAction'
+/// locale type
+import { Localization } from '@app/redux/types/ReportTypes';
 
-type Fields = {
-  value: string, 
-  label: string
+interface Fields  {
+  value: string,
+  label: Localization
 }
-
 const fields: Fields[] = [
-  {value: 'material', label: 'Material'},
-  {value: 'group', label: 'Group'},
-  {value: 'category', label: 'Group by: Category'}
+  {value: 'material', label: {en:'Material',ru:'По товарно',tm:'Haryt b/ç'}},
+  {value: 'group', label: {en:'Group',ru:'По группе',tm:'Topar b/ç'}},
+  {value: 'category', label: {en:'Category',ru:'По категории',tm:'Kategoriýa b/ç'}}
+]
+const tabs = [
+  {en: "Material's stock", ru: 'Остатки товаров', tm: 'Haryt stok ýagdaýy'},
+  {en: "Material's profitability", ru: 'Реньтабельность товаров', tm:'Harytlaryň düşwüntliligi'}
 ]
 
 const Report = () => {
   const dispatch = useAppDispatch()
   const {t} = useTranslation()
-  const socket: any = useContext(SocketContext)
 
   /// use states
-  const [reportData, setReportData] = useState<any>([])
   const [paperData, setPaperData] = useState<{typeID: number | null, paperName: string}>({typeID: 0,paperName: "mat_stock_amount_cost"})
   // redux states
-  const selectTime = useAppSelector((state) => state.formsReducer.showTimeModal)
+  const reportsData = useAppSelector(state => state.reportReducer.reportData)
   const endUrl = useAppSelector(state => state.reportReducer.endUrl)
   const activeIndex = useAppSelector(state => state.reportReducer.activeIndex)
   const isLoading = useAppSelector(state => state.reportReducer.isDataLoading)
   const field = useAppSelector(state => state.reportReducer.field)
 
-  const setShowTimeModal = () => {
-    dispatch(FormAction.setShowTimeModal(!selectTime))
-  }
+
 
   useEffect(() => {
     if(!socket) return
-    const getData = (data: any) => {
-      console.log('report data', data)
-      setReportData(data)
+    const getData = (data: any | any[]) => {
+      dispatch(ReportAction.setReportData(data))
       dispatch(ReportAction.renewData(false))
       dispatch(ReportAction.setDataLoading(false))
     }
@@ -59,34 +60,30 @@ const Report = () => {
 
   useEffect(() => {
     setPaperData((prev) => ({...prev, paperName: endUrl}))
-  }, [endUrl])
+  }, [endUrl])  
 
   useEffect(() => {
-    setReportData([])
+    dispatch(ReportAction.setReportData([]))
   }, [activeIndex])
 
 
   return (
     <div className={styles.tabs}>
        <MaterialTable
-              show
-              setShow={() => {}}
-              onGoBack={() => {}}
-              data={reportData}
-              paperData={paperData}
-              translation={t}
-              isLoading={isLoading}
-              enableStickyHeader
-              renderBottomToolbarActions
-              density={'compact'}
-              tabs={['Mat stock amount cost', 'Mat gross profitability']}
-              dropdownData={fields}
-              field={field}
+          show
+          setShow={() => {}}
+          data={reportsData}
+          paperData={paperData}
+          translation={t}
+          isLoading={isLoading}
+          enableStickyHeader
+          renderBottomToolbarActions
+          density={'compact'}
+          heightToExtract='250'
+          tabs={tabs}
+          dropdownData={fields}
+          field={field}
         />
-      <SelectTime
-        show={selectTime} 
-        setShow={setShowTimeModal}
-      />
     </div>
   )
 }

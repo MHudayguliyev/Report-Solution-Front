@@ -1,8 +1,5 @@
-import crypto from 'crypto-js'
-import SocketIoClient from 'socket.io-client'
 import DashboardAction from '@redux/actions/DashboardAction'
 import { MaterialList } from "@app/api/Types/queryReturnTypes";
-
 
 export function resetFormikValue(initValues: any, valuesToSet: any, setFieldValue: Function, setFieldTouched: Function) {
    for(let key of Object.keys(initValues)){
@@ -72,6 +69,9 @@ export const isEmpty = (value: any) => {
 export const isStrEmpty = (str: string) => {
    return (str || str.length > 0 );
 }
+export const checkDisconnectedClient = (disClient: any): boolean => {
+   return !disClient.connected && disClient.room !== '' && disClient.last_conn_dt !== '' 
+}
 export const CheckObjOrArrForNull = (obj_or_arr: any) =>  {
    if (obj_or_arr !== null && obj_or_arr !== undefined) {
      if (obj_or_arr instanceof Object && Object.keys(obj_or_arr).length !== 0)
@@ -85,12 +85,6 @@ export const CheckIfArray = (arr: any) => {
       return true
    return false
 }
-// export const isAccessTokenExpired = () => {
-//    const accessTokenExpirationDate = new Date(localStorage.getItem('accessTokenExpiration')!);
-//    const currentDate = new Date();
-//    const oneMonthLater = new Date(accessTokenExpirationDate.setMonth(accessTokenExpirationDate.getMonth() + 1));
-//    return currentDate > oneMonthLater;
-// };
 
 export const isSelectedMaterial = (material: MaterialList, data: MaterialList, sec:boolean = false) => {
    if(sec){
@@ -114,31 +108,26 @@ export const sortArray = (array: any, key: string, sortBy: string) => {
      }
    }
 }
-
-
-export const getDate = (date?: any) => {
-   let startDate, endDate;
-   if(!date){
-      const date = new Date()
-      startDate = new Date(date.getFullYear(), date.getMonth(), 1)
-      endDate = new Date(date.getFullYear(), date.getMonth() + 1, 0)
-   }else {
-      startDate = new Date(date.getFullYear(), date.getMonth(), 1)
-      endDate = new Date(date.getFullYear(), date.getMonth() + 1, 0)
-   }
-
-   return {startDate, endDate}
-}
-
-
 export const CheckIfEqual = (arg1: number, arg2: number) => {
    return arg1 === arg2
 }
 
-export const DecryptApiData = (data: any) => {
-   const bytes = crypto.AES.decrypt(data, import.meta.env.VITE_API_SECRET_KEY)
-   return JSON.parse(bytes.toString(crypto.enc.Utf8))
+export const ArraysChecker = (arrays: any[]) => {
+   let counter = 0;
+   for(let i = 0; i < arrays.length; i++){
+      const array = arrays[i]
+      if(CheckIfArray(array))
+         counter++
+   }
+   if(counter >= 1)
+      return true
+   return false
 }
+
+// export const DecryptApiData = (data: any) => {
+//    const bytes = crypto.AES.decrypt(data, import.meta.env.VITE_API_SECRET_KEY)
+//    return JSON.parse(bytes.toString(crypto.enc.Utf8))
+// }
 
 export const papers = [
    // dashboard //
@@ -155,35 +144,46 @@ export const papers = [
    // forecast //
 ]
 
-export const ConnectToSocket = () => {
-   const BASE_URL = import.meta.env.VITE_API_MODE === 'development' ? 
-                     import.meta.env.VITE_API_LOCAL_SOCKET_URL : 
-                     import.meta.env.VITE_API_SERVER_SOCKET_URL
-   const socket = SocketIoClient(BASE_URL, {
-      transports: ['websocket']
-    })
-    return socket
-}
 export interface ResponseType {
    cred: {
       name: string, 
-      type_id: number | undefined 
+      type_id: number | null | undefined
    },
    data: any
 }
 
-export const setDashboardLoading = (dispatch: any, state: boolean) => {
-   dispatch(DashboardAction.setPurchSaleOrdLoading(state))
-   dispatch(DashboardAction.setOrdCountTotalLoading(state))
-   dispatch(DashboardAction.setPurchSalesRetLoading(state))
-   dispatch(DashboardAction.setStockLoading(state))
-   dispatch(DashboardAction.setPaymentsReceivedLoading(state))
-   dispatch(DashboardAction.setPaymentsMadeLoading(state))
-   dispatch(DashboardAction.setDebtsLoading(state))
-   dispatch(DashboardAction.setCreditsLoading(state))
-   dispatch(DashboardAction.setEmployeesBalanceLoading(state))
-   dispatch(DashboardAction.setCashesLoading(state))
-   dispatch(DashboardAction.setExpensesLoading(state))
+export const DashboardSetter = ({dispatch, task, state}: {dispatch: any, task:'load'|'emptify',state?:boolean|any})=> {
+
+   switch(task){
+      case 'load': 
+         dispatch(DashboardAction.setPurchSaleOrdLoading(state))
+         dispatch(DashboardAction.setOrdCountTotalLoading(state))
+         dispatch(DashboardAction.setPurchSalesRetLoading(state))
+         dispatch(DashboardAction.setStockLoading(state))
+         dispatch(DashboardAction.setPaymentsReceivedLoading(state))
+         dispatch(DashboardAction.setPaymentsMadeLoading(state))
+         dispatch(DashboardAction.setDebtsLoading(state))
+         dispatch(DashboardAction.setCreditsLoading(state))
+         dispatch(DashboardAction.setEmployeesBalanceLoading(state))
+         dispatch(DashboardAction.setCashesLoading(state))
+         dispatch(DashboardAction.setExpensesLoading(state))
+      break;
+      case 'emptify': 
+         dispatch(DashboardAction.setPurchSaleOrders([])) 
+         dispatch(DashboardAction.setPurchSalesReturns([]))
+         dispatch(DashboardAction.setOrdCountTotalByStatus([]))
+         dispatch(DashboardAction.setStockCostTotal([]))
+         dispatch(DashboardAction.setPaymentsReceived([]))
+         dispatch(DashboardAction.setPaymentMade([]))
+         dispatch(DashboardAction.setDebtsFromPurchase([]))
+         dispatch(DashboardAction.setCreditsFromSale([]))
+         dispatch(DashboardAction.setEmployeesBalance([]))
+         dispatch(DashboardAction.setCashesAmount([]))
+         dispatch(DashboardAction.setExpensesAmount([]))
+      break;
+
+   }
+
 }
 
 export const setDashboardData = (dispatch: any, response: ResponseType) => {

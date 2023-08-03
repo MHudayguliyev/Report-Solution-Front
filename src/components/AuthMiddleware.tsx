@@ -33,7 +33,7 @@ const Authmiddleware = (props: AuthmiddlewareProps) => {
 
    useEffect(() => {
       if (!localStorage.getItem("themeMode")) {
-         localStorage.setItem("themeMode", "light")
+         localStorage.setItem("themeMode", "theme-mode-light")
       }
       if (!localStorage.getItem("colorMode")) {
          localStorage.setItem("colorMode", "theme-color-blue")
@@ -66,7 +66,7 @@ const Authmiddleware = (props: AuthmiddlewareProps) => {
       }else navigate({to: '/', replace: true})
       setLoading(false)
    }, []);
-
+   
    return (
       <div className={`${themeReducer.mode} ${themeReducer.color}`}>
          {

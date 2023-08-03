@@ -1,40 +1,44 @@
-import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { FormikProps, useFormikContext } from "formik";
-import { useQuery } from 'react-query';
-import { Button} from '@mui/material';
-import CircularProgress from '@mui/material/CircularProgress';
-import { PinInput } from 'react-input-pin-code';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
-import { MdVisibilityOff, MdVisibility } from 'react-icons/md';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-location';
 import languages from "@app/assets/JsonData/language";
+/// yup validation
 import * as Yup from 'yup'
+// styles
 import styles from './Auth.module.scss'
+import classNames from 'classnames/bind';
 import hasabymLogo from '../../assets/images/hasabym.png';
+///redux things
 import { useAppDispatch, useAppSelector } from "../../hooks/redux_hooks";
 import FormsAction from '@app/redux/actions/FormAction';
 import Paper from '@app/compLibrary/Paper/Paper'
 //// components
+import { Dropdown } from '@app/compLibrary';
+import { SelectLanuageMenu, UserToggle } from '@app/components/TopNavbar/LanguageDropdown/LanguageDropdown';
 import Circles from '@app/compLibrary/Circles/Circles';
 import CustomTooltip from '@app/compLibrary/Tooltip/CustomTooltip';
-
+import { Button} from '@mui/material';
+import CircularProgress from '@mui/material/CircularProgress';
+import { PinInput } from 'react-input-pin-code';
+import { Formik, Form } from 'formik';
 /// react icons
 import {FiPhone} from 'react-icons/fi';
 import {AiOutlineCopyright} from 'react-icons/ai'
 import {MdClear} from 'react-icons/md'
-
-import { Get, Post, Put } from '@api/service/api_helper';
+import { MdVisibilityOff, MdVisibility } from 'react-icons/md'
+/// api fetcher
+import { useQuery } from 'react-query';
+import { api } from '@api/service/api_helper';
+import { AxiosError } from 'axios';
+// utils 
 import { CheckIfEqual, NoneEmpty, delay, isStrEmpty, setFormikField } from '@utils/helpers';
 import { GetUserRoles } from '@api/Queries/Getters'; 
-import { AxiosError } from 'axios';
-import classNames from 'classnames/bind';
 import moment from 'moment';
-import { Dropdown } from '@app/compLibrary';
-import { SelectLanuageMenu, UserToggle } from '@app/components/TopNavbar/LanguageDropdown/LanguageDropdown';
 import { useTranslation } from 'react-i18next';
-
+// react hot toast 
 import { toast } from 'react-hot-toast';
-import { SendOtp, ValidateOtp, resetCaptcha } from '@app/firebase/services';
+// firebase
+import { SendOtp, ValidateOtp } from '@app/firebase/services';
+// types
 import { FormName } from '@app/redux/types/FormTypes';
 
 const cx = classNames.bind(styles);
@@ -46,7 +50,7 @@ const Auth = () => {
     let recaptureRef: any = useRef(null)
     
     const phoneNumberRegex = new RegExp(/^6\d*$/)
-    const userPhone: string | any = localStorage.getItem('UserPhone') || null
+    const userPhone:any = localStorage.getItem('UserPhone') || null
 
     /// queries
     const {
@@ -70,6 +74,7 @@ const Auth = () => {
     const [isError, setIsError] = useState(false)
     const [final, setfinal] = useState<any>();
     const [appVerifier, setAppVerifier] = useState<any>(null);
+    const [timer, setTimer] = useState(59);
 
 
     const mask = '+993'
@@ -83,7 +88,7 @@ const Auth = () => {
         newPassword: '',
         confirmPass: '',
     }
-    const [timer, setTimer] = useState(59);
+    
 
     useEffect(() => {
         if(userPhone !== null)
@@ -102,8 +107,9 @@ const Auth = () => {
 
     useEffect(() => {
         setTimer(59) /// defaults to 1min
-        setToastMessage('')
         setSubmit(false)
+        setToastMessage("")
+        
 
         if(pins){
             setPins(['','','','','',''])
@@ -117,6 +123,8 @@ const Auth = () => {
             (activeFormName==='login' && checkPhone)
         )
             setFormikField('phoneNumber',checkPhone,formikRef)
+        if(activeFormName !== 'verification' && isStrEmpty(inCaseCode))
+            setInCaseCode("")
         
     },[activeFormName, forgotPassActive])
 
@@ -155,7 +163,7 @@ const Auth = () => {
             password: values.password
         }
         try {
-            const res: any = await Post('auth/login', data)
+            const res:any = await api.post({url: 'auth/login', data})
             if (res.status === 200) {
                 if (res.data && !res.data.is_user_confirm) {
                     activeForm('register')
@@ -206,7 +214,7 @@ const Auth = () => {
                 userEmail: values.email,
                 roleGuid
             }
-            const res: any = await Put(`auth/register/${phone}`, data)
+            const res: any = await api.put({url: `auth/register/${phone}`, data})  // regsiters already pre regsitered user
             if (res.status === 200) {
                 setToastMessage(res.message)
                 setRoleGuid('')
@@ -256,9 +264,10 @@ const Auth = () => {
             const data = {password: newPassword,phoneNumber: mask.concat(checkPhone)}
 
             if (forgotPassActive) {
-                res = await Put(`auth/update-password`, data) // 204
+                // res = await Put(`auth/update-password`, data) // 204
+                res = await api.put({url: 'auth/update-password', data})// 204
             } else {
-                res = await Post(`auth/pre-register`, data) // 200
+                res = await api.post({url: 'auth/pre-register', data})// 200
             }
             if (res.status === 200) {
                 activeForm(forgotPassActive ? 'login' : 'register' )
@@ -291,11 +300,13 @@ const Auth = () => {
 
             if(forgotPassActive){
                 /// password reset
-                const userFound = await Get<any>(`general/check-user/${phone}`)
+                // const userFound = await Get<any>(`general/check-user/${phone}`)
+                const userFound = await api.get<any>({url: `general/check-user/${phone}`})
                 if(userFound.status===200){
                     const sent = await SendOtp(phone, recaptureRef)
                     if(!sent.success){
-                        const justInCaseCode = await Get<string>('auth/generate-code')
+                        // const justInCaseCode = await Get<string>('auth/generate-code')
+                        const justInCaseCode = await api.get<string>({url: 'auth/generate-code'})
                         setInCaseCode(justInCaseCode)
                     }else {
                         setfinal(sent.result)
@@ -307,7 +318,8 @@ const Auth = () => {
                 }
             }else {
                 /// register goes here
-                const userExists = await Get<any>(`general/check-user/${phone}`)
+                // const userExists = await Get<any>(`general/check-user/${phone}`)
+                const userExists = await api.get<any>({url: `general/check-user/${phone}`})
                 if(userExists.status===200){
                     activeForm(activeFormName)
                     setToastMessage(t(userExists.message))
@@ -328,7 +340,7 @@ const Auth = () => {
                         //// register error
                         const sent = await SendOtp(phone, recaptureRef)
                         if(!sent.success){
-                            const justInCaseCode = await Get<string>('auth/generate-code')
+                            const justInCaseCode = await api.get<string>({url: 'auth/generate-code'})
                             setInCaseCode(justInCaseCode)
                         }else {
                             setfinal(sent.result)
@@ -353,7 +365,7 @@ const Auth = () => {
                 const phone = mask.concat(checkPhone)
                 const sent = await SendOtp(phone, recaptureRef)
                 if(!sent.success){
-                    const justInCaseCode = await Get<string>('auth/generate-code')
+                    const justInCaseCode = await api.get<string>({url: 'auth/generate-code'})
                     setInCaseCode(justInCaseCode)
                 }else {
                     setfinal(sent.result)
@@ -627,7 +639,6 @@ const Auth = () => {
                                             if(isError) setIsError(false)
                                             activeForm('password')
                                             setPins(['', '', '', '', '', ''])
-                                            setInCaseCode("")  /// annule it when done with it.
                                         }else {
                                             activeForm(activeFormName)
                                             setSubmit(false)

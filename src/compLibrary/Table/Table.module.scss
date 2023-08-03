@@ -79,6 +79,11 @@
             justify-content: center;
             align-items: center;
             gap: 6px;
+
+            td {
+                display: flex;
+                gap: 6px;
+            }
     
             h4 {
                 font-size: 16px;

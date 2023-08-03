@@ -1,73 +1,52 @@
-import React, {useEffect, useState, useContext } from 'react'
+import React, {useEffect, useMemo, useCallback, useState } from 'react'
 import { useAppDispatch, useAppSelector } from '@app/hooks/redux_hooks'
 import { useTranslation } from 'react-i18next'
 /// dashboard actions
 import DashboardAction from '@redux/actions/DashboardAction'
 /// utils 
-import { CheckObjOrArrForNull, setDashboardData } from '@utils/helpers'
-// react toast
-import toast from 'react-hot-toast'
-
+import { CheckObjOrArrForNull, delay, setDashboardData } from '@utils/helpers'
+// components
 import { Col, Paper, Row, StatusCard, Table } from '@app/compLibrary'
 import { CashesAmount, CreditsFromSale, DebtsFromPurchase, EmployeesBalance, ExpensesAmount, PaymentsMade, PaymentsReceived, PurchSaleOrders, PurchSalesReturns, SaleOrdTotalsByStatus, StockCostTotal, UsualType } from '@app/redux/types/DashboardTypes'
 import NewStatusCard from '@app/compLibrary/NewStatusCard'
-import SelectTime from '@app/components/Modals/SelectTime/SelectTime'
-import FormAction from '@app/redux/actions/FormAction'
-
 /// paperNames
 import { papers } from '@utils/helpers'
 /// styles
 import styles from './Dashboard.module.scss'
-import classNames from 'classnames/bind'
 import MaterialTable from '@app/components/MaterialTable/MaterialTable';
-import { SocketContext } from '@app/context/context'
 import Status from '@app/components/Status/Status'
+// sockets
+import { socket } from '@app/socket/socket'
 
-const cx = classNames.bind(styles)
-
-
-
-type SocketType = {
-  on: Function, 
-  off: Function,
-  emit: Function;
-  connect: Function,
-  disconnect: Function
+type TableNameType = {
+  value:string, 
+  label:string
 }
-
 
 const Dashboard = () => {
   const dispatch = useAppDispatch()
   const {t} = useTranslation()
-  const socket: any = useContext(SocketContext)
 
-  // console.log('data', firmsData)
-
-
-  const [detailData, setDetailData] = useState([])
-  const [tableName, setTableName] = useState<string>('')
-  const [paperData, setPaperData] = useState<{typeID: number | string, paperName: string,}>({typeID: 0 || '',paperName: ""})
-
-  
+  const [tableName, setTableName] = useState<TableNameType>({value: '', label:''})
+  const [paperData, setPaperData] = useState<{typeID: number | null, paperName: string,}>({typeID: 0 || null ,paperName: ""})
   /// redux states
-  const firmsList = useAppSelector(state => state.dashboardReducer.firmsList)
   const fetcher = useAppSelector(state => state.dashboardReducer.fetchData)
+  const details = useAppSelector(state => state.dashboardReducer.details)
   const isDtlTblOpen = useAppSelector(state => state.dashboardReducer.isDtlTblOpen)
   const isDetsLoading = useAppSelector(state => state.dashboardReducer.detailsLoading)
-  const selectTime = useAppSelector((state) => state.formsReducer.showTimeModal)
   const receiver = useAppSelector(state => state.dashboardReducer.receiver)
   const date = useAppSelector(state => state.dashboardReducer.date)
-  const purchSaleOrders: PurchSaleOrders<number>[] = useAppSelector(state => state.dashboardReducer.purchSaleOrders)
-  const saleOrdTotalByStatus: SaleOrdTotalsByStatus[] = useAppSelector(state => state.dashboardReducer.saleOrdTotalsByStatus)
-  const purchSalesReturns: PurchSalesReturns<number>[] = useAppSelector(state => state.dashboardReducer.purchSalesReturns)
-  const stockCostTotal: StockCostTotal[] = useAppSelector(state => state.dashboardReducer.stockCostTotal)
-  const paymentsReceived: PaymentsReceived[] = useAppSelector(state => state.dashboardReducer.paymentsReceived)
-  const paymentsMade: PaymentsMade[] = useAppSelector(state => state.dashboardReducer.paymentsMade)
-  const creditsFromSale: CreditsFromSale[] = useAppSelector(state => state.dashboardReducer.creditsFromSale)
-  const debtsFromPurchace: DebtsFromPurchase[] = useAppSelector(state => state.dashboardReducer.debtsFromPurchase)
-  const employeesBalance: EmployeesBalance[] = useAppSelector(state => state.dashboardReducer.employeesBalance)
-  const expensesAmount: ExpensesAmount[] = useAppSelector(state => state.dashboardReducer.expensesAmount)
-  const cashesAmount: CashesAmount[] = useAppSelector(state => state.dashboardReducer.cashesAmount)
+  const purchSaleOrders = useAppSelector(state => state.dashboardReducer.purchSaleOrders)
+  const saleOrdTotalByStatus= useAppSelector(state => state.dashboardReducer.saleOrdTotalsByStatus)
+  const purchSalesReturns = useAppSelector(state => state.dashboardReducer.purchSalesReturns)
+  const stockCostTotal = useAppSelector(state => state.dashboardReducer.stockCostTotal)
+  const paymentsReceived = useAppSelector(state => state.dashboardReducer.paymentsReceived)
+  const paymentsMade = useAppSelector(state => state.dashboardReducer.paymentsMade)
+  const creditsFromSale = useAppSelector(state => state.dashboardReducer.creditsFromSale)
+  const debtsFromPurchace = useAppSelector(state => state.dashboardReducer.debtsFromPurchase)
+  const employeesBalance = useAppSelector(state => state.dashboardReducer.employeesBalance)
+  const expensesAmount = useAppSelector(state => state.dashboardReducer.expensesAmount)
+  const cashesAmount = useAppSelector(state => state.dashboardReducer.cashesAmount)
   //// redux loading states
   const purchSaleOrdLoading = useAppSelector(state => state.dashboardReducer.purchSaleOrdLoading)
   const purchSaleRetLoading = useAppSelector(state => state.dashboardReducer.purchSaleRetLoading)
@@ -93,16 +72,16 @@ const Dashboard = () => {
   const expensesErr= useAppSelector(state => state.dashboardReducer.expensesErr)
   const cashesErr = useAppSelector(state => state.dashboardReducer.cashesErr)
 
-  const FetchData = (key: "details"|"refetch", state: boolean) => {
+  const fetcherFN = (key: "details"|"refetch", state: boolean) => {
     dispatch(DashboardAction.fetchData(key, state))
   }
-  const OpenDtlTbl = (state: boolean) => {
+  const setNameFN = (props: TableNameType) => {
+    const {value,label} = props
+    setTableName(prev =>({...prev, label: label, value: value}))
+  }
+  const openDetails = (state: boolean) => {
     dispatch(DashboardAction.openDtlTbl(state))
   }
-  const setShowTimeModal = () => {
-    dispatch(FormAction.setShowTimeModal(!selectTime))
-  }
-
 
   useEffect(() => {
     if(!socket) return 
@@ -111,7 +90,8 @@ const Dashboard = () => {
       dispatch(DashboardAction.setRenewData(false))
     }
     const getDetails = (response: any) => {
-      setDetailData(response)
+      console.log('response ', response)
+      dispatch(DashboardAction.setDetails(response))
       dispatch(DashboardAction.setDetailsLoading(false))
     }
     const refetch = (response: any) => {
@@ -121,15 +101,16 @@ const Dashboard = () => {
     socket.on('receive_initial_data', getInitData)
     socket.on('receive_detail_data', getDetails)
     socket.on('receive_refetched_data', refetch)
-    return () => {
-      socket.off('receive_initial_data', getInitData)
+
+    
+    return () =>
       socket.off('receive_detail_data', getDetails)
-      socket.off('receive_refetched_data', refetch)
-    }
+    
   }, [socket])
 
   useEffect(() => {
     if(fetcher.details || fetcher.refetch){
+      dispatch(DashboardAction.setDetails([]))
       const messageToSend = {
         roomName: receiver.value,
         endPoint: '/get/dashboard/',
@@ -142,34 +123,52 @@ const Dashboard = () => {
       const socketAddress: string | null = 
       fetcher.details ? 'request_details' : fetcher.refetch ? 'request_refetch' : null
       socket.emit(socketAddress, messageToSend)
+      
       if(fetcher.details)
         dispatch(DashboardAction.setDetailsLoading(true))
-      dispatch(DashboardAction.liberateFetcher()) 
+      dispatch(DashboardAction.liberateFetcher())
     }
-  }, [fetcher.details, fetcher.refetch])
+  }, [fetcher])
 
+  const materialTable = useMemo(() => {
+    return (
+      <MaterialTable 
+        show={isDtlTblOpen}
+        isLoading={isDetsLoading}
+        heightToExtract='250'
+        setShow={() => {
+          openDetails(false);
+          setNameFN({value:'',label:''})
+          dispatch(DashboardAction.setDetails([]))
+          if(isDetsLoading) dispatch(DashboardAction.setDetailsLoading(false));
+        }} 
+        translation={t}
+        data={details}
+        paperData={paperData}
+        tableName={tableName}
+        onLanguageChange={(data:any) => {
+          setNameFN({value: data.value, label: t(data.value)})
+        }}
+        enableColumnResizing
+        enableStickyHeader
+        renderCustomActions
+        density={'compact'}
+      />
+    )
+
+  }, [
+    isDtlTblOpen,
+    isDetsLoading,
+    details,
+    paperData,
+    tableName
+  ])
 
   return (
     <>
-      <SelectTime 
-        show={selectTime} 
-        setShow={setShowTimeModal}
-      />
+
       <div className={styles.mtrlTable}>
-        <MaterialTable 
-          show={isDtlTblOpen}
-          isLoading={isDetsLoading}
-          setShow={() => OpenDtlTbl(false)} 
-          onGoBack={() => setDetailData([])}
-          translation={t}
-          data={detailData}
-          paperData={paperData}
-          tableName={tableName}
-          enableColumnResizing
-          enableStickyHeader
-          renderCustomActions
-          density={'compact'}
-        />
+        {materialTable}
       </div>
 
      {
@@ -181,10 +180,10 @@ const Dashboard = () => {
             <Col grid={{sm:12, md: 12, lg:12, xlg:4, xxlg: 4}}>
                   {
                     <div className={styles.cardBg} onClick={() => {
-                        if(receiver.connected && CheckObjOrArrForNull(purchSaleOrders)){
-                          FetchData('details', true)
-                          OpenDtlTbl(true)
-                          setTableName(t('purchase'))
+                        if(receiver.connected&& !purchSaleOrdLoading&& CheckObjOrArrForNull(purchSaleOrders)){
+                          fetcherFN('details', true)
+                          openDetails(true)
+                          setNameFN({label:t('purchase'), value: 'purchase'})
                         }
                         setPaperData((prev: any) => ({...prev, typeID: 13, paperName: papers[0]}))
                       }}>
@@ -203,7 +202,7 @@ const Dashboard = () => {
                           count={0}
                           onClick={() => {
                             if(receiver.connected){
-                              FetchData('refetch', true)
+                              fetcherFN('refetch', true)
                               dispatch(DashboardAction.setPurchSaleOrdLoading(true))
                             }
                           }}
@@ -212,10 +211,10 @@ const Dashboard = () => {
                   }
                   {
                     <div onClick={() => {
-                      if(receiver.connected && CheckObjOrArrForNull(purchSaleOrders)){
-                        FetchData('details', true)
-                        OpenDtlTbl(true)
-                        setTableName(t('sale'))
+                      if(receiver.connected&& !purchSaleOrdLoading&& CheckObjOrArrForNull(purchSaleOrders)){
+                        fetcherFN('details', true)
+                        openDetails(true)
+                        setNameFN({label:t('sale'), value: 'sale'})
                       }
                       setPaperData((prev: any) => ({...prev, typeID: 12, paperName: papers[0]}))
                     }}>
@@ -233,7 +232,7 @@ const Dashboard = () => {
                           count={0}
                           onClick={() => {
                             if(receiver.connected){
-                              FetchData('refetch', true)
+                              fetcherFN('refetch', true)
                               dispatch(DashboardAction.setPurchSaleOrdLoading(true))
                             }
                           }}
@@ -271,7 +270,7 @@ const Dashboard = () => {
                             onClick={() => {
                               if(receiver.connected){
                                 setPaperData((prev: any) => ({...prev, typeID: null, paperName: papers[6]}))
-                                FetchData('refetch', true)
+                                fetcherFN('refetch', true)
                                 dispatch(DashboardAction.setOrdCountTotalLoading(true))
                               }
                             }}
@@ -286,10 +285,10 @@ const Dashboard = () => {
           <Col grid={{sm:12, md: 12, lg:12, xlg:3, xxlg: 3}}>
             {
               <div className={styles.purchaseItem} onClick={() => {
-                  if(receiver.connected && CheckObjOrArrForNull(purchSalesReturns)){
-                    FetchData('details',true)
-                    OpenDtlTbl(true)
-                    setTableName(t('purchase'))
+                  if(receiver.connected && !purchSaleRetLoading&& CheckObjOrArrForNull(purchSalesReturns)){
+                    fetcherFN('details',true)
+                    openDetails(true)
+                    setNameFN({label:t('purchase'), value: 'purchase'})
                   }
                   setPaperData((prev: any) => ({...prev, typeID: 1, paperName: papers[1]}))
                 }}
@@ -308,7 +307,7 @@ const Dashboard = () => {
                         count={0}
                         onClick={() => {
                           if(receiver.connected){
-                            FetchData('refetch',true)
+                            fetcherFN('refetch',true)
                             dispatch(DashboardAction.setPurchSalesRetLoading(true))
                           }
                         }}
@@ -319,10 +318,10 @@ const Dashboard = () => {
           <Col grid={{sm:12, md: 12, lg:12, xlg:3, xxlg: 3}}>
             {
               <div onClick={() => {
-                  if(receiver.connected && CheckObjOrArrForNull(purchSalesReturns)){
-                    FetchData('details',true)
-                    OpenDtlTbl(true)
-                    setTableName(t('returnOfPurchace'))
+                  if(receiver.connected&& !purchSaleRetLoading&& CheckObjOrArrForNull(purchSalesReturns)){
+                    fetcherFN('details',true)
+                    openDetails(true)
+                    setNameFN({label:t('returnOfPurchace'), value: 'returnOfPurchace'})
                   }
                   setPaperData((prev: any) => ({...prev, typeID: 6, paperName: papers[1]}))
                 }}>
@@ -340,7 +339,7 @@ const Dashboard = () => {
                     count={0}
                     onClick={() => {
                       if(receiver.connected){
-                        FetchData('refetch',true)
+                        fetcherFN('refetch',true)
                         dispatch(DashboardAction.setPurchSalesRetLoading(true))
                       }
                     }}
@@ -351,10 +350,10 @@ const Dashboard = () => {
           <Col grid={{sm:12, md: 12, lg:12, xlg:3, xxlg: 3}}>
             {
               <div onClick={() => {
-                  if(receiver.connected && CheckObjOrArrForNull(purchSalesReturns)){
-                    FetchData('details',true)
-                    OpenDtlTbl(true)
-                    setTableName(t('sale'))
+                  if(receiver.connected &&!purchSaleRetLoading&&  CheckObjOrArrForNull(purchSalesReturns)){
+                    fetcherFN('details',true)
+                    openDetails(true)
+                    setNameFN({label:t('sale'), value: 'sale'})
                   }
                   setPaperData((prev: any) => ({...prev, typeID: 8, paperName: papers[1]}))
                 }}
@@ -372,7 +371,7 @@ const Dashboard = () => {
                     icon={'bx bx-abacus'}
                     onClick={() => {
                       if(receiver.connected){
-                        FetchData('refetch',true)
+                        fetcherFN('refetch',true)
                         dispatch(DashboardAction.setPurchSalesRetLoading(true))
                       }
                     }}
@@ -383,10 +382,10 @@ const Dashboard = () => {
           <Col grid={{sm:12, md: 12, lg:12, xlg:3, xxlg: 3}}>
             {
               <div className={styles.borderLeft} onClick={() => {
-                  if(receiver.connected && CheckObjOrArrForNull(purchSalesReturns)){
-                    FetchData('details',true)
-                    OpenDtlTbl(true)
-                    setTableName(t('returnOfSold'))
+                  if(receiver.connected &&!purchSaleRetLoading&&  CheckObjOrArrForNull(purchSalesReturns)){
+                    fetcherFN('details',true)
+                    openDetails(true)
+                    setNameFN({label:t('returnOfSold'), value: 'returnOfSold'})
                   }
                   setPaperData((prev: any) => ({...prev, typeID: 3, paperName: papers[1]}))
                 }}
@@ -405,7 +404,7 @@ const Dashboard = () => {
                     statuses={{loading: purchSaleRetLoading, error: purchSaleRetErr}}
                     onClick={() => {
                       if(receiver.connected){
-                        FetchData('refetch',true)
+                        fetcherFN('refetch',true)
                         dispatch(DashboardAction.setPurchSalesRetLoading(true))
                       }
                     }}
@@ -423,10 +422,10 @@ const Dashboard = () => {
             <Col  grid={{sm:12, md: 12, lg:12, xlg:3, xxlg: 3}}>
               {
                 <div onClick={() => {
-                      if(receiver.connected && CheckObjOrArrForNull(stockCostTotal)) {
-                        FetchData('details',true)
-                        OpenDtlTbl(true)
-                        setTableName(t('stockCostTotal'))
+                      if(receiver.connected&& !stockCostLoading&& CheckObjOrArrForNull(stockCostTotal)) {
+                        fetcherFN('details',true)
+                        openDetails(true)
+                        setNameFN({label:t('stockCostTotal'), value: 'stockCostTotal'})
                       }
                       setPaperData((prev: any) => ({...prev, typeID: 'material', paperName: papers[2]}))
                   }}>
@@ -438,7 +437,7 @@ const Dashboard = () => {
                     statuses={{loading: stockCostLoading, error: stockCostErr}}
                     onClick={() => {
                       if(receiver.connected){
-                        FetchData('refetch',true)
+                        fetcherFN('refetch',true)
                         dispatch(DashboardAction.setStockLoading(true))
                       }
                     }}
@@ -449,10 +448,10 @@ const Dashboard = () => {
             <Col  grid={{sm:12, md: 12, lg:12, xlg:3, xxlg: 3}}>
               {
                  <div onClick={() => {
-                    if(receiver.connected && CheckObjOrArrForNull(paymentsReceived)){
-                      FetchData('details',true)
-                      OpenDtlTbl(true)
-                      setTableName(t('paymentsReceived'))
+                    if(receiver.connected&& !paymentsReceivedLoading&& CheckObjOrArrForNull(paymentsReceived)){
+                      fetcherFN('details',true)
+                      openDetails(true)
+                      setNameFN({label:t('paymentsReceived'), value: 'paymentsReceived'})
                     }
                     setPaperData((prev: any) => ({...prev, typeID: 11, paperName: papers[3]}))
                   }}>
@@ -463,7 +462,7 @@ const Dashboard = () => {
                       statuses={{loading: paymentsReceivedLoading, error: paymentsReceivedErr}}
                       onClick={() => {
                         if(receiver.connected){
-                          FetchData('refetch',true)
+                          fetcherFN('refetch',true)
                           dispatch(DashboardAction.setPaymentsReceivedLoading(true))
                         }
                       }}
@@ -474,10 +473,11 @@ const Dashboard = () => {
             <Col  grid={{sm:12, md: 12, lg:12, xlg:3, xxlg: 3}}>
                 {
                   <div onClick={() => {
-                      if(receiver.connected && CheckObjOrArrForNull(paymentsMade)){
-                        FetchData('details',true)
-                        OpenDtlTbl(true)
-                        setTableName(t('paymentsMade'))
+                      if(receiver.connected&& !paymentsMadeLoading&& CheckObjOrArrForNull(paymentsMade)){
+                        fetcherFN('details',true)
+                        openDetails(true)
+                        setNameFN({label:t('paymentsMade'), value: 'paymentsMade'})
+
                       }
                       setPaperData((prev: any) => ({...prev, typeID: 12, paperName: papers[3]}))
                   }}>
@@ -488,7 +488,7 @@ const Dashboard = () => {
                       statuses={{loading: paymentsMadeLoading, error: paymentsMadeErr}}
                       onClick={() => {
                         if(receiver.connected){
-                          FetchData('refetch',true)
+                          fetcherFN('refetch',true)
                           dispatch(DashboardAction.setPaymentsMadeLoading(true))
                         }
                       }}
@@ -499,10 +499,10 @@ const Dashboard = () => {
             <Col grid={{sm:12, md: 12, lg:12, xlg:3, xxlg: 3}}>
               {
                 <div onClick={() => {
-                      if(receiver.connected && CheckObjOrArrForNull(expensesAmount)){
-                        FetchData('details',true)
-                        OpenDtlTbl(true)
-                        setTableName(t('expensesAmount'))
+                      if(receiver.connected&& !expensesLoding&& CheckObjOrArrForNull(expensesAmount)){
+                        fetcherFN('details',true)
+                        openDetails(true)
+                        setNameFN({label:t('expensesAmount'), value: 'expensesAmount'})
                       }
                       setPaperData((prev: any) => ({...prev, typeID: 25, paperName: papers[5]}))
                 }}>
@@ -515,7 +515,7 @@ const Dashboard = () => {
                     statuses={{loading: expensesLoding, error: expensesErr}}
                     onClick={() => {
                       if(receiver.connected){
-                        FetchData('refetch',true)
+                        fetcherFN('refetch',true)
                         dispatch(DashboardAction.setExpensesLoading(true))
                       }
                     }}
@@ -528,10 +528,10 @@ const Dashboard = () => {
           <Col  grid={{sm:12, md: 12, lg:12, xlg:3, xxlg: 3}}>
               {
                 <div onClick={() => {
-                      if(receiver.connected && CheckObjOrArrForNull(creditsFromSale)){
-                        FetchData('details',true)
-                        OpenDtlTbl(true)
-                        setTableName(t('creditsFromSale'))
+                      if(receiver.connected&& !creditsLoading&& CheckObjOrArrForNull(creditsFromSale)){
+                        fetcherFN('details',true)
+                        openDetails(true)
+                        setNameFN({label:t('creditsFromSale'), value: 'creditsFromSale'})
                       }
                       setPaperData((prev: any) => ({...prev, typeID: 2, paperName: papers[4]}))
               }}>
@@ -543,7 +543,7 @@ const Dashboard = () => {
                   statuses={{loading: creditsLoading, error: creditsErr}}
                   onClick={() => {
                     if(receiver.connected){
-                      FetchData('refetch',true)
+                      fetcherFN('refetch',true)
                       dispatch(DashboardAction.setCreditsLoading(true))
                     }
                   }}
@@ -554,10 +554,10 @@ const Dashboard = () => {
             <Col grid={{sm:12, md: 12, lg:12, xlg:3, xxlg: 3}}>
               {
                 <div onClick={() => {
-                      if(receiver.connected && CheckObjOrArrForNull(debtsFromPurchace)){
-                        FetchData('details',true)
-                        OpenDtlTbl(true)
-                        setTableName(t('debtsFromPurchace'))
+                      if(receiver.connected&& !debtsLoading&& CheckObjOrArrForNull(debtsFromPurchace)){
+                        fetcherFN('details',true)
+                        openDetails(true)
+                        setNameFN({label:t('debtsFromPurchace'), value: 'debtsFromPurchace'})
                       }
                       setPaperData((prev: any) => ({...prev, typeID: 1, paperName: papers[4]}))
                 }}>
@@ -568,7 +568,7 @@ const Dashboard = () => {
                   statuses={{loading: debtsLoading, error: debtsErr}}
                   onClick={() => {
                     if(receiver.connected){
-                      FetchData('refetch',true)
+                      fetcherFN('refetch',true)
                       dispatch(DashboardAction.setDebtsLoading(true))
                     }
                   }}
@@ -580,11 +580,10 @@ const Dashboard = () => {
             <Col grid={{sm:12, md: 12, lg:12, xlg:3, xxlg: 3}}>
               {
                 <div onClick={() => {
-                      if(receiver.connected && CheckObjOrArrForNull(employeesBalance)){
-                        FetchData('details',true)
-                        OpenDtlTbl(true)
-                        setTableName(t('employeesBalance'))
-
+                      if(receiver.connected&& !employeesBalanceLoading&& CheckObjOrArrForNull(employeesBalance)){
+                        fetcherFN('details',true)
+                        openDetails(true)
+                        setNameFN({label:t('employeesBalance'), value: 'employeesBalance'})
                       }
                       setPaperData((prev: any) => ({...prev, typeID: 4, paperName: papers[4]}))
                 }}>
@@ -595,7 +594,7 @@ const Dashboard = () => {
                     statuses={{loading: employeesBalanceLoading, error: employeesBalanceErr}}
                     onClick={() => {
                       if(receiver.connected){
-                        FetchData('refetch',true)
+                        fetcherFN('refetch',true)
                         dispatch(DashboardAction.setEmployeesBalanceLoading(true))
                       }
                     }}
@@ -606,10 +605,10 @@ const Dashboard = () => {
             <Col grid={{sm:12, md: 12, lg:12, xlg:3, xxlg: 3}}>
               {
                 <div onClick={() => {
-                      if(receiver.connected && CheckObjOrArrForNull(cashesAmount)){
-                        FetchData('details',true)
-                        OpenDtlTbl(true)
-                        setTableName(t('cashesAmount'))
+                      if(receiver.connected&& !cashesLoading&& CheckObjOrArrForNull(cashesAmount)){
+                        fetcherFN('details',true)
+                        openDetails(true)
+                        setNameFN({label:t('cashesAmount'), value: 'cashesAmount'})
                       }
                       setPaperData((prev: any) => ({...prev, typeID: 8, paperName: papers[5]}))
               }}>
@@ -622,7 +621,7 @@ const Dashboard = () => {
                   statuses={{loading: cashesLoading, error: cashesErr}}
                   onClick={() => {
                     if(receiver.connected){
-                      FetchData('refetch',true)
+                      fetcherFN('refetch',true)
                       dispatch(DashboardAction.setCashesLoading(true))
                     }
                   }}

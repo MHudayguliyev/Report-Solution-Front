@@ -1,3 +1,5 @@
+import { UserFirms, UserFirmsList } from "@app/api/Types/queryReturnTypes/UserFirms"
+
 /// aluw we satuw harytlary
 export interface PurchOrders {
     purch_ord_count: number,
@@ -82,9 +84,7 @@ export interface AllCashBalance {
 }
 
 export type StorageData = {
-    autoRefreshActivated: boolean,
-    timeToRefetch: string | number,
-    date: Date | string,
+
 }
 
 export type UsualType = {
@@ -92,6 +92,7 @@ export type UsualType = {
     value: string, 
     connected: boolean,
 }
+// export type ReceiverType ={}
 
 ///// initial dashboard type
 export interface InitialDashboardState<T> extends StorageData {
@@ -133,11 +134,15 @@ export interface InitialDashboardState<T> extends StorageData {
     ///RECEIVER/DATE...
     receiver: UsualType
 
+    autoRefreshActivated: boolean,
+    timeToRefetch: string | number,
+    date: Date | string,
     renewData: boolean, 
     switched: boolean,
+    details: any, 
     isDtlTblOpen: boolean,
     detailsLoading: boolean,
-    firmsList: UsualType[],
+    firmsList: UserFirmsList<string>[],
     fetchData: {
         details: boolean,
         refetch: boolean

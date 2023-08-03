@@ -22,21 +22,11 @@ const DeleteConfirm = (props: DeleteConfirmInterface) => {
   const dispatch = useAppDispatch()
 
   /// redux states
-  const autoRefreshActivated = useAppSelector(state => state.dashboardReducer.autoRefreshActivated)
-  const switched = useAppSelector(state => state.dashboardReducer.switched)
   const time = useAppSelector(state => state.dashboardReducer.timeToRefetch)
 
   const setTime = (time: string | number) => {
     dispatch(DashboardAction.setTimeToRefetch(time))
   } 
-
-  useEffect(() => {
-      if(!switched){
-        if(!autoRefreshActivated && time !== '5'){
-          setTime('5')
-        }
-      }
-  }, [switched])
 
   return (
     <Modal
@@ -44,11 +34,12 @@ const DeleteConfirm = (props: DeleteConfirmInterface) => {
       className={styles.delModal}
       close={() => {
         setShow(false); 
-        dispatch(DashboardAction.setSwitched(false))
         setTime('5')  // defaults to 5 min if switched off 
+        dispatch(DashboardAction.setSwitched(false))
       }}
       header={<h2 style={{margin: 'auto'}}>{t('select_time')}</h2>}
       footer={<Button
+        className={styles.saveBtn}
         color="theme"
         rounded
         onClick={() => {
@@ -56,7 +47,7 @@ const DeleteConfirm = (props: DeleteConfirmInterface) => {
           dispatch(DashboardAction.setSwitched(true))
           setTime(time)
           setShow(false);
-          toast.success(`${time} min`, {
+          toast.success(`${time} ${t('minutes')}`, {
             duration: 1000
           })
         }}
@@ -67,10 +58,10 @@ const DeleteConfirm = (props: DeleteConfirmInterface) => {
       <div className={styles.timerModal}>
         <ul>
           {/* <li className={styles.radioInput}><input checked={time==='1'}  onChange={e => setTime(e.target.value)} type="radio" name="time" value="1" className={styles.radioInput}/> 1 minut <br /></li> */}
-          <li className={styles.radioInput}><input checked={time==='5'}  onChange={e => setTime(e.target.value)} type="radio" name="time" value="5" className={styles.radioInput}/> 5 minut <br /></li>
-          <li className={styles.radioInput}><input checked={time==='15'} onChange={e => setTime(e.target.value)} type="radio" name="time" value="15" className={styles.radioInput}/> 15 minut <br /></li>
-          <li className={styles.radioInput}><input checked={time==='30'} onChange={e => setTime(e.target.value)} type="radio" name="time" value="30" className={styles.radioInput}/> 30 minut <br /></li>
-          <li className={styles.radioInput}><input checked={time==='60'} onChange={e => setTime(e.target.value)} type="radio" name="time" value="60" className={styles.radioInput}/> 60 minut <br /></li>
+          <li className={styles.radioInput}><input checked={time==='5'}  onChange={e => setTime(e.target.value)} type="radio" name="time" value="5" className={styles.radioInput}/> 5 {t('minutes')} <br /></li>
+          <li className={styles.radioInput}><input checked={time==='15'} onChange={e => setTime(e.target.value)} type="radio" name="time" value="15" className={styles.radioInput}/> 15 {t('minutes')} <br /></li>
+          <li className={styles.radioInput}><input checked={time==='30'} onChange={e => setTime(e.target.value)} type="radio" name="time" value="30" className={styles.radioInput}/> 30 {t('minutes')} <br /></li>
+          <li className={styles.radioInput}><input checked={time==='60'} onChange={e => setTime(e.target.value)} type="radio" name="time" value="60" className={styles.radioInput}/> 60 {t('minutes')} <br /></li>
         </ul>
       </div>
     </Modal>

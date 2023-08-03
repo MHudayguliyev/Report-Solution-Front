@@ -3,31 +3,22 @@ import { Router, Outlet, ReactLocation } from "@tanstack/react-location";
 import routes from './components/Routes';
 // for notification
 import { Toaster } from 'react-hot-toast';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
 // Set up a ReactLocation instance
 const location = new ReactLocation();
-const darkTheme = createTheme({
-   palette: {
-     mode: 'dark',
-   },
-   components: {
-      // Name of the component
-      MuiPaper: {
-        styleOverrides: {
-          // Name of the slot
-          root: {
-            // Some CSS
-            borderRadius: "100px",
-            boxShadow: "10px 10px 5px 0px rgba(0,0,0,0.75)",
-          },
-        },
-      },
-    },
- });
+
 const App = () => {
 
    return (
       <>
+         {/* <Helmet>
+            <title>Report solution</title>
+            <meta name="description" content={'Made easy for ak hasap users'} />
+            <meta property="og:title" content={'Report solution'} />
+            <meta property="og:description" content={'Made easy for ak hasap users'} />
+            <meta property="og:image" content={'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvNx3E7KZm1plHf4JxBR5xJ5EY5x4lYMx8GWVKRB3KLYUTzsDuEszA1Rc1cUlyom4BNRY&usqp=CAU'} />
+            <meta property="og:url" content={'http://tudana.com.tm:1001'} />
+            <meta property="og:type" content="website" />
+         </Helmet> */}
          <Toaster
             position="top-center"
             reverseOrder={false}
@@ -39,11 +30,6 @@ const App = () => {
             <Outlet />
          </Router>
       </>
-
-      // <ThemeProvider theme={darkTheme}>
-      //    <main>This app is using the dark mode</main>
-      // </ThemeProvider>
-
    )
 }
 

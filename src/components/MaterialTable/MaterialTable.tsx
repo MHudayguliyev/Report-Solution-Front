@@ -1,6 +1,5 @@
 //@ts-nocheck
 import React, {useState, useEffect, useMemo} from 'react'
-import { useMatch } from '@tanstack/react-location';
 import { useAppSelector,useAppDispatch }  from '@app/hooks/redux_hooks';
 import { useTranslation } from 'react-i18next';
 import MaterialReactTable, { 
@@ -9,8 +8,8 @@ import MaterialReactTable, {
   MRT_ShowHideColumnsButton,
   MRT_ToggleFiltersButton, 
   MRT_ToggleDensePaddingButton, type MRT_ColumnDef } from 'material-react-table';
-import { CheckObjOrArrForNull } from '@utils/helpers';
-import { createTheme, darken, ThemeProvider } from '@mui/material';
+import { CheckObjOrArrForNull  } from '@utils/helpers';
+import { createTheme, darken,  ThemeProvider } from '@mui/material';
 import { makeStyles } from "@material-ui/core";
 import { MRT_Localization_RU as rus} from 'material-react-table/locales/ru';
 import { MRT_Localization_EN as eng} from 'material-react-table/locales/en';
@@ -25,6 +24,7 @@ import moment from 'moment';
 import tableLocalization from '@app/assets/JsonData/table-localization.json' assert {type: 'json'}
 import ReportAction from '@app/redux/actions/ReportAction';
 import DropDownSelect from '../DropDownSelect/DropDownSelect';
+import { Localization } from '@app/redux/types/ReportTypes';
 
 function setTabUrl(index: number): string {
   let endUrl: string=''
@@ -39,24 +39,28 @@ function setTabUrl(index: number): string {
   return endUrl
 }
 
-const setData = (data: any, name: string | any, t: Function) => {
+const setData = (data: any, name: {label:string, value:string}, t: Function) => {
   if(CheckObjOrArrForNull(data)){
     if(
-      name===t('purchase') ||
-      name===t('returnOfPurchace') ||
-      name=== t('sale')||
-      name=== t('returnOfSold')
+      name.label===t('purchase') ||
+      name.label===t('returnOfPurchace') ||
+      name.label=== t('sale')||
+      name.label=== t('returnOfSold') || 
+      name.label===t('actions')
     ){
-      for(let i = 0; i < data?.length; i++){
+      for(let i = 0; i < data.length; i++){
         const item = data[i]
         if(item.ord_date){
-          item.ord_date = moment(data[i].ord_date).format('HH:MM:SS')
+          item.ord_date = moment(item.ord_date).format('HH:MM:SS')
         }else if(item.inv_date){
-          item.inv_date = moment(data[i].inv_date).format('HH:MM:SS')
+          item.inv_date = moment(item.inv_date).format('HH:MM:SS')
+        }else if(item.action_crt_mdf_dt){
+          item.action_crt_mdf_dt = moment(item.action_crt_mdf_dt).format('DD.MM.YYYY HH:MM')
         }
       }    
     }
   }
+  console.log('data', data)
   return data
 }
 
@@ -71,15 +75,16 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
+
 type TableProps = {
     show: boolean;
     setShow: Function
-    onGoBack: () => void
     translation: Function
     data: any,
     isLoading: boolean,
-    tableName?: string,
-    paperData: {typeID: number | string | null, paperName: string},
+    tableName?: any,
+    onLanguageChange?: Function | any
+    paperData: {typeID: number | null, paperName: string},
     /** @defaultValue false */
     enableColumnResizing? : boolean,
     /** @defaultValue false */
@@ -90,15 +95,20 @@ type TableProps = {
     renderCustomActions?: boolean,
     /** @defaultValue false */
     renderBottomToolbarActions?: boolean
-    tabs?: Array<string>,
-    dropdownData?: {value: string, label: string}[]
+    /** @defaultValue 250px */
+    heightToExtract?: '600' | '550' | '500' | '475' | '400' | '350' | '250' | '200' | '150' | '100'
     /** for report page */
-    field?: {value: string, label: string}  
+    dropdownData?: {value: string, label: Localization}[]
+    tabs?: Localization[],
+    field?: {value: string, label: Localization}  
+}
+
+interface TableColType extends Localization {
+  accessorKey: string, 
 }
 
 const cx = classNames.bind(styles)
 const MaterialTable = (props: TableProps) => {
-  const match = useMatch()
   const { i18n } = useTranslation()
   const language = i18n.language
   const theme = useAppSelector(state => state.themeReducer)
@@ -106,13 +116,13 @@ const MaterialTable = (props: TableProps) => {
     () =>
       createTheme({
         palette: {
-          mode: theme.mode, 
+          mode: theme.mode==='theme-mode-light' ? 'light' : 'dark', 
           background: {
             default:
-              theme.mode === 'light'
+              theme.mode === 'theme-mode-light'
                 ? '#ffffff' 
                 : '#2d2d2d', 
-          }, 
+          }
         },
         typography: {
           fontFamily: [
@@ -131,55 +141,67 @@ const MaterialTable = (props: TableProps) => {
     show,
     isLoading, 
     setShow, 
-    onGoBack,
     translation,
     data, 
     tableName,
+    onLanguageChange,
     paperData,
     enableColumnResizing = false,
     enableStickyHeader = false,
     renderCustomActions = false,
     renderBottomToolbarActions = false,
     density = 'comfortable',
+    heightToExtract = '250', 
     tabs,
     dropdownData,
     field
 } = props
 
-  const [findings, setFindings] = useState<any>([])
-  const [columns, setColumns] = useState<any>([])
-  const [colResult, setColResult] = useState<{accessorKey: string, header: string}[]>([])
+  const [count, setCount] = useState<number>(0)
   const [pagination, setPagination] = useState<MRT_PaginationState>({
     pageIndex: 0,
-    pageSize: 32,
+    pageSize: 64,
   });
   const [showSearch, setShowSearch] = useState<boolean>(false)
   const [isFullScreen, setIsFullScreen] = useState<boolean>(false)
+  const [name, setName] = useState<string>(tableName?.label??"")
 
-
-  useEffect(() => {
-    setFindings(setData(data,tableName,translation))
+  const finding = useMemo(() => {
+    return data ? setData(data, tableName, translation) : []
   }, [data])
 
-  useEffect(() => {
-    if(match.pathname === '/dashboard')
-      setColumns(tableLocalization[paperData.paperName])
-    else if(match.pathname === '/report') 
-      setColumns(tableLocalization[paperData.paperName][field?.value])
+  const tableCols = useMemo((): TableColType[] => {
+    return field !== undefined ? tableLocalization[paperData.paperName][field?.value] 
+            : tableLocalization[paperData.paperName]
   }, [paperData, field])
 
-  useEffect(() => {
-    if(CheckObjOrArrForNull(findings)){
-      setColResult(columns?.map((item: any) => {
+  const cols = useMemo(() => {
+    if(CheckObjOrArrForNull(finding)){
+      setCount(finding?.length)
+      return tableCols?.map(item => {
         return {
           accessorKey: item.accessorKey,
-          header: item[language as string],
+          header: item[language as keyof TableColType],
         }
-      }))
-    }else {
-      setColResult([])
+      }) 
     }
-  }, [findings, language])
+    return []
+  }, [finding,language])
+
+  const rowsPerPageOptions = useMemo(() => {
+    const tempLimitNumber = 1024
+    let rowsPerPageArr = [64,128,256,512,tempLimitNumber]
+    return count > tempLimitNumber ? rowsPerPageArr = [...rowsPerPageArr, count] : rowsPerPageArr
+  }, [count])
+
+  useEffect(()=> {
+    if(onLanguageChange) 
+      onLanguageChange(tableName)
+  }, [language])
+
+  useEffect(() => {
+    setName(tableName?.label)
+  }, [tableName])
 
   const classes = useStyles();
   const dispatch = useAppDispatch()
@@ -193,21 +215,19 @@ const MaterialTable = (props: TableProps) => {
           table__container: true
         })}>
           <div className={classes.root}>
-            <ThemeProvider theme={createTheme(tableTheme, language === 'en' ? en : language === 'ru' ?  ru : tm)}>
+            <ThemeProvider theme={createTheme(tableTheme, )}>
               <MaterialReactTable
                 localization={language === 'en' ? eng : language === 'ru' ?  rus : tm}
                 enableColumnResizing={enableColumnResizing} 
                 enableStickyHeader={enableStickyHeader}
                 columnResizeMode="onChange" 
                 onPaginationChange={setPagination}
-                muiTablePaginationProps={{
-                  rowsPerPageOptions: [32,64,128,256,512,1024]
-                }}
+                muiTablePaginationProps={{rowsPerPageOptions}}
                 renderToolbarInternalActions={({ table }) => (
                   <>
                     <span onClick={() => setShowSearch(!showSearch)} className={cx({
                       globalSearch: true, 
-                      whitify: theme.mode !== 'light'
+                      whitify: theme.mode == 'theme-mode-dark'
                     })}><i className='bx bx-search'></i>
                     </span>
                     <MRT_ToggleFiltersButton table={table} />
@@ -224,20 +244,19 @@ const MaterialTable = (props: TableProps) => {
                       topToolBar: renderCustomActions || tabs?.length
                     })}>
                       {renderCustomActions && <span title='back' 
-                      onClick={() => {setShow(); setShowSearch(false); onGoBack()}} 
+                      onClick={() => {setShow(); setShowSearch(false)}}   
                       className={cx({
                         chevron__left: true, 
-                        whitify: theme.mode !== 'light'
+                        whitify: theme.mode === 'theme-mode-dark'
                       })}
                       >
                         <i className='bx bx-arrow-back'></i>
                       </span>}
                       {
-                        tableName && <h4>{tableName}</h4>
+                        name && <h4>{name}</h4>
                       }
                       {
-                        tabs?.length ?
-                        tabs?.map((tab: any, index: number) => (
+                        tabs ? tabs?.map((tab: any, index: number) => (
                           <div key={index} className={styles.tablePanel} 
                             onClick={() => {
                               if(!isLoading){
@@ -247,7 +266,7 @@ const MaterialTable = (props: TableProps) => {
                             }
                             }
                             >
-                           <span className={cx({activeIndex: activeIndex===index})}>{tab}</span> 
+                           <span className={cx({activeIndex: activeIndex===index})}>{tab[language]}</span> 
                           </div>
                         ))  : ""
                       }
@@ -257,22 +276,26 @@ const MaterialTable = (props: TableProps) => {
                 renderBottomToolbarCustomActions={() => 
                   renderBottomToolbarActions ? 
                   <>
-                    <div className={`${styles.filterInput} ${styles.filterSelect}`}>
-                      <DropDownSelect 
-                        titleSingleLine
-                        title={field!.label ?? dropdownData![0].label}
-                        dropDownContentStyle={{right: '0'}}
-                        data={dropdownData}
-                        onChange={(item: any) => dispatch(ReportAction.setField(item))}
-                        fetchStatuses={{ isLoading: false, isError: false }}
-                        position='up'
-                      />
+                    <div className={styles.dropDown}>
+                      <label>{translation('groupBy')}</label>
+                      <div className={`${styles.filterInput} ${styles.filterSelect}`}>
+                        <DropDownSelect 
+                          titleSingleLine
+                          title={field!.label[language] ?? dropdownData![0].label[language]}
+                          dropDownContentStyle={{right: '0'}}
+                          data={dropdownData}
+                          onChange={(item: any) => dispatch(ReportAction.setField(item))}
+                          fetchStatuses={{ isLoading, isError: false }}
+                          position='up'
+                          language={language}
+                        />
+                      </div>
                     </div>
                   </> : <div className={`${styles.filterSelect}`}/>
                 }
                 muiTableContainerProps={{ 
                   sx: { 
-                    height: isFullScreen ? '100vh' : 'calc(100vh - 230px)',
+                    height: isFullScreen ? '100vh' : `calc(100vh - ${heightToExtract}px)`,
                     scrollbarWidth: 'thin',
                     scrollBehavior: 'smooth',
                     overflowY: 'overlay',
@@ -305,23 +328,22 @@ const MaterialTable = (props: TableProps) => {
                 }} 
                 muiTableHeadCellProps={{
                   sx: {
-                    color: '#070708',
+                    color: theme.mode === 'theme-mode-light' ? '#070708' : '#ffffff',
                     fontWeight: 700
                   },
                 }}
                 muiTableBodyCellProps={{
                   sx: {
-                    color: '#070708',
+                    color: theme.mode === 'theme-mode-light' ? '#070708' : '#ffffff',
                     fontWeight: 450
                   },
                 }}
-                initialState={{ 
-                  pagination: { pageSize: pagination.pageSize, pageIndex: pagination.pageIndex },
-                  density, columnVisibility: {is_prepayment: false}
-                }}
-                columns={findings ? colResult : []}
-                data={findings ?? []} 
-                state={{isLoading, pagination, showGlobalFilter: showSearch}}
+                renderRowActions={(row) => console.log("row", row)}
+                columns={cols ?? []}
+                data={finding ?? []} 
+                initialState={{pagination: { pageSize: pagination.pageSize, pageIndex: pagination.pageIndex },
+                density, columnVisibility: {is_prepayment: false}}}
+                state={{isLoading, pagination, showGlobalFilter: showSearch, }}
               /> 
             </ThemeProvider>
           </div>

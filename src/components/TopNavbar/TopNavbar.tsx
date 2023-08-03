@@ -1,12 +1,9 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
-
+import React, { useEffect, useMemo, useRef, useState } from "react";
 // custom styles
 import styles from "./TopNavbar.module.scss";
 import classNames from "classnames/bind";
 import {HiOutlineMenu} from "react-icons/hi"
 import {GrClose} from "react-icons/gr"
-/// error icon
-import error from '@app/assets/images/bad-gateway.png'
 /// loading icon
 import Loading from '@app/compLibrary/SkeletonCard/Loading'
 
@@ -15,7 +12,9 @@ import { useQuery } from "react-query";
 
 /// react toast
 import toast from 'react-hot-toast'
-import user_image from "../../assets/images/tuat.png";
+import user_image from "@app/assets/images/tuat.png";
+import arrow_down from '@app/assets/customIcons/arrow_down.svg'
+import arrow_up from '@app/assets/customIcons/arrow_up.svg'
 // fake data for demonstration
 import user_menu from "@app/assets/JsonData/user_menus.json";
 import languages from "@app/assets/JsonData/language";
@@ -23,11 +22,10 @@ import languages from "@app/assets/JsonData/language";
 import { Button, Col, Dropdown, Input, Row, Switch } from "@app/compLibrary";
 import RightSidebar from "@app/components/RightSidebar/RightSidebar";
 import { SelectLanuageMenu, UserToggle } from "./LanguageDropdown/LanguageDropdown";
+import SelectTime from '@app/components/Modals/SelectTime/SelectTime'
 // for translation
 import { useTranslation } from "react-i18next";
 import { useAppDispatch, useAppSelector } from "@app/hooks/redux_hooks";
-
-
 // Action creators
 import AuthAction from '@redux/actions/AuthAction'
 import DashboardAction from '@redux/actions/DashboardAction'
@@ -37,40 +35,55 @@ import moment from "moment";
 import FormAction from "@app/redux/actions/FormAction";
 import DropDownSelect from "../DropDownSelect/DropDownSelect";
 import { GetUser, GetUserActions, GetUserFirms, GetUserSubcsStatus } from "@app/api/Queries/Getters";
-import { CheckObjOrArrForNull, isStrEmpty, setDashboardLoading } from "@utils/helpers";
-import { SocketContext } from "@app/context/context";
-import { UserFirms } from "@app/api/Types/queryReturnTypes/UserFirms";
+import { CheckObjOrArrForNull, isStrEmpty, DashboardSetter, checkDisconnectedClient } from "@utils/helpers";
+import { UserFirms, UserFirmsList } from "@app/api/Types/queryReturnTypes/UserFirms";
 import { TbAdjustmentsHorizontal } from "react-icons/tb";
 import UserProfile from "../UserProfile/UserProfile";
 import Themes from "../Themes/Themes";
 import LogoutConfirm from "../Modals/LogoutConfirm/LogoutConfirm";
 import useClickOutside from "@app/hooks/useClickOutsideDropdown";
 import CustomTooltip from "@app/compLibrary/Tooltip/CustomTooltip";
+import { Localization } from "@app/redux/types/ReportTypes";
+// socket conn
+import {socket} from '@app/socket/socket'
+import Firms from "../Modals/Firms/Firms";
+import useWindowSize from "@app/hooks/useWindowSize";
 
-
-
-
-const logout = () => {
-  localStorage.removeItem('accessTokenCreatedTime');
-  localStorage.removeItem('authUser');
-  localStorage.removeItem('storage');
-  window.location.reload();
-}
-const refetchData = ({socket,dispatch,path,receiver,endPoint,date,field}: {socket: any,dispatch: Function,path: string,receiver: {value: string},endPoint:string,date:any | {startDate: any, endDate: any} | Date,field?:{value: string, label: string}}) => {
+const refetchData = ({socket,dispatch,path,receiver,endPoint,date,field}: {socket: any,dispatch: Function,path: string,receiver: {value: string},endPoint:string,date:any | {startDate: any, endDate: any} | Date,field?:{value: string, label: Localization}}) => {
   const message = {
     roomName: receiver?.value,endPoint,
     date,field: field?.value ?? ""
   }
-  // console.log()
   socket.emit('request_initial_data', message)
   if(path==='/dashboard'){
-    setDashboardLoading(dispatch, true)
+    DashboardSetter({dispatch, task: 'load', state: true})
   }else if(path==='/report'){
     dispatch(ReportAction.setDataLoading(true))
   }else if(path==='/forecast'){
     /// HELLO FORECAST
   }
 }
+
+function setListOfFirms(firms: UserFirms<string>[]): UserFirmsList<string>[] {
+  let result:UserFirmsList<string>[] = []
+  if(CheckObjOrArrForNull(firms)){
+    result = firms.map(item => {
+      return {
+        user_guid: item.user_guid, 
+        firm_fullname: item.firm_fullname, 
+        firm_tel_num1: item.firm_tel_num1,
+        firm_tel_num2: item.firm_tel_num2, 
+        firm_address: item.firm_address, 
+        firm_crt_mdf_dt: item.firm_crt_mdf_dt,
+        label: item.firm_name, 
+        value: item.backend_guid,
+        connected: item.connected,
+        connected_at: item.connected_at // note: this is null when THE FIRM is not connected once yet!
+      }
+    })
+  }
+  return result
+} 
 
 const renderUserToggle = () => {
   let userName;
@@ -90,15 +103,15 @@ const renderUserToggle = () => {
   )
 };
 
-type TopNavbarProps = {
-  setShowModal?: Function | any
-  showModal?: boolean;
+type DisconnectedType = {
+  room: string
+  connected: boolean
+  last_conn_dt: Date | string
 }
 
 const cx = classNames.bind(styles)
 
-const TopNavbar = (props: TopNavbarProps) => {
-  const socket: any = useContext(SocketContext)
+const TopNavbar = () => {
   // for translation
   const { t, i18n } = useTranslation()
   const match = useMatch();
@@ -109,7 +122,7 @@ const TopNavbar = (props: TopNavbarProps) => {
   const isDtlTblOpen = useAppSelector(state => state.dashboardReducer.isDtlTblOpen)
   const isDetsLoading = useAppSelector(state => state.dashboardReducer.detailsLoading)
   const isReportsDataLoading = useAppSelector(state => state.reportReducer.isDataLoading)
-  const receiver: {label: string, value: string, connected: boolean} = useAppSelector(state => state.dashboardReducer.receiver)
+  const receiver = useAppSelector(state => state.dashboardReducer.receiver)
   const isOpenSideBar = useAppSelector(state => state.themeReducer.isOpenSidebar);
   const isShowTimeModal = useAppSelector((state: any) => state.formsReducer.showTimeModal)
   const activeIndex = useAppSelector(state => state.reportReducer.activeIndex)
@@ -133,23 +146,29 @@ const TopNavbar = (props: TopNavbarProps) => {
   const [isReconnected, setReconnected] = useState<boolean>(false)
   const [subscDate, setSubscDate] = useState<string | number>()
   const [subscFullDate, setSubscFullDate] = useState<string | number | any>()
-  const [disClient, setDisClient] = useState<string>("")
-  const authUser = JSON.parse(localStorage.getItem('authUser')!) || null
+  const [disClient, setDisClient] = useState<DisconnectedType>({
+    room: "", connected: false, last_conn_dt: ""
+  })
 
-  const userGuid:string = authUser?.user_guid ?? '' 
+  const menu_ref: any = useRef(null);
+  const menu_toggle_ref: any = useRef(null);
+  const [menuName, setMenuName] = useState<'profile'|'filter'|'theme'>('theme')
+  const [disableOutClick, setDisableOutClick] = useState<boolean>(false)
+  const [logoutModal, setLogoutModal] = useState<boolean>(false)
+  const [showFirms, setShowFirms] = useState<boolean>(false)
+  const [showSidebar, setShowSidebar] = useClickOutside(menu_ref, menu_toggle_ref, disableOutClick)
+  const [width] = useWindowSize()
+
+  const authUser = JSON.parse(localStorage.getItem('authUser')!) || ""
+  const userGuid:string = authUser?.user_guid ?? ""
     // queries
     const {
       data: firmsData,
       isLoading, 
       isError,
       refetch: refetchFirmsData
-    } = useQuery(['getUserFirms', authUser?.access_token, userGuid, isReconnected], 
-    () => GetUserFirms(authUser?.access_token, userGuid), {enabled: !!userGuid || isReconnected})
-
-    const {
-      data: userData
-    } = useQuery('getUserData', 
-    () => GetUser(authUser?.access_token, userGuid), {enabled: !!userGuid})
+    } = useQuery(['getUserFirms', userGuid, isReconnected], 
+    () => GetUserFirms(userGuid), {enabled: !!userGuid || isReconnected})
 
     const {
       data: userSubscData,
@@ -157,37 +176,59 @@ const TopNavbar = (props: TopNavbarProps) => {
       isLoading: isUserSubscLoading, 
       isError: isUserSubscError
     } = useQuery('getUserSubscData', 
-    () => GetUserSubcsStatus(authUser?.access_token, userGuid), {enabled: !!userGuid})
+    () => GetUserSubcsStatus(userGuid), {enabled: !!userGuid})
+    const {
+      data: userPrivateData,
+      isLoading: usrPrivateLoading, 
+      isError: usrPrivateError,
+      refetch: refetchUserPrivateData
+    } = useQuery('getUserPrivateData', 
+    () => GetUser(userGuid), {enabled: !!userGuid})
+
+    const {
+      data: userActions,
+      isLoading: isActionsLoading, 
+      isError: isActionsError,
+      refetch: refetchUserActions
+    } = useQuery('getUserAction', () => GetUserActions(userGuid), {enabled: !!userGuid})
+
+
+    
+  useEffect(() => {
+    if(!switched){
+      if(!autoRefreshActivated && time !== '5'){
+        dispatch(DashboardAction.setTimeToRefetch('5'))
+      }
+    }
+  }, [switched])
+
+  useEffect(() => {
+    if(menuName==='profile')
+      setDisableOutClick(true)
+    else setDisableOutClick(false)
+  }, [menuName])
+
 
   useEffect(() => {
     if(!socket) return
-    const getClients = (firms: UserFirms<string>[]) => {
-      if(CheckObjOrArrForNull(firms)){
-        const firmsClone: any = firms.map(item => {
-            return {
-              connected: item.connected,
-              value: item.backend_guid,
-              label: item.firm_name
-            }
-        })
-        dispatch(DashboardAction.setFirmsList(firmsClone))
-      }
+    const getFirms = (firms: UserFirms<string>[]) => {
+      dispatch(DashboardAction.setFirmsList(setListOfFirms(firms)))
     }
-    const disconnectMess = (response: string) => {
-      setDisClient(response)
+    const disconnectMess = (response: DisconnectedType) => {
+      const {room, connected, last_conn_dt} = response
+      setDisClient(prev => ({...prev, room, connected, last_conn_dt}))
     }
     const reconnected = (state: boolean) => {
       setReconnected(state)
     } 
 
-    socket.on('list_clients', getClients)
+    socket.on('list_clients', getFirms)
     socket.on('disconnection_message', disconnectMess)
     socket.on('reconnected', reconnected)
     return () => {
-      socket.off('list_clients', getClients)
+      socket.off('list_clients', getFirms)
       socket.off('disconnection_message', disconnectMess)
       socket.off('reconnected', reconnected)
-
     }
   }, [socket])
 
@@ -205,26 +246,31 @@ const TopNavbar = (props: TopNavbarProps) => {
         socket.emit('request_clients', firmsData)
   }, [firmsData])
 
+  /// note: this side effect is to set receiver in case it isn't connected  
   useEffect(() => {
-    if(CheckObjOrArrForNull(firmsList)){
+    if(!receiver.connected && CheckObjOrArrForNull(firmsList)){
       for(let i = 0; i < firmsList.length; i++){
         const firm = firmsList[i]
         if(firm.connected){
-          dispatch(DashboardAction.setReceiver(firm)); break
+          dispatch(DashboardAction.setReceiver({
+            connected: firm.connected,
+            value: firm.value,
+            label: firm.label
+          })); break
         } 
       }
     }
   }, [firmsList])
 
-
   useEffect(() => {
-    if(renewDashboard || renewReport && isStrEmpty(receiver.value)){
+    if((renewDashboard || renewReport) && isStrEmpty(receiver.value)){
       const initEndPoint = '/get'
       const path = match.pathname
-      if(path==='/dashboard'){
+      if(path==='/dashboard'){  /// not the dashboard details
         const endPoint = `${initEndPoint}/dashboard/`
         refetchData({socket,dispatch,path,receiver,endPoint,date})
-      }else if(path==='/report'){
+      }else if(path==='/report'){ ///details run here
+        dispatch(ReportAction.setReportData([]))
         const endPoint = `${initEndPoint}/report/${endUrl}`
         refetchData({socket,dispatch,path,receiver,endPoint,field,date: {startDate,endDate}})
       }
@@ -232,13 +278,7 @@ const TopNavbar = (props: TopNavbarProps) => {
   }, [renewDashboard, renewReport])
 
   useEffect(() => {
-    if(match.pathname==='/dashboard' && isReportsDataLoading)
-      dispatch(ReportAction.setDataLoading(!isReportsDataLoading))
-  }, [match.pathname, isReportsDataLoading]) // to cancel socket request when switched to dashboard
-
-  
-  useEffect(() => {
-    if(isStrEmpty(receiver.value) && autoRefreshActivated){
+    if(autoRefreshActivated && receiver.connected){
       const timer = time as number * 60 * 1000
       const path = match.pathname
       const initEndPoint = '/get'
@@ -265,22 +305,19 @@ const TopNavbar = (props: TopNavbarProps) => {
   ])
 
   useEffect(() => {
-    if(isStrEmpty(disClient) && CheckObjOrArrForNull(firmsList)){
-        const firmsListClone = firmsList.map((value: any) => ({...value}))
+    if(checkDisconnectedClient(disClient) && CheckObjOrArrForNull(firmsList)){
+        const firmsListClone = firmsList.map(value => ({...value}))
         for(let i = 0; i < firmsListClone.length; i++){
           const firm = firmsListClone[i]
-          if(firm.value === disClient){
-            firm.connected = false
-            dispatch(DashboardAction.setReceiver(firm))
+          if(firm.value === disClient.room){
+            firm.connected = disClient.connected // which is false
+            firm.connected_at = disClient.last_conn_dt
+            dispatch(DashboardAction.setReceiver({
+              connected: false,
+              value: '',
+              label: ''
+            }))
             toast.error(firm.label + t('disconnected'), {duration: 2*1000})
-          }
-
-          if((autoRefreshActivated || switched) && firm.connected){
-            dispatch(DashboardAction.activateAutoRefresh(true))
-            dispatch(DashboardAction.setSwitched(true))
-          }else if(!firm.connected || (autoRefreshActivated || switched)) {
-            dispatch(DashboardAction.activateAutoRefresh(false))
-            dispatch(DashboardAction.setSwitched(false))
           }
         }
         if(fetcher.details || fetcher.refetch)
@@ -288,11 +325,13 @@ const TopNavbar = (props: TopNavbarProps) => {
         if(isDetsLoading)
           dispatch(DashboardAction.setDetailsLoading(false))
         dispatch(DashboardAction.setFirmsList(firmsListClone))
-        setDashboardLoading(dispatch, false)
-        setDisClient('')
+        dispatch(DashboardAction.activateAutoRefresh(false))
+        dispatch(DashboardAction.setSwitched(false))
+        DashboardSetter({dispatch, task: 'load', state: false})
+        setDisClient(prev => ({...prev, room: "", connected: false, last_conn_dt: ""}))
+        // DashboardSetter({dispatch, task: 'emptify'})
     }
   }, [disClient])
-
 
   useEffect(() => {
     if(
@@ -303,11 +342,9 @@ const TopNavbar = (props: TopNavbarProps) => {
   }, [startDate])
 
   useEffect(() => {
-    if(refetchUserData){
+    if(refetchUserData)
       refetchUserSubsc()
-    }
   }, [refetchUserData])
-
 
   useEffect(() => {
     if(CheckObjOrArrForNull(userSubscData)){
@@ -328,7 +365,7 @@ const TopNavbar = (props: TopNavbarProps) => {
         const item = userSubscData?.remain_date[i][array[i]] 
         const locale: string = Object.keys(userSubscData?.remain_date[i])[0]
         if(item > 0){
-          result += item + t(locale) + ' '
+          result += item + ' ' + t(locale) + ' '
         }
       }
       setSubscFullDate(result)
@@ -338,46 +375,138 @@ const TopNavbar = (props: TopNavbarProps) => {
   const toggleSidebar = () => {
     dispatch(ThemeAction.toggleSidebar(!isOpenSideBar))
   }
+  const setShowTimeModal = () => {
+    dispatch(FormAction.setShowTimeModal(!isShowTimeModal))
+  }
 
   const Renew = () => {
-    if(isStrEmpty(receiver.value) && receiver.connected){
-      if(match.pathname === '/dashboard'){
-        
-          if(isDtlTblOpen && !isDetsLoading)
-            dispatch(DashboardAction.fetchData('details', true))
-          else if(!isDtlTblOpen && !cashesLoading) 
-            dispatch(DashboardAction.setRenewData(true))
+    if(userSubscData?.subsc_name === "Null") 
+      toast.error(t('subscribeFirst'))
+    else {
 
-      }else if(match.pathname === '/report'){
-        dispatch(ReportAction.renewData(true))
-      }else if(match.pathname === '/forecast'){
-        console.log('happy to be in forecast page')
-      }
-    }else 
-      toast.error(t('select_firm'))
+      if(isStrEmpty(receiver.value) && receiver.connected){
+        if(match.pathname === '/dashboard'){
+          
+            if(isDtlTblOpen && !isDetsLoading)
+              dispatch(DashboardAction.fetchData('details', true))
+            else if(!isDtlTblOpen && !cashesLoading) 
+              dispatch(DashboardAction.setRenewData(true))
+  
+        }else if(match.pathname === '/report' && !isReportsDataLoading){
+          dispatch(ReportAction.renewData(true))
+        }else if(match.pathname === '/forecast'){
+          console.log('happy to be in forecast page')
+        }
+      }else 
+        toast.error(t('select_firm'))
+    }
+
   }
+
+  /// usememo components
+  const maxDate = useMemo(() => {
+    let oneYearAfter = moment(new Date()).add(1,'years')
+    if(oneYearAfter.month() !== 11 || oneYearAfter.date() !== 31){
+      oneYearAfter.month(11).date(31)
+    }
+    return oneYearAfter
+  }, [new Date()])
+
+  const userProfileItself = useMemo((): JSX.Element => {
+    if(
+      (!usrPrivateLoading && !usrPrivateError) 
+      // (!isActionsLoading && !isActionsError)
+    ) {
+      
+    return (
+      <UserProfile 
+        userData={userPrivateData?.[0] ?? {}} 
+        userActions={{data: userActions, loading: isActionsLoading, error: isActionsError}}
+        userGuid={userGuid}
+        onSuccess={(newValues) => {
+          const {user_email, user_name, user_login} = newValues
+          localStorage.setItem('authUser', JSON.stringify({
+            ...authUser, user_name
+          }))
+          localStorage.setItem('UserPhone', user_login.replace('+993', ''))
+          refetchUserSubsc()
+          refetchUserPrivateData()
+        }}
+        showSideabar={showSidebar}
+      />
+    )
+    }
+
+    return <></>
+  }, [userPrivateData, userActions, showSidebar])
+
+  const timeModalItself = useMemo((): JSX.Element => {
+    return isShowTimeModal ? (
+      <SelectTime 
+        show={isShowTimeModal} 
+        setShow={setShowTimeModal}
+      />
+    ) : <></>
+  }, [isShowTimeModal])
+
+
+  const firms = useMemo(() => {
+    return (
+      <Firms
+        show={showFirms}
+        data={firmsList}
+        setShow={() => setShowFirms(false)}
+        translation={t}
+      />
+    )
+  }, [showFirms, firmsList])
+
 
   const siderbarFilterMenu = (
     <div className={styles.sideBar}>
       <div className={styles.topBtnGroup}>
-      <Row rowGutter={10} colGutter={10}>
+      <Row rowGutter={7} colGutter={10}>
         <Col>
-          <div className={styles.headInput}>
-            {
-              match.pathname === '/dashboard' ? 
+          {
+
+            match.pathname === '/dashboard' ? 
+              <div className={styles.headInput}>
                 <Input
                   type='date'
+                  id="dashboardDateInput"
+                  min='2000-01-01'
+                  max={maxDate.format('YYYY-MM-DD')}
                   value={date}
                   onChange={(e) => {
-                    dispatch(DashboardAction.setDate(moment(e.target.value).format("YYYY-MM-DD"))) 
+                    const input: any = document.getElementById("dashboardDateInput");
+                    const selectedDate = moment(e.target.value).format("YYYY-MM-DD")
+                    const min = input.min
+                    const max = input.max
+                    if (selectedDate < min || selectedDate > max) {
+                      input.value = "";
+                    }else {
+                      dispatch(DashboardAction.setDate(selectedDate)) 
+                    }
                   }}
-                /> : 
-                match.pathname === '/report' ? 
-                <>
-                  <Input
-                  type='date'
-                  value={startDate}
-                  onChange={(e) => {
+              />
+              </div> : 
+            match.pathname === '/report' ? 
+            <div className={styles.headInput}>
+              <Input
+                type='date'
+                min='2000-01-01'
+                max={maxDate.format('YYYY-MM-DD')}
+                id='reportDateInput1'
+                value={startDate}
+                onChange={(e) => {
+                  const input: any = document.getElementById('reportDateInput1')
+                  const selectedDate = moment(e.currentTarget.value).format('YYYY-MM-DD')
+                  const min = input.min
+                  const max = input.max
+                  if (selectedDate < min || selectedDate > max) {
+                    input.value = "";
+                  }else {
+                    
                     if (
                       moment(e.currentTarget.value).isBefore(moment(endDate)) || 
                       (activeIndex===0 && moment(e.currentTarget.value).isAfter(moment(endDate))) || 
@@ -385,44 +514,51 @@ const TopNavbar = (props: TopNavbarProps) => {
                     )
                       dispatch(ReportAction.setStartDate(e.currentTarget.value))
                     else dispatch(ReportAction.setStartDate(moment(endDate).subtract(1, 'days').format('YYYY-MM-DD')))
-                  }}
-                  style={{borderRight: '1px solid #ccc'}}
+
+                  }
+                }}
+                style={{borderRight: '1px solid #ccc'}}
                 />
                 <Input
                   disabled={activeIndex === 0}
                   type='date'
-                  max="9999-12-31T23:59" 
+                  min='2000-01-01'
+                  max={maxDate.format('YYYY-MM-DD')}
+                  id='reportDateInput2'
                   value={endDate}
                   onChange={(e) => {
-                    if (moment(e.currentTarget.value).isAfter(moment(startDate)))
-                      dispatch(ReportAction.setEndDate(e.currentTarget.value))
-                    else dispatch(ReportAction.setEndDate(moment(startDate).add(1, 'days').format('YYYY-MM-DD')))
+                    const input: any = document.getElementById('reportDateInput1')
+                    const selectedDate = moment(e.currentTarget.value).format('YYYY-MM-DD')
+                    const min = input.min
+                    const max = input.max
+                    if(selectedDate < min || selectedDate > max){
+                      input.value = "";
+                    }else {
+                      if (moment(e.currentTarget.value).isAfter(moment(startDate)))
+                        dispatch(ReportAction.setEndDate(e.currentTarget.value))
+                      else dispatch(ReportAction.setEndDate(moment(startDate).add(1, 'days').format('YYYY-MM-DD')))
+                    }
                   }}
-                />
-                </> : 
-                match.pathname === '/forecast' ? 
-                <></> : null
-            }
-            </div>
+                />  
+            </div> : 
+            null
+          }
         </Col>
 
         <Col>
-        <div className={`${styles.filterInput} ${styles.filterSelect}`}>
-          <DropDownSelect
-            dropDownContentStyle={{right: '0'}}
-            titleSingleLine
-            onChange={item => {
-              dispatch(DashboardAction.setReceiver(item))
-            }}
-            fetchStatuses={{ isLoading: false, isError: false }}
-            title={receiver.value ? receiver.label : t('firms')}
-            data={firmsList}
-          />
-        </div>
+          <Button onClick={() => setShowFirms(true)} style={{padding: '13px',display:'flex',justifyContent:'center',alignContent:'center'}}  rounded type="contained" color="gray" 
+            endIcon={
+              showFirms ? 
+                <img src={arrow_up} width={10} height={10}/> :
+                  <img src={arrow_down} width={10} height={10}/>  
+            }
+          >
+            {receiver.connected ? receiver.label : t('selectFirm')}
+          </Button>
         </Col>
         
         <Col>
-          <Button color="theme" startIcon={<i className='bx bx-refresh' style={{fontSize: 22}}></i>} rounded onClick={Renew}>
+          <Button color="theme" style={{width: '97px',display:'flex',justifyContent:'center',alignContent:'center'}}  startIcon={<i className='bx bx-refresh' style={{fontSize: 20}}></i>} rounded onClick={Renew}>
             {t('refresh')}
           </Button>
         </Col>
@@ -431,21 +567,26 @@ const TopNavbar = (props: TopNavbarProps) => {
             <Switch 
               checked={switched}
               onClick={() => {
-                if(!receiver.connected)
-                  toast.error(t('select_firm'))
+                if(userSubscData?.subsc_name === "Null")
+                  toast.error(t('subscribeFirst'))
                 else {
-                  dispatch(DashboardAction.setSwitched(!switched))
-                  if(!switched)
-                    dispatch(FormAction.setShowTimeModal(!isShowTimeModal)) 
-                  if(autoRefreshActivated)
-                    dispatch(DashboardAction.activateAutoRefresh(false));
-                }             
+                    if(!receiver.connected)
+                      toast.error(t('select_firm'))
+                    else {
+                      dispatch(DashboardAction.setSwitched(!switched))
+                      if(!switched)
+                        dispatch(FormAction.setShowTimeModal(!isShowTimeModal)) 
+                      if(autoRefreshActivated)
+                        dispatch(DashboardAction.activateAutoRefresh(false));
+                  } 
+
+                }            
               }}
             />
             <span className={styles.filterTitle}>
             {t('autoRefresh')}
             </span>
-            <span className={styles.filterTitle}>{autoRefreshActivated && time ? `${time} min.` : null}</span>
+            <span className={styles.filterTitle}>{autoRefreshActivated && time ? `${time} ${t('minutes')}.` : null}</span>
           </div>
         </Col>
       </Row>
@@ -453,13 +594,6 @@ const TopNavbar = (props: TopNavbarProps) => {
     {/* } */}
   </div>
   )
-
-  const menu_ref: any = useRef(null);
-  const menu_toggle_ref: any = useRef(null);
-  const [showSidebar, setShowSidebar] = useClickOutside(menu_ref, menu_toggle_ref)
-
-  const [menuName, setMenuName] = useState('')
-  const [logoutModal, setLogoutModal] = useState(false)
   const renderUserMenu = (
     <div className={styles.userDrpdown}>
       <div className={styles.subsc_head}>
@@ -525,18 +659,26 @@ const TopNavbar = (props: TopNavbarProps) => {
       </div>
     </div>
   ) 
-
-
-
   return (
     <>
+
+      {firms}
+      {/* {firmsModalItself} */}
+      {timeModalItself}
 
       <div className={styles.topnav}>
         <div className={styles.menuIcon} onClick={() => toggleSidebar()}>
           {isOpenSideBar? <GrClose size={24}/> : <HiOutlineMenu size={24}/> }
         </div>
-        <div className={styles.filterIcon} onClick={() => {setShowSidebar(true), setMenuName('filter')}}>
-          <TbAdjustmentsHorizontal size={24} />
+        <div className={styles.topnav__right_item}>
+            {/* filter dropdown */}
+            <Dropdown
+              removeOutClick={showFirms || isShowTimeModal} // disable outclick when watching firms/ or setting timer
+              dropDownContentStyle={{left: '10px', padding: '14px'}}
+              transformOrigin='topLeft'
+              customToggle={() => <div className={styles.filterIcon}><TbAdjustmentsHorizontal size={24} /></div>}
+              renderBody={siderbarFilterMenu}
+            />
         </div>
         <div className={styles.filterItems}>
           {siderbarFilterMenu}
@@ -564,22 +706,25 @@ const TopNavbar = (props: TopNavbarProps) => {
               }
             />
           </div>
-          <div className={styles.topnav__right_item} ref={menu_toggle_ref} onClick={() => {setShowSidebar(true), setMenuName('theme')}}>
+          <div className={styles.topnav__right_item} onClick={() => {setShowSidebar(true), setMenuName('theme')}}>
             <i className="bx bx-palette"></i>
           </div>
+              
           <RightSidebar menuRef={menu_ref} showMenu={showSidebar} setShowMenu={setShowSidebar} sidebarName={menuName}>
-            { menuName == 'filter' ? 
-              siderbarFilterMenu
-              : 
+            { 
+              // menuName == 'filter' ? 
+              // siderbarFilterMenu
+              // : 
               menuName == 'profile' ?
-              <UserProfile userData={userData[0] ?? {}}/>
+              userProfileItself
               : 
               menuName == 'theme' ?
               <Themes />
               :
-              ''
+              null
             }
           </RightSidebar>
+
         </div>
       </div>
     </>

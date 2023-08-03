@@ -1,42 +1,69 @@
 @use '../../styles/fonts.scss'  as *;
+@use '../../styles/globalBreakPoints.scss' as T; 
+
 .profile {
     width: 700px;
+    // height: 10vh;
     
     button{
         text-transform: capitalize;
         text-align: center;
     }
+
+    @media screen and (max-width: T.$minDesktop) {
+        width: 600px;
+    }
 }
 .profile__form {
     position: relative;
 }
-.profile__form, .profile__item {
+.profile__form{
     display: flex;
-    gap: 50px;
+    gap: 10px;
     align-items: start;
     padding: 10px;
 }
 
 .profile__item {
+    display: flex;
     justify-content: space-between;
-    // position: relative;  
-
-
+    align-items: center;
+    padding: 10px;
+    .set_color_blackish {
+        color: var(--input-color-dark)
+    }    
 }
 
 .user__info {
     width: 100%;
-
+    position: relative;
+    padding: 7px;
+    border-radius: 7px;
+    background: var(--second-bg);
 }
 
-.submit__btn{
-    // position: absolute;
-    // right: 5%;
-    margin-top: 40px;
+.submit__btn, .enableEditBtn{
+    margin-top: 15px;
     display: flex;
     align-items: center;
-    gap: 15px;
     float: right;
+
+    .child {
+        // text-align: center;
+        // color: red;
+        display: flex;
+        justify-content: center;
+    }
+
+}
+.submit__btn{
+    gap: 3px;
+    button {
+        width: 112px;
+    }
+}
+.enableEditBtn {
+    gap: 15px;
     button {
         width: 150px;
     }
@@ -44,10 +71,13 @@
 
 
 
-.errorContainer {
-    // height: 8px;
-    // width: 20%;
-    // border: 1px solid red;
+.error {
+    height: 29px;
+    width: 200px;
+    font-size: 13px;
+    margin-top: 0.5px;
+    margin-bottom: -18px;
+    color: var(--main-color-red);
 }
 
 .inputStyle, .field {
@@ -62,17 +92,19 @@
 }
 
 .inputStyle {
-    width: 210px;
+    width: 300px;
     padding-right:10px;
     font-family: 'Panton' sans-serif;
     background: transparent;
     font-size: 16px;
 }
+
 .field {
     border: 1px solid #ccc;
     background: rgb(228, 228, 228);
     border: none;
 }
+
 
 @keyframes anime {
     0% {
@@ -93,24 +125,56 @@
 }
 .user__img {
     text-align: center;
-    img {
-        margin-bottom: 10px;
-        border-radius: 50%;
-        border: 1px solid #ccc;
+    padding: 15px;
+    background-color: var(--second-bg);
+    border-radius: 7px;
+    height: 180px;
+    .img__part {
+        position: relative;
+        img {
+            margin-bottom: 10px;
+            border-radius: 50%;
+            border: 1px solid #ccc; 
+            opacity: 1;
+            transition: all 0.2s ease-in;
+        }
+        i {
+            position: absolute;
+            top: 40px;
+            left: 44px;
+            font-size: 22px;
+            color: var(--trash-icon-bg);
+            transition: all 0.2s ease-in;
+            cursor: pointer;
+            display: none;
+        }
+
+        &:hover {
+            i {
+                display: block;
+            }
+            img {
+                opacity: 0.5;
+                pointer-events: none;
+            }
+        }
     }
+
+
 }
+
 .user_upload {
-    border: 1px solid var(--main-color);
-    padding: 4px 6px;
-    display: flex;
-    align-items: center;
-    color: var(--main-color);
-    opacity: 1;
-    border-radius: 8px;
-    &:hover {
-        background-color: var(--main-color);
-        color: white;
-    }
+    // border: 1px solid var(--main-color);
+    // padding: 4px 6px;
+    // display: flex;
+    // align-items: center;
+    // color: var(--main-color);
+    // opacity: 1;
+    // border-radius: 8px;
+    // &:hover {
+    //     background-color: var(--main-color);
+    //     color: white;
+    // }
 }
 .role_name {
     width: 220px;
@@ -134,4 +198,16 @@
 		border:none;
 		font-size: 16px;
 	}
+}
+
+.actions {
+    // border: 1px solid red;
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    gap: 3px;
+    margin-right: 10px;
+    img, button {
+        cursor: pointer;
+    }
 }

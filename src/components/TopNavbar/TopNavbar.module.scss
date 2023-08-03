@@ -21,7 +21,7 @@
 }
 
 .notConnected {
-    color: red;
+    color: var(--main-color-red);
 }
 
 .headInput {
@@ -47,6 +47,17 @@
     // @media screen and (max-width: $desktop) {
     //     display: none;
     // }
+}
+
+.showFirms, .refresh {
+    display:flex;
+    justify-content:center;
+}
+.showFirms {
+    padding: 15px;
+}
+.refresh {
+    width: 97px;
 }
 
 .topSwitchBox {
@@ -89,12 +100,16 @@
     justify-content: end;
 }
 
-.topnav__right_item~.topnav__right_item {
+.topnav__right_item{
     // position: relative;
     margin-left: 25px;
     @media screen and (max-width: $mobile) {
         margin-left: 18px;
     }
+}
+
+.disappearDropDown {
+    display: none;
 }
 
 .notification_item {
@@ -163,7 +178,7 @@
         padding: 0 20px;
     }
     @media screen and (max-width: $tablet) {
-        padding: 0 10px;
+        margin: 0 0 0 -50px;
     }
 }
 

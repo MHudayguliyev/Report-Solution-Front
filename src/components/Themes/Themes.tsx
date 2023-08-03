@@ -3,7 +3,6 @@ import styles from './Themes.module.scss'
 import classNames from "classnames/bind";
 import ThemeAction from "@redux/actions/ThemeAction";
 import { useAppDispatch } from '@app/hooks/redux_hooks';
-import useClickOutside from '@app/hooks/useClickOutsideDropdown';
 
 const cx = classNames.bind(styles);
 const mode_settings = [
@@ -68,8 +67,8 @@ const mode_settings = [
   
     const setMode = (mode: any) => {
       setcurrMode(mode.id);
-      localStorage.setItem("themeMode", mode.id);
-      dispatch(ThemeAction.setMode(mode.id));
+      localStorage.setItem("themeMode", mode.class);
+      dispatch(ThemeAction.setMode(mode.class));
     };
   
     const setColor = (color: any) => {
@@ -80,17 +79,18 @@ const mode_settings = [
   
     useEffect(() => {
       const themeClass = mode_settings.find(
-        (e) => e.id === localStorage.getItem("themeMode")
+        (e) => e.class === localStorage.getItem("themeMode")
       );
-  
       const colorClass = color_settings.find(
         (e) => e.class === localStorage.getItem("colorMode")
       );
-  
+
       if (themeClass !== undefined) setcurrMode(themeClass.id);
   
       if (colorClass !== undefined) setcurrColor(colorClass.id);
     }, []);
+
+    // console.log('currMode')
   return (
     <>
          <div className={styles.theme_menu__select}>

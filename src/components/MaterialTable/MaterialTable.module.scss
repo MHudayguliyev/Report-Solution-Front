@@ -128,6 +128,14 @@
   }
 }
 
+.dropDown {
+  display: flex;
+  align-content: center;
+  label {
+    margin: auto 0;
+  }
+}
+
 //  .addWidthTo
 
  .globalSearch {

@@ -3,7 +3,7 @@ const dashWhiteList = [
     'switched', 'autoRefreshActivated', 'timeToRefetch', 'date',
     'purchSaleOrders','saleOrdTotalsByStatus','purchSalesReturns',
     'stockCostTotal','paymentsReceived','paymentsMade','creditsFromSale',
-    'debtsFromPurchase','employeesBalance','expensesAmount','cashesAmount'
+    'debtsFromPurchase','employeesBalance','expensesAmount','cashesAmount','receiver'
 ]
 
 export const dashboardCfg = {

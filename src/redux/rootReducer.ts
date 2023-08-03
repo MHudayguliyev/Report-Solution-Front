@@ -15,6 +15,6 @@ const appReducer = combineReducers({
     reportReducer: persistReducer(reportCfg, ReportReducer),
     formsReducer: FormsReducer,
     clientsReducer: ClientsReducer,
-})
+})  
 
 export default appReducer

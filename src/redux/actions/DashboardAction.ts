@@ -1,4 +1,4 @@
-import { UserFirms } from '@app/api/Types/queryReturnTypes/UserFirms'
+import { UserFirms, UserFirmsList } from '@app/api/Types/queryReturnTypes/UserFirms'
 import {
     SetCashesAmount,
     SetCreditsFromSale,
@@ -11,12 +11,6 @@ import {
     SetPurchSaleOrder,
     SetPurchSalesReturns,
     SetStockCostTotal,
-    PurchOrders,
-    SaleOrders,
-    Purches,
-    RetPurches,
-    Sales,
-    RetSold,
     UsualType
 } from '../types/DashboardTypes'
 
@@ -44,6 +38,12 @@ const fetchData = (key: 'details' | 'refetch', state: boolean) => {
 const liberateFetcher = () => {  // sets entire fetcher object to false
     return {
         type: 'LIBERATE_FETCHER'
+    }
+}
+const setDetails = (data: any) => {
+    return {
+        type: 'SET_DETAILS', 
+        payload: data, 
     }
 }
 const openDtlTbl = (state: boolean) => {
@@ -96,99 +96,10 @@ const activateAutoRefresh = (state: boolean) => {
         payload: state
     }
 }
-const setFirmsList = (data: UserFirms<string>[]) => ({
+const setFirmsList = (data: UserFirmsList<string>[]) => ({
     type: 'SET_FIRMS_LIST',
     payload: data
 })
-const disactivateAutoRefresh = (state: boolean) => ({
-    type: 'SET_DISACTIVATE_AUTO_REFRESH',
-    payload: state
-})
-
-// /// REAL ACTIONS/LOADING PARTS/ERROR PARTS
-// const setPurchOrders = (data: PurchOrders[]) => ({
-//     type: 'SET_PURCH_ORDERS',
-//     payload: data
-// })
-// const setPurchOrdersLoading = (state: boolean) => ({
-//     type: 'SET_PURCH_ORDERS_LOADING',
-//     payload: state
-// })
-// const setPurchOrdersErr= (state: boolean) => ({
-//     type: 'SET_PURCH_ORDERS_ERR',
-//     payload: state
-// })
-
-// const setSaleOrders = (data: SaleOrders[]) => ({
-//     type: 'SET_SALE_ORDERS',
-//     payload: data
-// })
-// const setSaleOrdersLoading = (state: boolean) => ({
-//     type: 'SET_SALE_ORDERS_LOADING',
-//     payload: state
-// })
-// const setSaleOrdersErr = (state: boolean) => ({
-//     type: 'SET_SALE_ORDERS_ERR',
-//     payload: state
-// })
-
-
-// const setPurch = (data: Purches[]) => ({
-//     type: 'SET_PURCH',
-//     payload: data
-// })
-// const setPurchLoading = (state: boolean) => ({
-//     type: 'SET_PURCH_LOADING',
-//     payload: state
-// })
-// const setPurchErr = (state: boolean) => ({
-//     type: 'SET_PURCH_ERR',
-//     payload: state
-// })
-
-
-// const setRetPurch = (data: RetPurches[]) => ({
-//     type: 'SET_RET_PURCH',
-//     payload: data
-// })
-// const setRetPurchLoading = (state: boolean) => ({
-//     type: 'SET_RET_PURCH_LOADING',
-//     payload: state
-// })
-// const setRetPurchErr = (state: boolean) => ({
-//     type: 'SET_RET_PURCH_ERR',
-//     payload: state
-// })
-
-
-// const setSale = (data: Sales[]) => ({
-//     type: 'SET_SALE',
-//     payload: data
-// })
-// const setSaleLoading = (state: boolean) => ({
-//     type: 'SET_SALE_LOADING',
-//     payload: state
-// })
-// const setSaleErr = (state: boolean) => ({
-//     type: 'SET_SALE_ERR',
-//     payload: state
-// })
-
-
-// const setRetSold = (data: RetSold[]) => ({
-//     type: 'SET_RET_SOLD',
-//     payload: data
-// })
-// const setRetSoldLoading = (state: boolean) => ({
-//     type: 'SET_RET_SOLD_LOADING',
-//     payload: state
-// })
-// const setRetSoldErr = (state: boolean) => ({
-//     type: 'SET_RET_SOLD_ERR',
-//     payload: state
-// })
-
-
 
 const setStockCostTotal = (data: StockCostTotal[]): SetStockCostTotal => {
     return {
@@ -393,7 +304,7 @@ const setCashesErr = (state: boolean) => ({
 const exportDefault = {
     /// RECEIVER/SENDER/DATE/SWITCH BOX/AUTO REFRESH/FIRMS_LIST/DISACTIVATE AUTO REFRESH/FETCH_DATA/DETAILS TABLE OPEN STATE/DETAILS LOADING STATE
     fetchData,liberateFetcher,  
-    openDtlTbl, setDetailsLoading,
+    setDetails, openDtlTbl, setDetailsLoading,
     setSender,
     setReceiver,
     setDate,
@@ -401,8 +312,8 @@ const exportDefault = {
     setRenewData,
     setSwitched,
     activateAutoRefresh,
-    disactivateAutoRefresh,
     setFirmsList,
+    // disactivateAutoRefresh,
     /// REAL STATES
     setCashesAmount,
     setCreditsFromSale,

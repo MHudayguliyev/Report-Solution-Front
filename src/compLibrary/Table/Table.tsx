@@ -2,18 +2,18 @@ import React, { ReactNode, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
 import error from '@app/assets/images/bad-gateway.png'
-import noData from '@app/assets/customIcons/file-x.svg'
 
 // custom styles 
 import styles from './Table.module.scss';
 import Loading from "../SkeletonCard/Loading";
 import Button from "../Button";
+import Nodata from "@icons/Nodataicon/Nodata";
 
 
 interface TableProps<T> {
-  headData: Array<string> | any
+  headData?: Array<string> | any
   bodyData: Array<T>
-  renderHead: (data: string, index: number) => ReactNode
+  renderHead?: (data: string, index: number) => ReactNode | any
   renderBody: (data: T | any, index: number) => ReactNode | any
   onClick: () => void
   className?: string,
@@ -47,27 +47,31 @@ function Table<T>(props: TableProps<T>) {
         ) : null}
         {
           statuses.loading ? 
-            <tbody className={styles.loading}>
-              <Loading />
+            <tbody >
+              <tr>
+                <td className={styles.loading}><Loading /></td>
+              </tr>
             </tbody> : 
             statuses.error ? 
-            <tbody className={styles.error}>
-
-            <div className={styles.error__container}>
-              <div className={styles.error__img}>
-                <img src={error} alt="Error" />
-              </div>
-              <div className={styles.error__def}>
-                {/* <h4 className={styles.txt}>{title}</h4> */}
-                <div className={styles.reload}>
-                  <Button roundedSm color="red" className={styles.try_again_btn} onClick={onClick}>
-                    <i className='bx bx-refresh'></i>
-                    <span className={styles.try__again_txt}>{t('try_again')}</span>
-                  </Button> 
-                </div>
-              </div>
-            </div>
-
+            <tbody>
+              <tr>
+                <td className={styles.error}>
+                  <div className={styles.error__container}>
+                    <div className={styles.error__img}>
+                      <img src={error} alt="Error" />
+                    </div>
+                    <div className={styles.error__def}>
+                      {/* <h4 className={styles.txt}>{title}</h4> */}
+                      <div className={styles.reload}>
+                        <Button roundedSm color="red" className={styles.try_again_btn} onClick={onClick}>
+                          <i className='bx bx-refresh'></i>
+                          <span className={styles.try__again_txt}>{t('try_again')}</span>
+                        </Button> 
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
             </tbody> :
           bodyData && bodyData?.length > 0 ? 
             <tbody>
@@ -76,8 +80,12 @@ function Table<T>(props: TableProps<T>) {
               )}
             </tbody>
         : <tbody className={styles.notFound}>
-            <img src={noData} />
-            <h4 className={styles.txt}>{t('no_data')}</h4>
+            <tr>
+              <td>
+                <Nodata />
+                <div className={styles.txt}>{t('no_data')}</div>
+              </td>
+            </tr>
           </tbody>
         }
       </table>

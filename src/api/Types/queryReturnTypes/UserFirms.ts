@@ -1,3 +1,5 @@
+import { UsualType } from "@app/redux/types/DashboardTypes"
+
 export type UserFirms<T> = {
     user_guid: T,
     backend_guid: T,
@@ -7,5 +9,16 @@ export type UserFirms<T> = {
     firm_tel_num2: T,
     firm_address: T,
     connected: boolean,
+    connected_at: Date | T,
     firm_crt_mdf_dt: Date | T
+}
+
+export interface UserFirmsList<T> extends UsualType {
+    user_guid: T,
+    firm_fullname: T,
+    firm_tel_num1: T,
+    firm_tel_num2: T,
+    firm_address: T,
+    connected_at: Date | T,
+    firm_crt_mdf_dt: Date | T,
 }

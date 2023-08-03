@@ -48,6 +48,7 @@ export type ButtonProps = {
    border?: boolean
    tabIndex?: number,
    className?: string,
+   id?: string, 
    opacityToDisable?: boolean
 }
 
@@ -81,6 +82,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>((props, ref): JS
       border,
       tabIndex,
       className,
+      id, 
       opacityToDisable
    } = props;
 
@@ -107,6 +109,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>((props, ref): JS
 
    return (
       <button
+         id={id}
          type={htmlType}
          ref={ref}
          disabled={disable || loading}

@@ -1,18 +1,14 @@
-import React, {useState, Fragment, CSSProperties} from "react";
-// custom styles
+import React, {Fragment, CSSProperties} from "react";
 import styles from "./StatusCard.module.scss";
 import classNames from "classnames/bind";
 import Paper from "../Paper";
-import {FcAbout} from "react-icons/fc";
 import {TbSum} from 'react-icons/tb';
-import noData from '../../assets/customIcons/file-x.svg'
 import Loading from "../SkeletonCard/Loading";
 import error from '@app/assets/images/bad-gateway.png'
 import Button from "../Button";
 import { useTranslation } from "react-i18next";
 import { divideNumber } from "@utils/helpers";
-// import { ReactComponent as NoDataIcon } from '../../assets/customIcons/file-x.svg';
-// import { classNames } from 'classnames/bind';
+import Nodata from "@icons/Nodataicon/Nodata";
 
 type StatusCardProps = {
   icon: string
@@ -28,12 +24,6 @@ type StatusCardProps = {
 }
 
 const cx = classNames.bind(styles)
-
-const NoDataIcon = (props : any) =>(
-  // <svg xmlns="http://path/to/svg" fill={props.fill} className={props.class}></svg>
-  <svg xmlns="http://www.w3.org/2000/svg"  width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#455560" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M14 2H6a2 2 0 0 0-2 2v16c0 1.1.9 2 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/><path d="M14 3v5h5M9.9 17.1L14 13M9.9 12.9L14 17"/></svg>
-
-)
 
 const StatusCard = (props: StatusCardProps) => {
   const {t} = useTranslation()
@@ -72,7 +62,7 @@ const StatusCard = (props: StatusCardProps) => {
           </div>
           : 
           <>
-            <NoDataIcon/>
+            <Nodata />
             <h4 className={styles.txt}>{t('no_data')}</h4>
           </>
         }

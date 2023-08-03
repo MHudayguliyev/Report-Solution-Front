@@ -9,7 +9,7 @@
 }
 
 .delModal {
-    max-width: 420px;
+    max-width: 225px;
 }
 
 .bodyTxt {
@@ -23,4 +23,9 @@ h2 {
 .radioInput {
     padding: 10px;
     color: var(--txt-color);
+}
+.saveBtn {
+    width: 100px;
+    display: flex;
+    justify-content: center;
 }
