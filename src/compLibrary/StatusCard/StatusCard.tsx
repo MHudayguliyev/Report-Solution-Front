@@ -9,6 +9,7 @@ import Button from "../Button";
 import { useTranslation } from "react-i18next";
 import { divideNumber } from "@utils/helpers";
 import Nodata from "@icons/Nodataicon/Nodata";
+import Framer from "../FramerMotion/Framer";
 
 type StatusCardProps = {
   icon: string
@@ -62,7 +63,9 @@ const StatusCard = (props: StatusCardProps) => {
           </div>
           : 
           <>
-            <Nodata />
+            <Framer>
+              <Nodata />
+            </Framer>
             <h4 className={styles.txt}>{t('no_data')}</h4>
           </>
         }

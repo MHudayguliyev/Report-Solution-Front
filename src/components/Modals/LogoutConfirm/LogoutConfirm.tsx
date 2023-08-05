@@ -14,7 +14,7 @@ const logout = () => {
   localStorage.removeItem('accessTokenExpirationDate');
   localStorage.removeItem('authUser');
   localStorage.removeItem('persist:dashboard')
-  localStorage.removeItem('persist:report')
+  localStorage.removeItem('persist:nav')
   window.location.reload();
 }
 const LogoutConfirm = (props: LogoutConfirmProp) => {

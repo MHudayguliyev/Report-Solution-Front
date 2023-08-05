@@ -1,7 +1,7 @@
-import React, {useEffect} from "react";
+import React, {useState} from "react";
 
 // action creator
-import DashboardAction from "@app/redux/actions/DashboardAction";
+import TopnavbarAction from "@app/redux/actions/TopnavbarAction";
 
 import styles from "./SelectTime.module.scss";
 import { Button, Modal } from "@app/compLibrary";
@@ -20,12 +20,13 @@ const DeleteConfirm = (props: DeleteConfirmInterface) => {
   const { show, setShow, translate} = props;
   const {t} = useTranslation()
   const dispatch = useAppDispatch()
+  const [timer, setTimer] = useState<string>('5')
 
   /// redux states
-  const time = useAppSelector(state => state.dashboardReducer.timeToRefetch)
+  const time = useAppSelector(state => state.topNavbarReducer.timeToRefetch)
 
-  const setTime = (time: string | number) => {
-    dispatch(DashboardAction.setTimeToRefetch(time))
+  const setTime = (time: string) => {
+    dispatch(TopnavbarAction.setTimetorefetch(time))
   } 
 
   return (
@@ -35,7 +36,8 @@ const DeleteConfirm = (props: DeleteConfirmInterface) => {
       close={() => {
         setShow(false); 
         setTime('5')  // defaults to 5 min if switched off 
-        dispatch(DashboardAction.setSwitched(false))
+        setTimer('5')
+        dispatch(TopnavbarAction.setSwitched(false))
       }}
       header={<h2 style={{margin: 'auto'}}>{t('select_time')}</h2>}
       footer={<Button
@@ -43,11 +45,11 @@ const DeleteConfirm = (props: DeleteConfirmInterface) => {
         color="theme"
         rounded
         onClick={() => {
-          dispatch(DashboardAction.activateAutoRefresh(true))
-          dispatch(DashboardAction.setSwitched(true))
-          setTime(time)
+          dispatch(TopnavbarAction.activateAutoRefresh(true))
+          dispatch(TopnavbarAction.setSwitched(true))
+          setTime(timer)
           setShow(false);
-          toast.success(`${time} ${t('minutes')}`, {
+          toast.success(`${timer} ${t('minutes')}`, {
             duration: 1000
           })
         }}
@@ -58,10 +60,10 @@ const DeleteConfirm = (props: DeleteConfirmInterface) => {
       <div className={styles.timerModal}>
         <ul>
           {/* <li className={styles.radioInput}><input checked={time==='1'}  onChange={e => setTime(e.target.value)} type="radio" name="time" value="1" className={styles.radioInput}/> 1 minut <br /></li> */}
-          <li className={styles.radioInput}><input checked={time==='5'}  onChange={e => setTime(e.target.value)} type="radio" name="time" value="5" className={styles.radioInput}/> 5 {t('minutes')} <br /></li>
-          <li className={styles.radioInput}><input checked={time==='15'} onChange={e => setTime(e.target.value)} type="radio" name="time" value="15" className={styles.radioInput}/> 15 {t('minutes')} <br /></li>
-          <li className={styles.radioInput}><input checked={time==='30'} onChange={e => setTime(e.target.value)} type="radio" name="time" value="30" className={styles.radioInput}/> 30 {t('minutes')} <br /></li>
-          <li className={styles.radioInput}><input checked={time==='60'} onChange={e => setTime(e.target.value)} type="radio" name="time" value="60" className={styles.radioInput}/> 60 {t('minutes')} <br /></li>
+          <li className={styles.radioInput}><input checked={timer==='5'}  onChange={e => setTimer(e.target.value)} type="radio" name="time" value="5" className={styles.radioInput}/> 5 {t('minutes')} <br /></li>
+          <li className={styles.radioInput}><input checked={timer==='15'} onChange={e => setTimer(e.target.value)} type="radio" name="time" value="15" className={styles.radioInput}/> 15 {t('minutes')} <br /></li>
+          <li className={styles.radioInput}><input checked={timer==='30'} onChange={e => setTimer(e.target.value)} type="radio" name="time" value="30" className={styles.radioInput}/> 30 {t('minutes')} <br /></li>
+          <li className={styles.radioInput}><input checked={timer==='60'} onChange={e => setTimer(e.target.value)} type="radio" name="time" value="60" className={styles.radioInput}/> 60 {t('minutes')} <br /></li>
         </ul>
       </div>
     </Modal>

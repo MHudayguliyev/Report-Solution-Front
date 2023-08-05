@@ -1,5 +1,5 @@
 import DashboardAction from '@redux/actions/DashboardAction'
-import { MaterialList } from "@app/api/Types/queryReturnTypes";
+import {  ResponseType } from '@app/Types/utils';
 
 export function resetFormikValue(initValues: any, valuesToSet: any, setFieldValue: Function, setFieldTouched: Function) {
    for(let key of Object.keys(initValues)){
@@ -85,33 +85,9 @@ export const CheckIfArray = (arr: any) => {
       return true
    return false
 }
-
-export const isSelectedMaterial = (material: MaterialList, data: MaterialList, sec:boolean = false) => {
-   if(sec){
-      return material.line_row_id_front === data.line_row_id_front
-   }else {
-      return material.row_id === data.row_id
-   }
-}
-
-export const sortArray = (array: any, key: string, sortBy: string) => {
-   let response: any = []
-   if(array){
-     if(sortBy === 'ASC'){
-       response = array.slice(0)
-       response.sort((a: any, b: any) => a[key] < b[key] ? 1 : -1)
-       return response
-     }else if(sortBy === 'DESC'){
-       response = array.slice(0)
-       response.sort((a: any, b: any) => a[key] > b[key] ? 1 : -1)
-       return response
-     }
-   }
-}
 export const CheckIfEqual = (arg1: number, arg2: number) => {
    return arg1 === arg2
 }
-
 export const ArraysChecker = (arrays: any[]) => {
    let counter = 0;
    for(let i = 0; i < arrays.length; i++){
@@ -119,71 +95,10 @@ export const ArraysChecker = (arrays: any[]) => {
       if(CheckIfArray(array))
          counter++
    }
+
    if(counter >= 1)
       return true
    return false
-}
-
-// export const DecryptApiData = (data: any) => {
-//    const bytes = crypto.AES.decrypt(data, import.meta.env.VITE_API_SECRET_KEY)
-//    return JSON.parse(bytes.toString(crypto.enc.Utf8))
-// }
-
-export const papers = [
-   // dashboard //
-   'purch_sale_orders',
-   'purch_sales_returns',
-   'stock_cost_total',
-   'payments_received_made',
-   'credits_debts_empl_balance',
-   'expenses_cashes_amount',
-   'sale_ord_totals_by_status', 
-   // report //
-   'mat_stock_amount_cost',
-   'mat_gross_profitability',
-   // forecast //
-]
-
-export interface ResponseType {
-   cred: {
-      name: string, 
-      type_id: number | null | undefined
-   },
-   data: any
-}
-
-export const DashboardSetter = ({dispatch, task, state}: {dispatch: any, task:'load'|'emptify',state?:boolean|any})=> {
-
-   switch(task){
-      case 'load': 
-         dispatch(DashboardAction.setPurchSaleOrdLoading(state))
-         dispatch(DashboardAction.setOrdCountTotalLoading(state))
-         dispatch(DashboardAction.setPurchSalesRetLoading(state))
-         dispatch(DashboardAction.setStockLoading(state))
-         dispatch(DashboardAction.setPaymentsReceivedLoading(state))
-         dispatch(DashboardAction.setPaymentsMadeLoading(state))
-         dispatch(DashboardAction.setDebtsLoading(state))
-         dispatch(DashboardAction.setCreditsLoading(state))
-         dispatch(DashboardAction.setEmployeesBalanceLoading(state))
-         dispatch(DashboardAction.setCashesLoading(state))
-         dispatch(DashboardAction.setExpensesLoading(state))
-      break;
-      case 'emptify': 
-         dispatch(DashboardAction.setPurchSaleOrders([])) 
-         dispatch(DashboardAction.setPurchSalesReturns([]))
-         dispatch(DashboardAction.setOrdCountTotalByStatus([]))
-         dispatch(DashboardAction.setStockCostTotal([]))
-         dispatch(DashboardAction.setPaymentsReceived([]))
-         dispatch(DashboardAction.setPaymentMade([]))
-         dispatch(DashboardAction.setDebtsFromPurchase([]))
-         dispatch(DashboardAction.setCreditsFromSale([]))
-         dispatch(DashboardAction.setEmployeesBalance([]))
-         dispatch(DashboardAction.setCashesAmount([]))
-         dispatch(DashboardAction.setExpensesAmount([]))
-      break;
-
-   }
-
 }
 
 export const setDashboardData = (dispatch: any, response: ResponseType) => {

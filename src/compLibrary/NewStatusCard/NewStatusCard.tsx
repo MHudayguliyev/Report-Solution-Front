@@ -11,6 +11,7 @@ import Button from "../Button/Button";
 
 import { divideNumber } from "@utils/helpers";
 import Nodata from "@icons/Nodataicon/Nodata";
+import Framer from "../FramerMotion/Framer";
 
 type StatusCardProps = {
   icon: string,
@@ -83,7 +84,9 @@ const StatusCard = (props: StatusCardProps) => {
                       divideNumber(count) : 
                     !count ? 
                     <div className={styles.noData}>
-                      <Nodata />
+                      <Framer>
+                        <Nodata />
+                      </Framer>
                       <h4 className={styles.txt}>{t('no_data')}</h4>
                     </div> : 
                     null

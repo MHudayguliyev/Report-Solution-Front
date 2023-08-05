@@ -22,7 +22,7 @@ const TabList = (props: TabListProps) => {
   } = props
 
   /// redux states
-  const activeIndex = useAppSelector(state => state.reportReducer.activeIndex)
+  const activeIndex = useAppSelector(state => state.reportReducer.activeTabIndex)
   return (
     <Paper rounded fullHeight className={styles.dynamicTabs}>
       <div className={styles.tabList}>

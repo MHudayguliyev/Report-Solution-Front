@@ -1,41 +1,44 @@
-import { UserFirms, UserFirmsList } from "@app/api/Types/queryReturnTypes/UserFirms"
+import { DateType, Scalars } from "."
+
+export type FetcherType = "refetch" | "details"
+export type TaskType = "load" | "emptify" | "both"
 
 /// aluw we satuw harytlary
 export interface PurchOrders {
-    purch_ord_count: number,
-    purch_ord_amount: number, 
-    purch_ord_nettotal: number
+    purch_ord_count: Scalars['Number'],
+    purch_ord_amount: Scalars['Number'], 
+    purch_ord_nettotal: Scalars['Number']
 }
 export interface SaleOrders {
-    sale_ord_count: number,
-    sale_ord_amount: number, 
-    sale_ord_nettotal: number
+    sale_ord_count: Scalars['Number'],
+    sale_ord_amount: Scalars['Number'], 
+    sale_ord_nettotal: Scalars['Number']
 }
 /// aluw-satuw-gaytarma
 export interface Purches {
-    purch_inv_count: number, 
-    purch_mat_amount: number, 
-    purch_nettotal: number
+    purch_inv_count: Scalars['Number'], 
+    purch_mat_amount: Scalars['Number'], 
+    purch_nettotal: Scalars['Number']
 }
 export interface RetPurches {
-    ret_of_purch_inv_count: number, 
-    ret_of_purch_mat_amount: number, 
-    ret_of_purch_nettotal: number
+    ret_of_purch_inv_count: Scalars['Number'], 
+    ret_of_purch_mat_amount: Scalars['Number'], 
+    ret_of_purch_nettotal: Scalars['Number']
 }
 export interface Sales {
-    sale_inv_count: number, 
-    sales_mat_amount: number, 
-    sales_nettotal: number
+    sale_inv_count: Scalars['Number'], 
+    sales_mat_amount: Scalars['Number'], 
+    sales_nettotal: Scalars['Number']
 }
 export interface RetSold {
-    ret_of_sold_inv_count: number, 
-    ret_of_sold_mat_amount: number, 
-    ret_of_sold_nettotal: number
+    ret_of_sold_inv_count: Scalars['Number'], 
+    ret_of_sold_mat_amount: Scalars['Number'], 
+    ret_of_sold_nettotal: Scalars['Number']
 }
 
 
 export interface StockCostTotal{
-    stock_cost_total: Date | string
+    stock_cost_total: DateType
 }
 export interface PurchSalesReturns<N>{
     purch_nettotal: N,
@@ -48,54 +51,42 @@ export interface PurchSaleOrders<N>{
     sale_ord_nettotal:N
 }
 export interface SaleOrdTotalsByStatus{
-    ord_status_id: number,
-    ord_status_name: string, 
-    sale_ord_count: number, 
-    sale_ord_mat_amount: number, 
-    sale_ord_nettotal: number
+    ord_status_id: Scalars['Number'],
+    ord_status_name: Scalars['String'], 
+    sale_ord_count: Scalars['Number'], 
+    sale_ord_mat_amount: Scalars['Number'], 
+    sale_ord_nettotal: Scalars['Number']
 }
 export interface PaymentsReceived {
-    payments_received: number
+    payments_received: Scalars['Number']
 }
 export interface PaymentsMade {
-    payments_made: number
+    payments_made: Scalars['Number']
 }
 
 export interface CreditsFromSale {
-    credits_from_sale: number | string, 
+    credits_from_sale: Scalars['Number' | 'String'], 
 }
 export interface DebtsFromPurchase {
-    debts_from_purchase: number,
+    debts_from_purchase: Scalars['Number'],
 }
 export interface EmployeesBalance {
-    employees_balance: number,
+    employees_balance: Scalars['Number'],
 }
 export interface ExpensesAmount {
-    expenses_amount: number
+    expenses_amount: Scalars['Number']
 }
 export interface CashesAmount {
-    cashes_amount: number, 
+    cashes_amount: Scalars['Number'], 
 }
 export interface AllCashBalance {
-    acc_card_balance: number,
-    acc_card_id: number, 
-    acc_type_name: number| string, 
-    acc_card_name: string | undefined
+    acc_card_balance: Scalars['Number'],
+    acc_card_id: Scalars['Number'], 
+    acc_type_name:Scalars['Number' | 'String'], 
+    acc_card_name: Scalars['String' | 'Undefined']
 }
 
-export type StorageData = {
-
-}
-
-export type UsualType = {
-    label: string, 
-    value: string, 
-    connected: boolean,
-}
-// export type ReceiverType ={}
-
-///// initial dashboard type
-export interface InitialDashboardState<T> extends StorageData {
+export interface InitialDashboardState<T> {
     stockCostTotal: StockCostTotal[],
     purchSalesReturns: PurchSalesReturns<number>[],
     purchSaleOrders: PurchSaleOrders<number>[],
@@ -131,21 +122,12 @@ export interface InitialDashboardState<T> extends StorageData {
     employeesBalanceErr: T,
     expensesErr: T,
     cashesErr: T,
-    ///RECEIVER/DATE...
-    receiver: UsualType
-
-    autoRefreshActivated: boolean,
-    timeToRefetch: string | number,
-    date: Date | string,
-    renewData: boolean, 
-    switched: boolean,
-    details: any, 
-    isDtlTblOpen: boolean,
-    detailsLoading: boolean,
-    firmsList: UserFirmsList<string>[],
+    details: Scalars["Any"], 
+    isDtlTblOpen: Scalars['Boolean'],
+    detailsLoading: Scalars['Boolean'],
     fetchData: {
-        details: boolean,
-        refetch: boolean
+        details: Scalars['Boolean'],
+        refetch: Scalars['Boolean']
     },
 }
 
@@ -194,7 +176,37 @@ export interface SetCashesAmount {
     type: 'SET_CASHES_AMOUNT'
     payload: CashesAmount[]
 }
-export interface SetAllCashBalance {
-    type: 'SET_ALL_CASH_BALANCE'
-    payload: AllCashBalance[]
+export interface SetDashboardSettings {
+    type: 'SET_DASHBOARD_SETTINGS'
+    payload: {
+        task: TaskType
+        bool?: Scalars['Boolean']
+    }
+}
+
+export interface SetBools {
+    type: Scalars["String"]
+    payload: Scalars['Boolean']
+}
+export interface SetFetcher {
+    type: 'FETCH_DATA', 
+    payload: {
+        state: Scalars['Boolean']
+        key:FetcherType
+    }
+}
+export interface LiberateFetcher {
+    type: 'LIBERATE_FETCHER'
+}
+export interface SetDetails {
+    type: 'SET_DETAILS', 
+    payload: Scalars['Any']
+}
+export interface OpenDtlTable {
+    type: 'OPEN_DTL_TBL'
+    state: Scalars['Boolean']
+}
+export interface SetDetailsLoading {
+    type: 'SET_DETAILS_LOADING'
+    state: Scalars['Boolean']
 }

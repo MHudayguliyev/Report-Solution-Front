@@ -1,7 +1,3 @@
-import map_black from '@app/assets/customIcons/map_black.png'
-import map_white from '@app/assets/customIcons/map_white.png'
-
-// console.log('tjemmode', themeMode)
 export default [
   {
     display_name: {

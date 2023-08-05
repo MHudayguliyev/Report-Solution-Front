@@ -1,4 +1,3 @@
-import { UserFirms, UserFirmsList } from '@app/api/Types/queryReturnTypes/UserFirms'
 import {
     SetCashesAmount,
     SetCreditsFromSale,
@@ -11,7 +10,15 @@ import {
     SetPurchSaleOrder,
     SetPurchSalesReturns,
     SetStockCostTotal,
-    UsualType
+    SetBools,
+    SetFetcher,
+    FetcherType,
+    LiberateFetcher,
+    SetDetails,
+    OpenDtlTable,
+    SetDetailsLoading,
+    SetDashboardSettings,
+    TaskType,
 } from '../types/DashboardTypes'
 
 import {
@@ -28,78 +35,33 @@ import {
     CashesAmount,
 } from '../types/DashboardTypes'
 
-//// RECEIVER/SENDER/....
-const fetchData = (key: 'details' | 'refetch', state: boolean) => {
+const fetchData = (key: FetcherType, state: boolean): SetFetcher => {
     return {
         type: 'FETCH_DATA',
         payload: {state, key}
     }
 }
-const liberateFetcher = () => {  // sets entire fetcher object to false
+const liberateFetcher = (): LiberateFetcher => { 
     return {
         type: 'LIBERATE_FETCHER'
     }
 }
-const setDetails = (data: any) => {
+const setDetails = (data: any): SetDetails => {
     return {
         type: 'SET_DETAILS', 
         payload: data, 
     }
 }
-const openDtlTbl = (state: boolean) => {
+const openDtlTbl = (state: boolean): OpenDtlTable => {
     return {
         type: 'OPEN_DTL_TBL', state
     }
 }
-const setDetailsLoading = (state: boolean) => {
+const setDetailsLoading = (state: boolean): SetDetailsLoading => {
     return {
         type: 'SET_DETAILS_LOADING', state
     }
 }
-const setSender = (id: string) => {
-    return {
-        type: 'SET_SENDER',
-        payload: id
-    }
-} 
-const setReceiver = (data: UsualType) => {
-    return {
-        type: 'SET_RECEIVER',
-        payload: data
-    }
-} 
-const setDate = (date: Date | string) => {
-    return {
-        type: 'SET_DATE',
-        payload: date
-    }
-} 
-const setTimeToRefetch = (time: string | number) => {
-    return {
-        type: 'SET_TIME_TO_REFETCH',
-        payload: time
-    }
-}
-const setRenewData = (state: boolean) => ({
-    type: 'SET_RENEW_DATA',
-    payload: state
-})
-const setSwitched = (state: boolean) => {
-    return {
-        type: 'SET_SWITCHED',
-        payload: state
-    }
-}
-const activateAutoRefresh = (state: boolean) => {
-    return {
-        type: 'SET_ACTIVATE_AUTO_REFRESH',
-        payload: state
-    }
-}
-const setFirmsList = (data: UserFirmsList<string>[]) => ({
-    type: 'SET_FIRMS_LIST',
-    payload: data
-})
 
 const setStockCostTotal = (data: StockCostTotal[]): SetStockCostTotal => {
     return {
@@ -107,17 +69,16 @@ const setStockCostTotal = (data: StockCostTotal[]): SetStockCostTotal => {
         payload: data
     }
 }
-const setStockLoading = (state: boolean) => {
+const setStockLoading = (state: boolean): SetBools => {
     return {
         type: 'SET_STOCK_COST_TOTAL_LOADING',
         payload: state
     }
 }
-const setStockErr = (state: boolean) => ({
+const setStockErr = (state: boolean): SetBools => ({
     type: 'SET_STOCK_COST_TOTAL_ERR',
     payload: state
 })
-
 
 const setPurchSalesReturns = (data: PurchSalesReturns<number>[]): SetPurchSalesReturns => {
     return {
@@ -125,13 +86,13 @@ const setPurchSalesReturns = (data: PurchSalesReturns<number>[]): SetPurchSalesR
         payload: data
     }
 }
-const setPurchSalesRetLoading = (state: boolean) => {
+const setPurchSalesRetLoading = (state: boolean): SetBools => {
     return {
         type: 'SET_PURCH_SALES_RETURNS_LOADING',
         payload: state
     }
 }
-const setPurchSalesRetErr = (state: boolean) => ({
+const setPurchSalesRetErr = (state: boolean): SetBools => ({
     type: 'SET_PURCH_SALE_RETURNS_ERR',
     payload: state
 })
@@ -143,13 +104,13 @@ const setPurchSaleOrders = (data: PurchSaleOrders<number>[]): SetPurchSaleOrder 
         payload: data
     }
 }
-const setPurchSaleOrdLoading = (state: boolean) => {
+const setPurchSaleOrdLoading = (state: boolean): SetBools => {
     return {
         type: 'SET_PURCH_SALE_ORDERS_LOADING',
         payload: state
     }
 }
-const setPurchSaleOrdErr = (state: boolean) => ({
+const setPurchSaleOrdErr = (state: boolean): SetBools => ({
     type: 'SET_PURCH_SALE_ORDERS_ERR',
     payload: state
 })
@@ -161,13 +122,13 @@ const setOrdCountTotalByStatus = (data: SaleOrdTotalsByStatus[]): SetSaleOrdTota
         payload: data
     }
 }
-const setOrdCountTotalLoading = (state: boolean) => {
+const setOrdCountTotalLoading = (state: boolean): SetBools => {
     return {
         type: 'SET_SALE_ORD_TOTAL_BY_STATUS_LOADING',
         payload: state
     }
 }
-const setOrdCountTotalErr = (state: boolean) => ({
+const setOrdCountTotalErr = (state: boolean): SetBools => ({
     type: 'SET_SALE_ORD_TOTAL_BY_STATUS_ERR',
     payload: state
 })
@@ -179,13 +140,13 @@ const setPaymentsReceived = (data: PaymentsReceived[]): SetPaymentsReceived => {
         payload: data
     }
 }
-const setPaymentsReceivedLoading = (state: boolean) => {
+const setPaymentsReceivedLoading = (state: boolean): SetBools => {
     return {
         type: 'SET_PAYMENTS_RECEIVED_LOADING',
         payload: state
     }
 }
-const setPaymentsReceivedErr = (state: boolean) => ({
+const setPaymentsReceivedErr = (state: boolean): SetBools => ({
     type: 'SET_PAYMENTS_RECEIVED_ERR',
     payload: state
 })
@@ -197,13 +158,13 @@ const setPaymentMade = (data: PaymentsMade[]): SetPaymentsMade => {
         payload: data
     }
 }
-const setPaymentsMadeLoading = (state: boolean) => {
+const setPaymentsMadeLoading = (state: boolean): SetBools => {
     return {
         type: 'SET_PAYMENTS_MADE_LOADING',
         payload: state
     }
 }
-const setPaymentsMadeErr = (state: boolean) => ({
+const setPaymentsMadeErr = (state: boolean): SetBools => ({
     type: 'SET_PAYMENTS_MADE_ERR',
     payload: state
 })
@@ -215,13 +176,13 @@ const setCreditsFromSale = (data: CreditsFromSale[]): SetCreditsFromSale => {
         payload: data
     }
 }
-const setCreditsLoading = (state: boolean) => {
+const setCreditsLoading = (state: boolean): SetBools => {
     return {
         type: 'SET_CREDITS_FROM_SALE_LOADING',
         payload: state
     }
 }
-const setCreditsErr = (state: boolean) => ({
+const setCreditsErr = (state: boolean): SetBools => ({
     type: 'SET_CREDITS_FROM_SALE_ERR',
     payload: state
 })
@@ -234,13 +195,13 @@ const setDebtsFromPurchase = (data: DebtsFromPurchase[]): SetDebtsFromPurchase =
         payload: data
     }
 }
-const setDebtsLoading = (state: boolean) => {
+const setDebtsLoading = (state: boolean): SetBools => {
     return {
         type: 'SET_DEBTS_FROM_PURCHASE_LOADING',
         payload: state
     }
 }
-const setDebtsErr = (state: boolean) => ({
+const setDebtsErr = (state: boolean): SetBools => ({
     type: 'SET_DEBTS_FROM_PURCHASE_ERR',
     payload: state
 })
@@ -252,13 +213,13 @@ const setEmployeesBalance = (data: EmployeesBalance[]): SetEmployeesBalance => {
         payload: data
     }
 }
-const setEmployeesBalanceLoading = (state: boolean) => {
+const setEmployeesBalanceLoading = (state: boolean): SetBools => {
     return {
         type: 'SET_EMPLOYEES_BALANCE_LOADING',
         payload: state
     }
 }
-const setEmployeesBalanceErr = (state: boolean) => ({
+const setEmployeesBalanceErr = (state: boolean): SetBools => ({
     type: 'SET_EMPLOYEES_BALANCE_ERR',
     payload: state
 })
@@ -270,18 +231,16 @@ const setExpensesAmount = (data: ExpensesAmount[]): SetExpensesAmount => {
         payload: data
     }
 }
-const setExpensesLoading = (state: boolean) => {
+const setExpensesLoading = (state: boolean): SetBools => {
     return {
         type: 'SET_EXPENSES_AMOUNT_LOADING',
         payload: state
     }
 }
-const setExpensesErr = (state: boolean) => ({
+const setExpensesErr = (state: boolean): SetBools => ({
     type: 'SET_EXPENSES_AMOUNT_ERR',
     payload: state
 })
-
-
 
 const setCashesAmount = (data: CashesAmount[]): SetCashesAmount => {
     return {
@@ -289,31 +248,27 @@ const setCashesAmount = (data: CashesAmount[]): SetCashesAmount => {
         payload: data
     }
 }
-const setCashesLoading = (state: boolean) => {
+const setCashesLoading = (state: boolean): SetBools => {
     return {
         type: 'SET_CASHES_AMOUNT_LOADING',
         payload: state
     }
 }
-const setCashesErr = (state: boolean) => ({
+const setCashesErr = (state: boolean): SetBools => ({
     type: 'SET_CASHES_AMOUNT_ERR',
     payload: state
 })
-
+const setDashboardSettings = ({task, bool}:{task: TaskType, bool?: boolean}): SetDashboardSettings => ({
+    type: 'SET_DASHBOARD_SETTINGS', 
+    payload: {
+        task, bool: bool ?? false
+    }
+})
 
 const exportDefault = {
-    /// RECEIVER/SENDER/DATE/SWITCH BOX/AUTO REFRESH/FIRMS_LIST/DISACTIVATE AUTO REFRESH/FETCH_DATA/DETAILS TABLE OPEN STATE/DETAILS LOADING STATE
-    fetchData,liberateFetcher,  
+    ///FETCH_DATA/DETAILS TABLE OPEN STATE/DETAILS LOADING STATE
+    fetchData,liberateFetcher,  setDashboardSettings,
     setDetails, openDtlTbl, setDetailsLoading,
-    setSender,
-    setReceiver,
-    setDate,
-    setTimeToRefetch,
-    setRenewData,
-    setSwitched,
-    activateAutoRefresh,
-    setFirmsList,
-    // disactivateAutoRefresh,
     /// REAL STATES
     setCashesAmount,
     setCreditsFromSale,

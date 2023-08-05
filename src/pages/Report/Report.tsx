@@ -12,6 +12,7 @@ import { useAppDispatch } from '@app/hooks/redux_hooks';
 import { useTranslation } from 'react-i18next';
 /// redux actions
 import ReportAction from '@redux/actions/ReportAction'
+import TopnavbarAction from '@redux/actions/TopnavbarAction'
 /// locale type
 import { Localization } from '@app/redux/types/ReportTypes';
 
@@ -38,18 +39,16 @@ const Report = () => {
   // redux states
   const reportsData = useAppSelector(state => state.reportReducer.reportData)
   const endUrl = useAppSelector(state => state.reportReducer.endUrl)
-  const activeIndex = useAppSelector(state => state.reportReducer.activeIndex)
-  const isLoading = useAppSelector(state => state.reportReducer.isDataLoading)
+  const activeTabIndex = useAppSelector(state => state.reportReducer.activeTabIndex)
+  const isReportsDataLoading = useAppSelector(state => state.reportReducer.isReportsDataLoading)
   const field = useAppSelector(state => state.reportReducer.field)
-
-
 
   useEffect(() => {
     if(!socket) return
     const getData = (data: any | any[]) => {
       dispatch(ReportAction.setReportData(data))
-      dispatch(ReportAction.renewData(false))
-      dispatch(ReportAction.setDataLoading(false))
+      dispatch(TopnavbarAction.setRenewReport(false))
+      dispatch(ReportAction.setReportDataLoading(false))
     }
     socket.on('receive_reports', getData)
 
@@ -59,12 +58,13 @@ const Report = () => {
   }, [socket])
 
   useEffect(() => {
+    // console.log('endUrl', endUrl)
     setPaperData((prev) => ({...prev, paperName: endUrl}))
   }, [endUrl])  
 
   useEffect(() => {
     dispatch(ReportAction.setReportData([]))
-  }, [activeIndex])
+  }, [activeTabIndex])
 
 
   return (
@@ -75,7 +75,7 @@ const Report = () => {
           data={reportsData}
           paperData={paperData}
           translation={t}
-          isLoading={isLoading}
+          isLoading={isReportsDataLoading}
           enableStickyHeader
           renderBottomToolbarActions
           density={'compact'}

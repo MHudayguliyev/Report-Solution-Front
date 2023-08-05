@@ -9,7 +9,6 @@ import { useAppDispatch, useAppSelector } from "@app/hooks/redux_hooks";
 import ThemeAction from "@redux/actions/ThemeAction";
 // custom icons
 import FilterClean from '@app/assets/customIcons/filterClean.svg'
-import { ClearBuffer } from './../../redux/types/MaterialTypes';
 
 type TopBurgerMenuProps = {
    children: ReactNode

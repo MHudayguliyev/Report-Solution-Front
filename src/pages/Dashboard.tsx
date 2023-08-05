@@ -1,22 +1,23 @@
-import React, {useEffect, useMemo, useCallback, useState } from 'react'
+import React, {useEffect, useMemo,  useState } from 'react'
 import { useAppDispatch, useAppSelector } from '@app/hooks/redux_hooks'
 import { useTranslation } from 'react-i18next'
 /// dashboard actions
 import DashboardAction from '@redux/actions/DashboardAction'
+import TopnavbarAction from '@redux/actions/TopnavbarAction'
 /// utils 
-import { CheckObjOrArrForNull, delay, setDashboardData } from '@utils/helpers'
+import { CheckObjOrArrForNull,  setDashboardData } from '@utils/helpers'
 // components
 import { Col, Paper, Row, StatusCard, Table } from '@app/compLibrary'
-import { CashesAmount, CreditsFromSale, DebtsFromPurchase, EmployeesBalance, ExpensesAmount, PaymentsMade, PaymentsReceived, PurchSaleOrders, PurchSalesReturns, SaleOrdTotalsByStatus, StockCostTotal, UsualType } from '@app/redux/types/DashboardTypes'
 import NewStatusCard from '@app/compLibrary/NewStatusCard'
 /// paperNames
-import { papers } from '@utils/helpers'
+import papers from '@app/assets/JsonData/papers'
 /// styles
 import styles from './Dashboard.module.scss'
 import MaterialTable from '@app/components/MaterialTable/MaterialTable';
 import Status from '@app/components/Status/Status'
 // sockets
 import { socket } from '@app/socket/socket'
+import { FetcherType } from '@app/redux/types/DashboardTypes'
 
 type TableNameType = {
   value:string, 
@@ -34,8 +35,8 @@ const Dashboard = () => {
   const details = useAppSelector(state => state.dashboardReducer.details)
   const isDtlTblOpen = useAppSelector(state => state.dashboardReducer.isDtlTblOpen)
   const isDetsLoading = useAppSelector(state => state.dashboardReducer.detailsLoading)
-  const receiver = useAppSelector(state => state.dashboardReducer.receiver)
-  const date = useAppSelector(state => state.dashboardReducer.date)
+  const receiver = useAppSelector(state => state.topNavbarReducer.receiver)
+  const dashboardDate = useAppSelector(state => state.topNavbarReducer.dashboardDate)
   const purchSaleOrders = useAppSelector(state => state.dashboardReducer.purchSaleOrders)
   const saleOrdTotalByStatus= useAppSelector(state => state.dashboardReducer.saleOrdTotalsByStatus)
   const purchSalesReturns = useAppSelector(state => state.dashboardReducer.purchSalesReturns)
@@ -72,7 +73,7 @@ const Dashboard = () => {
   const expensesErr= useAppSelector(state => state.dashboardReducer.expensesErr)
   const cashesErr = useAppSelector(state => state.dashboardReducer.cashesErr)
 
-  const fetcherFN = (key: "details"|"refetch", state: boolean) => {
+  const fetcherFN = (key: FetcherType, state: boolean) => {
     dispatch(DashboardAction.fetchData(key, state))
   }
   const setNameFN = (props: TableNameType) => {
@@ -87,10 +88,9 @@ const Dashboard = () => {
     if(!socket) return 
     const getInitData = (response: any) => {
       setDashboardData(dispatch, response)
-      dispatch(DashboardAction.setRenewData(false))
+      dispatch(TopnavbarAction.setRenewDashboard(false))
     }
     const getDetails = (response: any) => {
-      console.log('response ', response)
       dispatch(DashboardAction.setDetails(response))
       dispatch(DashboardAction.setDetailsLoading(false))
     }
@@ -117,7 +117,7 @@ const Dashboard = () => {
         data: {
           type_id: paperData.typeID,
           name: paperData.paperName,
-          date: date
+          date: dashboardDate
         }
       }
       const socketAddress: string | null = 

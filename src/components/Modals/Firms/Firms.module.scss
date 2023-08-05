@@ -92,13 +92,16 @@
         display: flex;
         justify-content: center;
     }
-    // width: 100px;
-    // // text-align: center;
-    // // display: flex;
-    // // justify-content: center;
 }
 
-.noFirm {
-    text-align: center;
-    color: var(--txt-color)
+.noFirmFound {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    .notFoundTxt {
+        text-align: center;
+        color: var(--txt-color)
+    }
 }
+

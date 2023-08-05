@@ -8,6 +8,7 @@ import styles from './Table.module.scss';
 import Loading from "../SkeletonCard/Loading";
 import Button from "../Button";
 import Nodata from "@icons/Nodataicon/Nodata";
+import Framer from "../FramerMotion/Framer";
 
 
 interface TableProps<T> {
@@ -82,7 +83,9 @@ function Table<T>(props: TableProps<T>) {
         : <tbody className={styles.notFound}>
             <tr>
               <td>
-                <Nodata />
+                <Framer>
+                  <Nodata />
+                </Framer>
                 <div className={styles.txt}>{t('no_data')}</div>
               </td>
             </tr>

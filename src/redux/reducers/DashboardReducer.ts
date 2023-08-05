@@ -1,6 +1,5 @@
 import { AnyAction } from "redux";
 import {InitialDashboardState} from '../types/DashboardTypes'
-import moment from "moment";
 
 export const initialState: InitialDashboardState<boolean> = {
     purchSaleOrders: [],
@@ -27,6 +26,7 @@ export const initialState: InitialDashboardState<boolean> = {
     expensesLoding: false,
     cashesLoading: false,
     stockCostErr: false,
+
     purchSaleRetErr: false,
     purchSaleOrdErr: false,
     saleOrdTotalErr: false,
@@ -37,80 +37,79 @@ export const initialState: InitialDashboardState<boolean> = {
     employeesBalanceErr: false,
     expensesErr: false,
     cashesErr: false,
-
-    receiver: { value: '', label: '', connected: false },
-    renewData: false,
-    switched: false,
+    
     fetchData: {details: false, refetch: false},
     details: [], 
     isDtlTblOpen: false, 
     detailsLoading: false, 
-    firmsList: [],
-    autoRefreshActivated: false, 
-    timeToRefetch: '5',
-    date: moment(new Date()).format("YYYY-MM-DD"),
+
 }
 
 
 const DashboardReducer = (state=initialState, action:AnyAction) => {
     switch(action.type) {
-        case 'SET_DATE': 
-            return {
-                ...state, 
-                date: action.payload
-            }
-        case 'SET_TIME_TO_REFETCH': 
-            return {
-                ...state, 
-                timeToRefetch: action.payload
-            }
-        case 'SET_ACTIVATE_AUTO_REFRESH': 
-            return {
-                ...state, 
-                autoRefreshActivated: action.payload
-            }
         case 'FETCH_DATA':
             const {state: condition, key} = action.payload
             return {
                 ...state, 
-                fetchData: {...state.fetchData, [key]: condition}
+                fetchData: {...state.fetchData, [key as string]: condition as boolean}
             }
         case 'LIBERATE_FETCHER': 
             return {
                 ...state, fetchData: {...state.fetchData, details: false, refetch: false}
             }
-        case 'SET_DETAILS':
-            return {
-                ...state, details: action.payload
-            }
+        case 'SET_DASHBOARD_SETTINGS': 
+            const {task, bool} = action.payload
+            if(task==='load'){
+                return {
+                    ...state, 
+                    stockCostLoading: bool,purchSaleRetLoading: bool, 
+                    purchSaleOrdLoading: bool, saleOrdTotalLoading: bool, 
+                    paymentsReceivedLoading: bool, paymentsMadeLoading: bool, 
+                    creditsLoading: bool, debtsLoading: bool, employeesBalanceLoading: bool, 
+                    expensesLoding: bool, cashesLoading: bool,
+                }
+            }else if(task==='emptify'){
+                return {
+                    ...state, 
+                    purchSaleOrders: [], saleOrdTotalsByStatus: [], 
+                    purchSalesReturns:[], stockCostTotal: [], 
+                    paymentsReceived: [], paymentsMade:[], 
+                    creditsFromSale: [], debtsFromPurchase: [], 
+                    employeesBalance: [], expensesAmount:[], cashesAmount: [],
+                    details: []
+                }
+            }else if(task==='both'){
+                return {
+                    ...state, 
+                    stockCostLoading: bool,purchSaleRetLoading: bool, 
+                    purchSaleOrdLoading: bool, saleOrdTotalLoading: bool, 
+                    paymentsReceivedLoading: bool, paymentsMadeLoading: bool, 
+                    creditsLoading: bool, debtsLoading: bool, employeesBalanceLoading: bool, 
+                    expensesLoding: bool, cashesLoading: bool, purchSaleRetErr:bool, 
+                    purchSaleOrdErr:bool, saleOrdTotalErr:bool, paymentsReceivedErr:bool, 
+                    paymentsMadeErr:bool, creditsErr:bool, debtsErr:bool, employeesBalanceErr:bool, 
+                    expensesErr: bool, cashesErr:bool, detailsLoading: bool,
+                    purchSaleOrders: [], saleOrdTotalsByStatus: [], 
+                    purchSalesReturns:[], stockCostTotal: [], 
+                    paymentsReceived: [], paymentsMade:[], 
+                    creditsFromSale: [], debtsFromPurchase: [], 
+                    employeesBalance: [], expensesAmount:[], cashesAmount: [], details: []
+                }
+            }else 
+                return state
+
         case 'OPEN_DTL_TBL':
             return {
                 ...state, isDtlTblOpen: action.state
             }
+        case 'SET_DETAILS':
+            return {
+                ...state, details: action.payload
+            }
         case 'SET_DETAILS_LOADING': 
             return {
                 ...state, detailsLoading: action.state
-            }
-        case 'SET_RECEIVER': 
-            return {
-                ...state, 
-                receiver: action.payload
-            }
-
-        case 'SET_SWITCHED':
-            return {
-                ...state, 
-                switched: action.payload
-            }
-        case 'SET_RENEW_DATA': 
-            return {
-                ...state, 
-                renewData: action.payload
-            }
-        case 'SET_FIRMS_LIST' : 
-            return {
-                ...state, 
-                firmsList: action.payload
             }
         case 'SET_STOCK_COST_TOTAL_LOADING': 
             return {

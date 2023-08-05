@@ -1,9 +1,8 @@
 import storage from 'redux-persist/lib/storage';
 const dashWhiteList = [
-    'switched', 'autoRefreshActivated', 'timeToRefetch', 'date',
     'purchSaleOrders','saleOrdTotalsByStatus','purchSalesReturns',
     'stockCostTotal','paymentsReceived','paymentsMade','creditsFromSale',
-    'debtsFromPurchase','employeesBalance','expensesAmount','cashesAmount','receiver'
+    'debtsFromPurchase','employeesBalance','expensesAmount','cashesAmount',
 ]
 
 export const dashboardCfg = {
@@ -11,7 +10,10 @@ export const dashboardCfg = {
     storage,
     whitelist: dashWhiteList
 }
-export const reportCfg = {
-    key: 'report',storage,
-    whitelist: ['startDate', 'endDate']
+export const TopnavbarCfg = {
+    key: 'nav', storage, 
+    whitelist: [
+        'switched', 'autoRefreshActivated', 'timeToRefetch', 'dashboardDate',
+        'receiver', 'reportStartDate', 'reportEndDate'
+    ]
 }

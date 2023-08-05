@@ -27,15 +27,16 @@ import SelectTime from '@app/components/Modals/SelectTime/SelectTime'
 import { useTranslation } from "react-i18next";
 import { useAppDispatch, useAppSelector } from "@app/hooks/redux_hooks";
 // Action creators
+import TopnavbarAction from '@redux/actions/TopnavbarAction'
 import AuthAction from '@redux/actions/AuthAction'
 import DashboardAction from '@redux/actions/DashboardAction'
 import ReportAction from '@redux/actions/ReportAction'
 import ThemeAction from "@app/redux/actions/ThemeAction";
-import moment from "moment";
 import FormAction from "@app/redux/actions/FormAction";
-import DropDownSelect from "../DropDownSelect/DropDownSelect";
+//moment
+import moment from "moment";
 import { GetUser, GetUserActions, GetUserFirms, GetUserSubcsStatus } from "@app/api/Queries/Getters";
-import { CheckObjOrArrForNull, isStrEmpty, DashboardSetter, checkDisconnectedClient } from "@utils/helpers";
+import { CheckObjOrArrForNull, isStrEmpty, checkDisconnectedClient } from "@utils/helpers";
 import { UserFirms, UserFirmsList } from "@app/api/Types/queryReturnTypes/UserFirms";
 import { TbAdjustmentsHorizontal } from "react-icons/tb";
 import UserProfile from "../UserProfile/UserProfile";
@@ -47,7 +48,7 @@ import { Localization } from "@app/redux/types/ReportTypes";
 // socket conn
 import {socket} from '@app/socket/socket'
 import Firms from "../Modals/Firms/Firms";
-import useWindowSize from "@app/hooks/useWindowSize";
+import { DisconnectedType } from "@redux/types/TopnavbarTypes";
 
 const refetchData = ({socket,dispatch,path,receiver,endPoint,date,field}: {socket: any,dispatch: Function,path: string,receiver: {value: string},endPoint:string,date:any | {startDate: any, endDate: any} | Date,field?:{value: string, label: Localization}}) => {
   const message = {
@@ -56,34 +57,13 @@ const refetchData = ({socket,dispatch,path,receiver,endPoint,date,field}: {socke
   }
   socket.emit('request_initial_data', message)
   if(path==='/dashboard'){
-    DashboardSetter({dispatch, task: 'load', state: true})
+    dispatch(DashboardAction.setDashboardSettings({task: 'load', bool: true}))
   }else if(path==='/report'){
-    dispatch(ReportAction.setDataLoading(true))
+    dispatch(ReportAction.setReportDataLoading(true))
   }else if(path==='/forecast'){
     /// HELLO FORECAST
   }
 }
-
-function setListOfFirms(firms: UserFirms<string>[]): UserFirmsList<string>[] {
-  let result:UserFirmsList<string>[] = []
-  if(CheckObjOrArrForNull(firms)){
-    result = firms.map(item => {
-      return {
-        user_guid: item.user_guid, 
-        firm_fullname: item.firm_fullname, 
-        firm_tel_num1: item.firm_tel_num1,
-        firm_tel_num2: item.firm_tel_num2, 
-        firm_address: item.firm_address, 
-        firm_crt_mdf_dt: item.firm_crt_mdf_dt,
-        label: item.firm_name, 
-        value: item.backend_guid,
-        connected: item.connected,
-        connected_at: item.connected_at // note: this is null when THE FIRM is not connected once yet!
-      }
-    })
-  }
-  return result
-} 
 
 const renderUserToggle = () => {
   let userName;
@@ -103,11 +83,7 @@ const renderUserToggle = () => {
   )
 };
 
-type DisconnectedType = {
-  room: string
-  connected: boolean
-  last_conn_dt: Date | string
-}
+
 
 const cx = classNames.bind(styles)
 
@@ -121,23 +97,23 @@ const TopNavbar = () => {
   const refetchUserData = useAppSelector(state => state.authReducer.refetchUserData)
   const isDtlTblOpen = useAppSelector(state => state.dashboardReducer.isDtlTblOpen)
   const isDetsLoading = useAppSelector(state => state.dashboardReducer.detailsLoading)
-  const isReportsDataLoading = useAppSelector(state => state.reportReducer.isDataLoading)
-  const receiver = useAppSelector(state => state.dashboardReducer.receiver)
+  const isReportsDataLoading = useAppSelector(state => state.reportReducer.isReportsDataLoading)
+  const receiver = useAppSelector(state => state.topNavbarReducer.receiver)
   const isOpenSideBar = useAppSelector(state => state.themeReducer.isOpenSidebar);
   const isShowTimeModal = useAppSelector((state: any) => state.formsReducer.showTimeModal)
-  const activeIndex = useAppSelector(state => state.reportReducer.activeIndex)
+  const activeIndex = useAppSelector(state => state.reportReducer.activeTabIndex)
 
-  const renewDashboard = useAppSelector(state => state.dashboardReducer.renewData)
-  const renewReport = useAppSelector(state => state.reportReducer.renewData)
-  const autoRefreshActivated = useAppSelector(state => state.dashboardReducer.autoRefreshActivated)
-  const switched = useAppSelector(state => state.dashboardReducer.switched)
-  const time = useAppSelector(state => state.dashboardReducer.timeToRefetch)
-  const firmsList = useAppSelector(state => state.dashboardReducer.firmsList)
+  const renewDashboard = useAppSelector(state => state.topNavbarReducer.renewDashboard)
+  const renewReport = useAppSelector(state => state.topNavbarReducer.renewReport)
+  const autoRefreshActivated = useAppSelector(state => state.topNavbarReducer.autoRefreshActivated)
+  const switched = useAppSelector(state => state.topNavbarReducer.switched)
+  const time = useAppSelector(state => state.topNavbarReducer.timeToRefetch)
+  const firmsList = useAppSelector(state => state.topNavbarReducer.firmsList)
   const cashesLoading = useAppSelector(state => state.dashboardReducer.cashesLoading)
-  const date: any = useAppSelector(state => state.dashboardReducer.date)
-  const startDate:any = useAppSelector(state => state.reportReducer.startDate)
-  const endDate:any = useAppSelector(state => state.reportReducer.endDate)
-  const endUrl:string = useAppSelector(state => state.reportReducer.endUrl)
+  const date: any = useAppSelector(state => state.topNavbarReducer.dashboardDate)
+  const startDate:any = useAppSelector(state => state.topNavbarReducer.reportStartDate)
+  const endDate:any = useAppSelector(state => state.topNavbarReducer.reportEndDate)
+  const endUrl = useAppSelector(state => state.reportReducer.endUrl)
   const field = useAppSelector(state => state.reportReducer.field)
   const fetcher = useAppSelector(state => state.dashboardReducer.fetchData)
  
@@ -157,7 +133,6 @@ const TopNavbar = () => {
   const [logoutModal, setLogoutModal] = useState<boolean>(false)
   const [showFirms, setShowFirms] = useState<boolean>(false)
   const [showSidebar, setShowSidebar] = useClickOutside(menu_ref, menu_toggle_ref, disableOutClick)
-  const [width] = useWindowSize()
 
   const authUser = JSON.parse(localStorage.getItem('authUser')!) || ""
   const userGuid:string = authUser?.user_guid ?? ""
@@ -197,7 +172,7 @@ const TopNavbar = () => {
   useEffect(() => {
     if(!switched){
       if(!autoRefreshActivated && time !== '5'){
-        dispatch(DashboardAction.setTimeToRefetch('5'))
+        dispatch(TopnavbarAction.setTimetorefetch('5'))
       }
     }
   }, [switched])
@@ -212,7 +187,7 @@ const TopNavbar = () => {
   useEffect(() => {
     if(!socket) return
     const getFirms = (firms: UserFirms<string>[]) => {
-      dispatch(DashboardAction.setFirmsList(setListOfFirms(firms)))
+      dispatch(TopnavbarAction.setFirmsList(firms))
     }
     const disconnectMess = (response: DisconnectedType) => {
       const {room, connected, last_conn_dt} = response
@@ -246,13 +221,14 @@ const TopNavbar = () => {
         socket.emit('request_clients', firmsData)
   }, [firmsData])
 
+
   /// note: this side effect is to set receiver in case it isn't connected  
   useEffect(() => {
     if(!receiver.connected && CheckObjOrArrForNull(firmsList)){
       for(let i = 0; i < firmsList.length; i++){
         const firm = firmsList[i]
         if(firm.connected){
-          dispatch(DashboardAction.setReceiver({
+          dispatch(TopnavbarAction.setReceiver({
             connected: firm.connected,
             value: firm.value,
             label: firm.label
@@ -306,30 +282,11 @@ const TopNavbar = () => {
 
   useEffect(() => {
     if(checkDisconnectedClient(disClient) && CheckObjOrArrForNull(firmsList)){
-        const firmsListClone = firmsList.map(value => ({...value}))
-        for(let i = 0; i < firmsListClone.length; i++){
-          const firm = firmsListClone[i]
-          if(firm.value === disClient.room){
-            firm.connected = disClient.connected // which is false
-            firm.connected_at = disClient.last_conn_dt
-            dispatch(DashboardAction.setReceiver({
-              connected: false,
-              value: '',
-              label: ''
-            }))
-            toast.error(firm.label + t('disconnected'), {duration: 2*1000})
-          }
-        }
-        if(fetcher.details || fetcher.refetch)
-          dispatch(DashboardAction.liberateFetcher())
-        if(isDetsLoading)
-          dispatch(DashboardAction.setDetailsLoading(false))
-        dispatch(DashboardAction.setFirmsList(firmsListClone))
-        dispatch(DashboardAction.activateAutoRefresh(false))
-        dispatch(DashboardAction.setSwitched(false))
-        DashboardSetter({dispatch, task: 'load', state: false})
-        setDisClient(prev => ({...prev, room: "", connected: false, last_conn_dt: ""}))
-        // DashboardSetter({dispatch, task: 'emptify'})
+      dispatch(TopnavbarAction.updateFirmsOnDisconnect(disClient, t))
+      dispatch(DashboardAction.setDashboardSettings({task: 'both', bool: false}))
+      if(fetcher.details || fetcher.refetch)
+        dispatch(DashboardAction.liberateFetcher())
+      setDisClient(prev => ({...prev, room: "", connected: false, last_conn_dt: ""}))
     }
   }, [disClient])
 
@@ -338,7 +295,7 @@ const TopNavbar = () => {
       activeIndex===0 && moment(startDate).isAfter(moment(endDate)) || 
       activeIndex===0 && moment(startDate).isSame(moment(endDate))
     )
-      dispatch(ReportAction.setEndDate(moment(startDate).add(1, 'days').format('YYYY-MM-DD')))
+      dispatch(TopnavbarAction.setReportEndDate(moment(startDate).add(1, 'days').format('YYYY-MM-DD')))
   }, [startDate])
 
   useEffect(() => {
@@ -390,10 +347,9 @@ const TopNavbar = () => {
             if(isDtlTblOpen && !isDetsLoading)
               dispatch(DashboardAction.fetchData('details', true))
             else if(!isDtlTblOpen && !cashesLoading) 
-              dispatch(DashboardAction.setRenewData(true))
-  
+              dispatch(TopnavbarAction.setRenewDashboard(true))
         }else if(match.pathname === '/report' && !isReportsDataLoading){
-          dispatch(ReportAction.renewData(true))
+          dispatch(TopnavbarAction.setRenewReport(true))
         }else if(match.pathname === '/forecast'){
           console.log('happy to be in forecast page')
         }
@@ -485,7 +441,7 @@ const TopNavbar = () => {
                     if (selectedDate < min || selectedDate > max) {
                       input.value = "";
                     }else {
-                      dispatch(DashboardAction.setDate(selectedDate)) 
+                      dispatch(TopnavbarAction.setDashboardDate(selectedDate)) 
                     }
                   }}
               />
@@ -512,8 +468,8 @@ const TopNavbar = () => {
                       (activeIndex===0 && moment(e.currentTarget.value).isAfter(moment(endDate))) || 
                       (activeIndex===0 && moment(e.currentTarget.value).isSame(endDate))
                     )
-                      dispatch(ReportAction.setStartDate(e.currentTarget.value))
-                    else dispatch(ReportAction.setStartDate(moment(endDate).subtract(1, 'days').format('YYYY-MM-DD')))
+                      dispatch(TopnavbarAction.setReportStartDate(e.currentTarget.value))
+                    else dispatch(TopnavbarAction.setReportStartDate(moment(endDate).subtract(1, 'days').format('YYYY-MM-DD')))
 
                   }
                 }}
@@ -535,8 +491,8 @@ const TopNavbar = () => {
                       input.value = "";
                     }else {
                       if (moment(e.currentTarget.value).isAfter(moment(startDate)))
-                        dispatch(ReportAction.setEndDate(e.currentTarget.value))
-                      else dispatch(ReportAction.setEndDate(moment(startDate).add(1, 'days').format('YYYY-MM-DD')))
+                        dispatch(TopnavbarAction.setReportEndDate(e.currentTarget.value))
+                      else dispatch(TopnavbarAction.setReportEndDate(moment(startDate).add(1, 'days').format('YYYY-MM-DD')))
                     }
                   }}
                 />  
@@ -573,11 +529,11 @@ const TopNavbar = () => {
                     if(!receiver.connected)
                       toast.error(t('select_firm'))
                     else {
-                      dispatch(DashboardAction.setSwitched(!switched))
+                      dispatch(TopnavbarAction.setSwitched(!switched))
                       if(!switched)
                         dispatch(FormAction.setShowTimeModal(!isShowTimeModal)) 
                       if(autoRefreshActivated)
-                        dispatch(DashboardAction.activateAutoRefresh(false));
+                        dispatch(TopnavbarAction.activateAutoRefresh(false));
                   } 
 
                 }            
@@ -598,7 +554,7 @@ const TopNavbar = () => {
     <div className={styles.userDrpdown}>
       <div className={styles.subsc_head}>
         <h4 className={styles.subscription}>{t('subs')}</h4>
-        <span><i className="bx bxs-info-circle"></i></span>
+        {/* <span><i className="bx bxs-info-circle"></i></span> */}
       </div>
 
       {

@@ -6,13 +6,15 @@ import ClientsReducer from './reducers/ClientsReducer';
 import DashboardReducer from './reducers/DashboardReducer';
 import FormsReducer from './reducers/FormReducer';
 import ReportReducer from './reducers/ReportReducer';
-import { dashboardCfg, reportCfg } from './config';
+import TopnavbarReducer from './reducers/TopnavbarReducer';
+import { dashboardCfg, TopnavbarCfg } from './config';
 
 const appReducer = combineReducers({
     themeReducer: ThemeReducer,
     authReducer: AuthReducer,
     dashboardReducer: persistReducer(dashboardCfg, DashboardReducer),
-    reportReducer: persistReducer(reportCfg, ReportReducer),
+    topNavbarReducer: persistReducer(TopnavbarCfg, TopnavbarReducer),
+    reportReducer: ReportReducer,
     formsReducer: FormsReducer,
     clientsReducer: ClientsReducer,
 })  

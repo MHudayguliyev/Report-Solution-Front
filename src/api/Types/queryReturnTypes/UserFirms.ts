@@ -1,4 +1,4 @@
-import { UsualType } from "@app/redux/types/DashboardTypes"
+import { UsualType } from "@app/redux/types/TopnavbarTypes"
 
 export type UserFirms<T> = {
     user_guid: T,

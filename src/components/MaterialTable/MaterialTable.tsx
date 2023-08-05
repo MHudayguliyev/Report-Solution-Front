@@ -1,4 +1,4 @@
-//@ts-nocheck
+//@ts-noCheck
 import React, {useState, useEffect, useMemo} from 'react'
 import { useAppSelector,useAppDispatch }  from '@app/hooks/redux_hooks';
 import { useTranslation } from 'react-i18next';
@@ -8,7 +8,7 @@ import MaterialReactTable, {
   MRT_ShowHideColumnsButton,
   MRT_ToggleFiltersButton, 
   MRT_ToggleDensePaddingButton, type MRT_ColumnDef } from 'material-react-table';
-import { CheckObjOrArrForNull  } from '@utils/helpers';
+import { CheckIfArray, CheckObjOrArrForNull  } from '@utils/helpers';
 import { createTheme, darken,  ThemeProvider } from '@mui/material';
 import { makeStyles } from "@material-ui/core";
 import { MRT_Localization_RU as rus} from 'material-react-table/locales/ru';
@@ -24,23 +24,11 @@ import moment from 'moment';
 import tableLocalization from '@app/assets/JsonData/table-localization.json' assert {type: 'json'}
 import ReportAction from '@app/redux/actions/ReportAction';
 import DropDownSelect from '../DropDownSelect/DropDownSelect';
-import { Localization } from '@app/redux/types/ReportTypes';
-
-function setTabUrl(index: number): string {
-  let endUrl: string=''
-  switch(index){
-    case 0: 
-      endUrl = 'mat_stock_amount_cost'
-      break;
-    case 1: 
-      endUrl = 'mat_gross_profitability'
-      break;
-  }
-  return endUrl
-}
+import { FieldType, Localization } from '@app/redux/types/ReportTypes';
 
 const setData = (data: any, name: {label:string, value:string}, t: Function) => {
-  if(CheckObjOrArrForNull(data)){
+  const dataClone = CheckIfArray(data) ? data?.map((item:any) => ({...item})) : []
+  if(CheckObjOrArrForNull(dataClone) && name !== {}){
     if(
       name.label===t('purchase') ||
       name.label===t('returnOfPurchace') ||
@@ -48,8 +36,8 @@ const setData = (data: any, name: {label:string, value:string}, t: Function) => 
       name.label=== t('returnOfSold') || 
       name.label===t('actions')
     ){
-      for(let i = 0; i < data.length; i++){
-        const item = data[i]
+      for(let i = 0; i < dataClone.length; i++){
+        const item = dataClone[i]
         if(item.ord_date){
           item.ord_date = moment(item.ord_date).format('HH:MM:SS')
         }else if(item.inv_date){
@@ -60,8 +48,7 @@ const setData = (data: any, name: {label:string, value:string}, t: Function) => 
       }    
     }
   }
-  console.log('data', data)
-  return data
+  return dataClone
 }
 
 const useStyles = makeStyles(theme => ({
@@ -98,9 +85,9 @@ type TableProps = {
     /** @defaultValue 250px */
     heightToExtract?: '600' | '550' | '500' | '475' | '400' | '350' | '250' | '200' | '150' | '100'
     /** for report page */
-    dropdownData?: {value: string, label: Localization}[]
+    dropdownData?: FieldType[]
     tabs?: Localization[],
-    field?: {value: string, label: Localization}  
+    field?: FieldType
 }
 
 interface TableColType extends Localization {
@@ -167,7 +154,7 @@ const MaterialTable = (props: TableProps) => {
   const [name, setName] = useState<string>(tableName?.label??"")
 
   const finding = useMemo(() => {
-    return data ? setData(data, tableName, translation) : []
+    return data ? setData(data, tableName??{}, translation) : []
   }, [data])
 
   const tableCols = useMemo((): TableColType[] => {
@@ -205,8 +192,7 @@ const MaterialTable = (props: TableProps) => {
 
   const classes = useStyles();
   const dispatch = useAppDispatch()
-  const activeIndex = useAppSelector(state => state.reportReducer.activeIndex)
-
+  const activeTabIndex = useAppSelector(state => state.reportReducer.activeTabIndex)
   return (
     <>
       {
@@ -259,14 +245,12 @@ const MaterialTable = (props: TableProps) => {
                         tabs ? tabs?.map((tab: any, index: number) => (
                           <div key={index} className={styles.tablePanel} 
                             onClick={() => {
-                              if(!isLoading){
-                                dispatch(ReportAction.setActiveindex(index));
-                                dispatch(ReportAction.setEndUrl(setTabUrl(index)))
-                              }
+                              if(!isLoading)
+                                dispatch(ReportAction.setTabActiveIndex(index));
                             }
                             }
                             >
-                           <span className={cx({activeIndex: activeIndex===index})}>{tab[language]}</span> 
+                           <span className={cx({activeIndex: activeTabIndex===index})}>{tab[language]}</span> 
                           </div>
                         ))  : ""
                       }
@@ -338,7 +322,7 @@ const MaterialTable = (props: TableProps) => {
                     fontWeight: 450
                   },
                 }}
-                renderRowActions={(row) => console.log("row", row)}
+                // renderRowActions={(row) => console.log("row", row)}
                 columns={cols ?? []}
                 data={finding ?? []} 
                 initialState={{pagination: { pageSize: pagination.pageSize, pageIndex: pagination.pageIndex },

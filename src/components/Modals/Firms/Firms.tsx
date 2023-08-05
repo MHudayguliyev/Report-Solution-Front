@@ -5,6 +5,8 @@ import { Modal, Button } from '@app/compLibrary'
 import CommonModalI from '../commonTypes'
 // redux 
 import { useAppDispatch, useAppSelector } from '@app/hooks/redux_hooks'
+//actions
+import TopnavbarAction from '@redux/actions/TopnavbarAction'
 import DashboardAction from '@redux/actions/DashboardAction'
 // styles
 import classNames from 'classnames/bind'
@@ -13,9 +15,11 @@ import styles from './Firms.module.scss'
 import toast from 'react-hot-toast'
 //types
 import { UserFirmsList } from '@app/api/Types/queryReturnTypes/UserFirms'
-import { UsualType } from '@app/redux/types/DashboardTypes'
+import { UsualType } from '@app/redux/types/TopnavbarTypes'
 // utils 
-import { ArraysChecker, CheckIfArray, CheckObjOrArrForNull, DashboardSetter, delay } from '@utils/helpers'
+import { ArraysChecker,  CheckIfArray,  CheckObjOrArrForNull, delay  } from '@utils/helpers'
+import Nofirm from '@icons/Nodataicon/Nofirm'
+import Framer from '@app/compLibrary/FramerMotion/Framer'
 
 interface FirmsModalType extends CommonModalI {
     data: UserFirmsList<string>[]
@@ -34,7 +38,7 @@ const Firms = (props: FirmsModalType) => {
         label: ''
     })
     //// redux states
-    const receiver = useAppSelector(state => state.dashboardReducer.receiver)
+    const receiver = useAppSelector(state => state.topNavbarReducer.receiver)
     const details = useAppSelector(state => state.dashboardReducer.details)
     const purchSaleOrdLoading = useAppSelector(state => state.dashboardReducer.purchSaleOrdLoading)
     const purchSaleRetLoading = useAppSelector(state => state.dashboardReducer.purchSaleRetLoading)
@@ -48,7 +52,7 @@ const Firms = (props: FirmsModalType) => {
     const expensesLoding = useAppSelector(state => state.dashboardReducer.expensesLoding)
     const cashesLoading = useAppSelector(state => state.dashboardReducer.cashesLoading)
     const isDetsLoading = useAppSelector(state => state.dashboardReducer.detailsLoading)
-    const isReportsDataLoading = useAppSelector(state => state.reportReducer.isDataLoading)
+    const isReportsDataLoading = useAppSelector(state => state.reportReducer.isReportsDataLoading)
 
     const purchSaleOrders = useAppSelector(state => state.dashboardReducer.purchSaleOrders)
     const saleOrdTotalByStatus= useAppSelector(state => state.dashboardReducer.saleOrdTotalsByStatus)
@@ -61,6 +65,10 @@ const Firms = (props: FirmsModalType) => {
     const employeesBalance = useAppSelector(state => state.dashboardReducer.employeesBalance)
     const expensesAmount = useAppSelector(state => state.dashboardReducer.expensesAmount)
     const cashesAmount = useAppSelector(state => state.dashboardReducer.cashesAmount)
+
+    function setOptionFN(receiver: UsualType) {
+        setSelectedOption(prev => ({...prev, connected:receiver.connected, value: receiver.value, label: receiver.label}))
+    }
 
     const arrays = useMemo(() => {
         return [
@@ -78,19 +86,18 @@ const Firms = (props: FirmsModalType) => {
     } = props
 
     useEffect(() => {
-        if(CheckObjOrArrForNull(data))
-            data.map(item => {
-                if(item.value === receiver.value)
-                    setSelectedOption(prev => ({...prev, connected:receiver.connected, value: receiver.value, label: receiver.label}))
-            })
-    }, [data, receiver])
+        setOptionFN(receiver)
+    }, [receiver])
 
   return (
     <>
         <Modal 
             className={styles.firmsModal}
             isOpen={show}
-            close={setShow}
+            close={() => {
+                setShow(); 
+                setOptionFN(receiver)
+            }}
             header={
                 CheckObjOrArrForNull(data) ? <div className={styles.header}>{translation('firms')}</div> : null
             }
@@ -99,6 +106,7 @@ const Firms = (props: FirmsModalType) => {
                 CheckObjOrArrForNull(data) ? 
                 <>
                     <div className={styles.wrapper}>
+                        
                         {data.map((item, index) => (
                             <div className={cx({
                                 item: true, 
@@ -109,8 +117,8 @@ const Firms = (props: FirmsModalType) => {
                                     <input 
                                         type='radio' 
                                         value={item.value} 
-                                        checked={selectedOption.value === item.value}
                                         disabled={!item.connected}
+                                        checked={selectedOption.value === item.value}
                                         onChange={e => setSelectedOption(prev => ({...prev, connected: item.connected, value: item.value, label: item.label}))}
                                     />
                                     <div className={cx({
@@ -139,7 +147,6 @@ const Firms = (props: FirmsModalType) => {
                             </div>
                         ))}
                     </div>
-
                     <div className={styles.action}>
                         <Button 
                             color='theme'
@@ -149,7 +156,7 @@ const Firms = (props: FirmsModalType) => {
                             onClick={() => {
                                 const ms = 500;
                                 if(selectedOption.value !== receiver.value){
-                                    dispatch(DashboardAction.setReceiver(selectedOption));
+                                    dispatch(TopnavbarAction.setReceiver(selectedOption));
 
                                     if(match.pathname === '/dashboard'){
                                         if(
@@ -162,14 +169,13 @@ const Firms = (props: FirmsModalType) => {
                                             || (ArraysChecker(arrays))
                                             ) 
                                         ){
-                                            dispatch(DashboardAction.setRenewData(false))
-                                            DashboardSetter({dispatch, task: 'load', state: false});
-                                            DashboardSetter({dispatch, task: 'emptify'});
-                                            delay(ms).then(() => dispatch(DashboardAction.setRenewData(true)))
+                                            dispatch(DashboardAction.setDashboardSettings({task: 'both'}))
+                                            delay(ms).then(() => dispatch(TopnavbarAction.setRenewDashboard(true)))
+                                            dispatch(TopnavbarAction.setRenewDashboard(false))
                                         }
 
 
-                                        if(isDetsLoading || details) {
+                                        if(isDetsLoading || CheckIfArray(details)) {
                                             dispatch(DashboardAction.setDetailsLoading(false))
                                             dispatch(DashboardAction.fetchData('details', false))
                                             dispatch(DashboardAction.setDetails([]))
@@ -198,7 +204,12 @@ const Firms = (props: FirmsModalType) => {
                         </Button>
                     </div>
                 </> : 
-                <h1 className={styles.noFirm}>{translation('noFirmFound')}</h1>
+                <div className={styles.noFirmFound}>  
+                    <Framer rotate={[0, -2, 2, -2, 2, -2, 2, 0]}>
+                        <Nofirm width={100} height={100}/>
+                    </Framer>
+                    <h1 className={styles.notFoundTxt}>{translation('noFirmFound')}</h1>
+                </div >
             }
 
            
