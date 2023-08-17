@@ -12,6 +12,12 @@ const initialState: InitialState = {
 
 const ReportReducer = (state=initialState, action:AnyAction) => {
     switch(action.type){
+        case 'SET_REPORT_TABLE': 
+            return {
+                ...state, 
+                reportData: action.payload.data, 
+                isReportsDataLoading: action.payload.loading
+            }
         case 'SET_REPORT_DATA': 
             return {
                 ...state, reportData: action.payload

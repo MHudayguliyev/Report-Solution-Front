@@ -30,6 +30,7 @@
         width: 140px;
         .status {
             color: var(--main-color-red);
+            cursor: pointer;
             span {
                 font-weight: Typo.$fontWeightBold;
             }

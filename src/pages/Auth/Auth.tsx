@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect,useImperativeHandle  } from 'react';
 import { useNavigate } from '@tanstack/react-location';
 import languages from "@app/assets/JsonData/language";
 /// yup validation
@@ -9,7 +9,8 @@ import classNames from 'classnames/bind';
 import hasabymLogo from '../../assets/images/hasabym.png';
 ///redux things
 import { useAppDispatch, useAppSelector } from "../../hooks/redux_hooks";
-import FormsAction from '@app/redux/actions/FormAction';
+import AuthAction from '@redux/actions/AuthAction'
+import FormsAction from '@redux/actions/FormAction';
 import Paper from '@app/compLibrary/Paper/Paper'
 //// components
 import { Dropdown } from '@app/compLibrary';
@@ -40,17 +41,18 @@ import { toast } from 'react-hot-toast';
 import { SendOtp, ValidateOtp } from '@app/firebase/services';
 // types
 import { FormName } from '@app/redux/types/FormTypes';
+import { getFromStorage } from '@utils/storage';
 
 const cx = classNames.bind(styles);
 
-const Auth = () => {
+const Auth = React.forwardRef((props, ref) => {
     const { t } = useTranslation()
     const dispatch = useAppDispatch();
     const navigate = useNavigate()
     let recaptureRef: any = useRef(null)
     
     const phoneNumberRegex = new RegExp(/^6\d*$/)
-    const userPhone:any = localStorage.getItem('UserPhone') || null
+    const userPhone = getFromStorage('user_phone')
 
     /// queries
     const {
@@ -88,6 +90,15 @@ const Auth = () => {
         newPassword: '',
         confirmPass: '',
     }
+
+    useImperativeHandle(ref, () => ({
+        submitForm() {
+          formikRef.current.submitForm();
+        },
+        resetForm() {
+          formikRef.current.resetForm();
+        }
+      }));
     
 
     useEffect(() => {
@@ -106,6 +117,7 @@ const Auth = () => {
 
 
     useEffect(() => {
+        console.log('activeFormName', activeFormName)
         setTimer(59) /// defaults to 1min
         setSubmit(false)
         setToastMessage("")
@@ -168,6 +180,7 @@ const Auth = () => {
                 if (res.data && !res.data.is_user_confirm) {
                     activeForm('register')
                 }else {
+                    console.log("data.phoneNumber", data.phoneNumber)
                     localStorage.setItem(
                         'authUser',
                         JSON.stringify({
@@ -175,10 +188,11 @@ const Auth = () => {
                             role_name: res.data.role_name,
                             user_name: res.data.user_name,
                             user_guid: res.data.user_guid,
+                            user_phone: data.phoneNumber.substring(4),
+                            accessTokenExpirationDate: moment(new Date()).add(1, 'week').format("YYYY-MM-DD HH:mm:ss")
                         })
                     )
-                    localStorage.setItem('accessTokenExpirationDate', moment(new Date()).add(1, 'week').format("YYYY-MM-DD HH:mm:ss"))
-                    localStorage.setItem('UserPhone', values.phoneNumber.split('+993'))
+                    dispatch(AuthAction.setAuth(true))
                     resetForm()
                     navigate({ to: '/dashboard', replace: true })
                     setSubmit(false)
@@ -214,7 +228,7 @@ const Auth = () => {
                 userEmail: values.email,
                 roleGuid
             }
-            const res: any = await api.put({url: `auth/register/${phone}`, data})  // regsiters already pre regsitered user
+            const res: any = await api.put({url: `auth/register/${phone}`, data})  // regsiters only already pre regsitered user
             if (res.status === 200) {
                 setToastMessage(res.message)
                 setRoleGuid('')
@@ -224,11 +238,12 @@ const Auth = () => {
                         access_token: res.accessToken,
                         role_name: res.data.role_name,
                         user_name: res.data.user_name,
-                        user_guid: res.data.user_guid
+                        user_guid: res.data.user_guid,
+                        user_phone: phone.substring(4),
+                        accessTokenExpirationDate: moment(new Date()).add(1, 'week').format("YYYY-MM-DD HH:mm:ss")
                     })
                 )
-                localStorage.setItem('accessTokenExpirationDate', moment(new Date()).add(1, 'week').format("YYYY-MM-DD HH:mm:ss"))
-                localStorage.setItem('UserPhone', values.phoneNumber.split('+993'))
+                dispatch(AuthAction.setAuth(true))
                 resetForm()
                 navigate({ to: '/dashboard', replace: true })
                 setSubmit(false)
@@ -406,7 +421,7 @@ const Auth = () => {
                             className={styles.withMask}
                         />
                         <span className={styles.clearBtn} onClick={() => {setFieldValue("phoneNumber", "") }}>{
-                            values.phoneNumber.length > 0 ? 
+                            values.phoneNumber?.length > 0 ? 
                             <MdClear size={20} color='#455560'/> : null
                         }</span>
                  </div>
@@ -790,7 +805,7 @@ const Auth = () => {
                             </div>
                         </div>
                         <div className={styles.form}>
-                            <input defaultChecked checked={activeFormName === 'login' && !forgotPassActive} id="signin" name="action" type="radio" defaultValue="signin" />
+                            <input defaultChecked={activeFormName === 'login' && !forgotPassActive} id="signin" name="action" type="radio" defaultValue="signin" />
                             <label htmlFor="signin" onClick={() => activeForm('login')}>{t('login')}</label>
                             <input id="signup" name="action" type="radio" defaultValue="signup" />
                             <label htmlFor="signup" onClick={() => {activeForm('phone'), setForgotPassActive(false)}}>{t('signup')}</label>
@@ -830,6 +845,6 @@ const Auth = () => {
             </div>
         </>
     )
-}
+}) 
 
 export default Auth

@@ -40,3 +40,10 @@ export type SetEndUrl = {
     type: 'SET_END_URL', 
     payload: Scalars['String']
 }
+export type SetReportTable = {
+    type: 'SET_REPORT_TABLE', 
+    payload: {
+        data: Scalars['Any']
+        loading: Scalars['Boolean']
+    }
+}

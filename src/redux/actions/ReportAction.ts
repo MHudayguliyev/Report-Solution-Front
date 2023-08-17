@@ -1,6 +1,16 @@
+import { SetReportTable } from './../types/ReportTypes';
 import { Scalars } from "../types"
 import { FieldType, SetActiveIndex, SetEndUrl, SetField, SetReportData, SetReportDataLoading } from "../types/ReportTypes"
 
+
+const setReportTable = ({data, loading}: {data: any,loading:boolean }): SetReportTable => {
+    return {
+        type: 'SET_REPORT_TABLE', 
+        payload: {
+            data, loading
+        }
+    }
+}
 const setReportData = (data: Scalars['Any']): SetReportData => {
     return {
         type: 'SET_REPORT_DATA', 
@@ -27,6 +37,7 @@ const setTabActiveIndex = (index: Scalars['Number']): SetActiveIndex => {
 }
 
 const exportDefault = {
+    setReportTable,
     setReportData,
     setReportDataLoading,
     setField, 

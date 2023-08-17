@@ -4,7 +4,6 @@ const dashWhiteList = [
     'stockCostTotal','paymentsReceived','paymentsMade','creditsFromSale',
     'debtsFromPurchase','employeesBalance','expensesAmount','cashesAmount',
 ]
-
 export const dashboardCfg = {
     key: 'dashboard',
     storage,
@@ -16,4 +15,8 @@ export const TopnavbarCfg = {
         'switched', 'autoRefreshActivated', 'timeToRefetch', 'dashboardDate',
         'receiver', 'reportStartDate', 'reportEndDate'
     ]
+}
+export const AuthCfg = {
+    key:'auth', storage,
+    whitelist: ['isAuthorized']
 }

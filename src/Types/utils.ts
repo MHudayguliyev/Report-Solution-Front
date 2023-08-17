@@ -5,8 +5,9 @@ export interface DashboardSetterType extends Dispatch{
 }
 export interface ResponseType {
     cred: {
-       name: string, 
-       type_id: number | null | undefined
+       name?: string | string[]
+       type_id?: number | null | undefined
+       roomName?:string
     },
     data: any
- }
+}

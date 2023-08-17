@@ -20,22 +20,26 @@ export const tokenStorage = {
 };
 
 
-export const setToStorage = (storage: InitialDashboardState<boolean> | undefined | any) => {
+export const setToStorage = (storage: any) => {
   if (storage)
     localStorage.setItem('storage', JSON.stringify(storage));
 }
 
-export const getFromStorage = (): InitialDashboardState<boolean> | any => {
-  if (localStorage.getItem('persist:dashboard') !== null){
-    return JSON.parse(localStorage.getItem('persist:dashboard')!)
+export const getFromStorage = (key?:string) => {
+  const authUser = JSON.parse(localStorage.getItem('authUser')!) || ""
+  if(key !== ''){
+    const result = authUser?.[key as string] ?? ""
+    return result
   }
-  // return {
-  //   receiver: {
-  //     label: '',
-  //     value: '',
-  //     connected: false
-  //   }
-  // }
-
-
+  return authUser
+}
+export const deleteFromStorage = () => {
+  const authUser = JSON.parse(localStorage.getItem('authUser')!) || ""
+  for(let key in authUser){
+    if(!key.includes('user_phone'))
+      delete authUser[key]
+  }
+  localStorage.removeItem('persist:dashboard')
+  localStorage.removeItem('persist:nav')
+  localStorage.setItem('authUser', JSON.stringify(authUser))
 }

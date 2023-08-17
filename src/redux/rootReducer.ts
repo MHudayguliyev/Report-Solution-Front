@@ -7,11 +7,11 @@ import DashboardReducer from './reducers/DashboardReducer';
 import FormsReducer from './reducers/FormReducer';
 import ReportReducer from './reducers/ReportReducer';
 import TopnavbarReducer from './reducers/TopnavbarReducer';
-import { dashboardCfg, TopnavbarCfg } from './config';
+import { AuthCfg, dashboardCfg, TopnavbarCfg } from './config';
 
 const appReducer = combineReducers({
     themeReducer: ThemeReducer,
-    authReducer: AuthReducer,
+    authReducer: persistReducer(AuthCfg, AuthReducer),
     dashboardReducer: persistReducer(dashboardCfg, DashboardReducer),
     topNavbarReducer: persistReducer(TopnavbarCfg, TopnavbarReducer),
     reportReducer: ReportReducer,

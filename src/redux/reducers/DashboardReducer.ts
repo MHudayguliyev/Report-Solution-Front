@@ -48,6 +48,12 @@ export const initialState: InitialDashboardState<boolean> = {
 
 const DashboardReducer = (state=initialState, action:AnyAction) => {
     switch(action.type) {
+        case 'SET_DASHBOARD_TABLE': 
+            return {
+                ...state, 
+                details: action.payload.data, 
+                detailsLoading: action.payload.loading
+            }
         case 'FETCH_DATA':
             const {state: condition, key} = action.payload
             return {
@@ -96,9 +102,7 @@ const DashboardReducer = (state=initialState, action:AnyAction) => {
                     creditsFromSale: [], debtsFromPurchase: [], 
                     employeesBalance: [], expensesAmount:[], cashesAmount: [], details: []
                 }
-            }else 
-                return state
-
+            }
         case 'OPEN_DTL_TBL':
             return {
                 ...state, isDtlTblOpen: action.state

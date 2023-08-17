@@ -3,18 +3,14 @@ import { Modal } from '@app/compLibrary'
 import styles from './LogoutConfirm.module.scss'
 import { Button } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-
-
+import { deleteFromStorage } from '@utils/storage';
 interface LogoutConfirmProp  {
     show: boolean,
     setShow : Function,
 
 }
 const logout = () => {
-  localStorage.removeItem('accessTokenExpirationDate');
-  localStorage.removeItem('authUser');
-  localStorage.removeItem('persist:dashboard')
-  localStorage.removeItem('persist:nav')
+  deleteFromStorage()
   window.location.reload();
 }
 const LogoutConfirm = (props: LogoutConfirmProp) => {

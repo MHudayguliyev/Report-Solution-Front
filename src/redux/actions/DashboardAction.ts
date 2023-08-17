@@ -1,3 +1,4 @@
+import { SetDashboardTable } from './../types/DashboardTypes';
 import {
     SetCashesAmount,
     SetCreditsFromSale,
@@ -60,6 +61,12 @@ const openDtlTbl = (state: boolean): OpenDtlTable => {
 const setDetailsLoading = (state: boolean): SetDetailsLoading => {
     return {
         type: 'SET_DETAILS_LOADING', state
+    }
+}
+const setDashboardTable = ({data, loading}: {data: any, loading: boolean}): SetDashboardTable => {
+    return {
+        type: 'SET_DASHBOARD_TABLE',
+        payload: {data, loading}
     }
 }
 
@@ -268,7 +275,7 @@ const setDashboardSettings = ({task, bool}:{task: TaskType, bool?: boolean}): Se
 const exportDefault = {
     ///FETCH_DATA/DETAILS TABLE OPEN STATE/DETAILS LOADING STATE
     fetchData,liberateFetcher,  setDashboardSettings,
-    setDetails, openDtlTbl, setDetailsLoading,
+    setDetails, openDtlTbl, setDetailsLoading, setDashboardTable,
     /// REAL STATES
     setCashesAmount,
     setCreditsFromSale,

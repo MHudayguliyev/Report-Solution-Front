@@ -18,7 +18,6 @@
 }
 
 .layoutPage {
-    // margin-top: 70px;
     background-color: var(--second-bg);
     scrollbar-color: var(--main-color);
     overflow: auto;
@@ -29,7 +28,6 @@
         background-color: transparent;
     }
     &::-webkit-scrollbar-track {
-        right: 5px;
         border-radius: 5px;
         background-color: transparent;
     }

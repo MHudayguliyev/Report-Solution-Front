@@ -210,3 +210,10 @@ export interface SetDetailsLoading {
     type: 'SET_DETAILS_LOADING'
     state: Scalars['Boolean']
 }
+export interface SetDashboardTable {
+    type: 'SET_DASHBOARD_TABLE'
+    payload: {
+        data: Scalars['Any']
+        loading: Scalars['Boolean']
+    }
+}

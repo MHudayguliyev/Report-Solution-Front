@@ -1,7 +1,6 @@
 import { SetAuth, RefetchUserData } from "../types/AuthTypes";
 
-const setAuth = (isAuthorized: boolean) => {
-  console.log('isAuthorized', isAuthorized)
+const setAuth = (isAuthorized: boolean): SetAuth => {
   return {
     type: "SET_IS_AUTHORIZED",
     payload: isAuthorized,

@@ -1,4 +1,4 @@
-export default [
+export const papers = [
     // dashboard //
     'purch_sale_orders',
     'purch_sales_returns',
@@ -12,4 +12,32 @@ export default [
     'mat_gross_profitability',
     // forecast //
 ]
+
+const nullTypeId = null
+export const list = [
+    {
+        endPoint: papers[0],
+        type_id: nullTypeId
+    },{
+        endPoint: papers[6],
+        type_id: nullTypeId
+    },{
+        endPoint: papers[1],
+        type_id: nullTypeId 
+    },{
+        endPoint: papers[2],
+        type_id: nullTypeId  
+    },
+    {
+        endPoint: papers[3],
+        type_id: [11, 12]  
+    },{
+        endPoint: papers[4],
+        type_id: [2,1,4]  
+    },{
+        endPoint: papers[5],
+        type_id: [25,8]      
+    }
+]     
+ 
  

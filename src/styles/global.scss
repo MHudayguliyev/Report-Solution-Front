@@ -78,12 +78,13 @@ body {
     -moz-osx-font-smoothing: grayscale;
     letter-spacing: 0.7px;
     scroll-behavior: smooth;
-    // scrollbar-color: var(--primary) yellow;
+
     overflow-y: overlay;
     overflow-x: hidden;
     margin: 0;
+    padding: 0;
     &::-webkit-scrollbar {
-        width: 8px;
+        width: 5px;
         background-color: transparent;
     }
     &::-webkit-scrollbar-track {
@@ -96,7 +97,7 @@ body {
     }
     &::-webkit-scrollbar-thumb {
         border-radius: 10px;
-        //   background-color: var(--main-color);
+        // background-color: var(--main-color);
     }
 }
 

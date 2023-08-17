@@ -162,8 +162,8 @@
   "forgotPassComment": "Enter registered phone number to change password",
   "registerComment": "We will send an SMS code to the phone number you entered",
   "try_again": "Reload",
-  "disconnected": " disconnected",
-  "reconnected": "Reconnected",
+  "disconnected": " disconnected.",
+  "reconnected": "connected.",
   "successfullyEditedUser": "Successfully edited", 
   "no_data": "No data",
 

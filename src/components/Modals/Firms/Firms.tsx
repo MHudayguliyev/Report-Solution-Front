@@ -1,6 +1,7 @@
 import React, {useState, useEffect, useMemo} from 'react'
 import { useMatch } from '@tanstack/react-location'
 // complibraries 
+import Framer from '@app/compLibrary/FramerMotion/Framer'
 import { Modal, Button } from '@app/compLibrary'
 import CommonModalI from '../commonTypes'
 // redux 
@@ -8,6 +9,7 @@ import { useAppDispatch, useAppSelector } from '@app/hooks/redux_hooks'
 //actions
 import TopnavbarAction from '@redux/actions/TopnavbarAction'
 import DashboardAction from '@redux/actions/DashboardAction'
+import ReportAction from '@redux/actions/ReportAction'
 // styles
 import classNames from 'classnames/bind'
 import styles from './Firms.module.scss'
@@ -17,9 +19,9 @@ import toast from 'react-hot-toast'
 import { UserFirmsList } from '@app/api/Types/queryReturnTypes/UserFirms'
 import { UsualType } from '@app/redux/types/TopnavbarTypes'
 // utils 
-import { ArraysChecker,  CheckIfArray,  CheckObjOrArrForNull, delay  } from '@utils/helpers'
+import { ArraysChecker,  CheckIfArray,  CheckObjOrArrForNull, delay, getDate, isNullOrUndefined, isStrEmpty  } from '@utils/helpers'
 import Nofirm from '@icons/Nodataicon/Nofirm'
-import Framer from '@app/compLibrary/FramerMotion/Framer'
+
 
 interface FirmsModalType extends CommonModalI {
     data: UserFirmsList<string>[]
@@ -52,6 +54,8 @@ const Firms = (props: FirmsModalType) => {
     const expensesLoding = useAppSelector(state => state.dashboardReducer.expensesLoding)
     const cashesLoading = useAppSelector(state => state.dashboardReducer.cashesLoading)
     const isDetsLoading = useAppSelector(state => state.dashboardReducer.detailsLoading)
+
+    const reportData = useAppSelector(state => state.reportReducer.reportData)
     const isReportsDataLoading = useAppSelector(state => state.reportReducer.isReportsDataLoading)
 
     const purchSaleOrders = useAppSelector(state => state.dashboardReducer.purchSaleOrders)
@@ -66,11 +70,14 @@ const Firms = (props: FirmsModalType) => {
     const expensesAmount = useAppSelector(state => state.dashboardReducer.expensesAmount)
     const cashesAmount = useAppSelector(state => state.dashboardReducer.cashesAmount)
 
+    const renewDashboard = useAppSelector(state => state.topNavbarReducer.renewDashboard)
+    const isDtlTblOpen = useAppSelector(state => state.dashboardReducer.isDtlTblOpen)
+
     function setOptionFN(receiver: UsualType) {
         setSelectedOption(prev => ({...prev, connected:receiver.connected, value: receiver.value, label: receiver.label}))
     }
 
-    const arrays = useMemo(() => {
+    const dashboardDataArrays = useMemo(() => {
         return [
             purchSaleOrders,saleOrdTotalByStatus,purchSalesReturns,
             stockCostTotal,paymentsReceived,paymentsMade,creditsFromSale,
@@ -107,45 +114,54 @@ const Firms = (props: FirmsModalType) => {
                 <>
                     <div className={styles.wrapper}>
                         
-                        {data.map((item, index) => (
-                            <div className={cx({
-                                item: true, 
-                                borderBottom: data.indexOf(item) !== data.length - 1
-                            })} key={index}>
-
-                                <div className={styles.radio}>
-                                    <input 
-                                        type='radio' 
-                                        value={item.value} 
-                                        disabled={!item.connected}
-                                        checked={selectedOption.value === item.value}
-                                        onChange={e => setSelectedOption(prev => ({...prev, connected: item.connected, value: item.value, label: item.label}))}
-                                    />
-                                    <div className={cx({
-                                        status: true,
-                                        connected: item.connected
-                                    })}>{item.connected ? <span>{translation('active')}</span> : <span>{translation('inactive')}</span>}</div>
-                                </div>
-                                <div className={styles.contents}>
-                                    <div className={styles.upper}>
-                                        <div className={styles.fontWeightify}>{item.firm_fullname}</div>
-                                        <div className={styles.firm_tels}>
-                                            <div className=''>{item.firm_tel_num1}</div>
-                                            {item.firm_tel_num2 !== null ? <span>/</span> : null}
-                                            <div className=''>{item.firm_tel_num2}</div>
+                        {data.map((item, index) => {
+                            return (
+                                <div className={cx({
+                                    item: true, 
+                                    borderBottom: data.indexOf(item) !== data.length - 1
+                                })} key={index}>
+    
+                                    <div className={styles.radio}>
+                                        <input 
+                                            type='radio' 
+                                            value={item.value} 
+                                            disabled={!item.connected}
+                                            checked={selectedOption.value === item.value}
+                                            onChange={e => setOptionFN({connected: item.connected, value: item.value, label: item.label})}
+                                        />
+                                        <div
+                                        onClick={() => {
+                                            if(item.connected)
+                                                setOptionFN({connected: item.connected, value: item.value, label: item.label})
+                                        }} 
+                                        className={cx({
+                                            status: true,
+                                            connected: item.connected
+                                        })}>{item.connected ? <span>{translation('active')}</span> : <span>{translation('inactive')}</span>}</div>
+                                    </div>
+                                    <div className={styles.contents}>
+                                        <div className={styles.upper}>
+                                            <div className={styles.fontWeightify}>{item.firm_fullname}</div>
+                                            <div className={styles.firm_tels}>
+                                                <div className=''>{item.firm_tel_num1}</div>
+                                                {isNullOrUndefined(item.firm_tel_num2) && isStrEmpty(item.firm_tel_num2) ? <span>/</span> : null}
+                                                <div className=''>{item.firm_tel_num2}</div>
+                                            </div>
+                                        </div>
+                                        <div className={styles.bottom}>
+                                            <div title={item.firm_address} >{item.firm_address.length > 32 ? item.firm_address.slice(0, 32) + '...' : item.firm_address}</div>
+                                            <div className={cx({
+                                                fontWeightify: true, 
+                                                connectedAt: item.connected,
+                                                notConnected: !item.connected
+                                            })}>{
+                                                item.connected ? getDate(item.connected_at) : item.connected_at
+                                            }</div>                             
                                         </div>
                                     </div>
-                                    <div className={styles.bottom}>
-                                        <div title={item.firm_address} >{item.firm_address.length > 32 ? item.firm_address.slice(0, 32) + '...' : item.firm_address}</div>
-                                        <div className={cx({
-                                            fontWeightify: true, 
-                                            connectedAt: item.connected,
-                                            notConnected: !item.connected
-                                        })}>{item.connected_at as string | null}</div>                             
-                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            )
+                        })}
                     </div>
                     <div className={styles.action}>
                         <Button 
@@ -166,28 +182,31 @@ const Firms = (props: FirmsModalType) => {
                                             paymentsReceivedLoading||paymentsMadeLoading||
                                             creditsLoading||debtsLoading||employeesBalanceLoading||
                                             expensesLoding||cashesLoading
-                                            || (ArraysChecker(arrays))
+                                            || (ArraysChecker(dashboardDataArrays))
                                             ) 
                                         ){
-                                            dispatch(DashboardAction.setDashboardSettings({task: 'both'}))
+                                            if(renewDashboard)
+                                                dispatch(TopnavbarAction.setRenewDashboard(false))
+                                            dispatch(DashboardAction.setDashboardSettings({task: 'both', bool: false}))
                                             delay(ms).then(() => dispatch(TopnavbarAction.setRenewDashboard(true)))
-                                            dispatch(TopnavbarAction.setRenewDashboard(false))
                                         }
 
-
-                                        if(isDetsLoading || CheckIfArray(details)) {
-                                            dispatch(DashboardAction.setDetailsLoading(false))
+                                        if(isDtlTblOpen && (CheckIfArray(details) || isDetsLoading)) {
+                                            dispatch(DashboardAction.setDashboardTable({data:[],loading:false}))
                                             dispatch(DashboardAction.fetchData('details', false))
-                                            dispatch(DashboardAction.setDetails([]))
                                             delay(ms).then(() => dispatch(DashboardAction.fetchData('details', true)))
                                         }
+
                                     }else if(match.pathname === '/report'){
-                                        if(isReportsDataLoading){
-                                            /// not found a solution yet ............................................. 
-                                            // dispatch(ReportAction.setDataLoading(false))
-                                            // dispatch(ReportAction.renewData(false))
-                                            // delay(ms).then(() => dispatch(ReportAction.renewData(true)))
+                                        if(CheckIfArray(reportData) || isReportsDataLoading){
+                                            console.log('here i am')    
+                                            dispatch(TopnavbarAction.setRenewReport(false))
+                                            dispatch(ReportAction.setReportDataLoading(false))
+                                            delay(ms).then(() =>dispatch(TopnavbarAction.setRenewReport(true)))
                                         }
+                                        if(ArraysChecker(dashboardDataArrays))
+                                            dispatch(TopnavbarAction.setRenewDashboard(true))
+                       
                                             
                                     }else if(match.pathname === '/forecast'){
                                         console.log('Hello forecast')

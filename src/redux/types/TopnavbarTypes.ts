@@ -12,18 +12,33 @@ export type DisconnectedType = {
     connected: Scalars['Boolean']
     last_conn_dt: DateType
 }
+export type ReconnectedType = {
+    room: Scalars['String']
+    state: Scalars['Boolean']
+}
+export type ExternalQuestType = 'dashboard' | 'report' | 'forecast'
 
 export type InitialState = {
     receiver: UsualType
     dashboardDate: DateType,
     reportStartDate: DateType, 
     reportEndDate: DateType,
-    renewDashboard: Scalars['Boolean'], 
-    renewReport: Scalars['Boolean'],
     switched: Scalars['Boolean'],
     autoRefreshActivated: Scalars['Boolean'],
     firmsList: UserFirmsList<string>[],
     timeToRefetch: Scalars['String' | "Number"],
+    scrollY: Scalars['Number'],
+    layoutScrollRunner:{
+        run: Scalars['Boolean']
+        position: Scalars['Number']
+    },
+    renewDashboard: Scalars['Boolean'], 
+    renewReport: Scalars['Boolean'],
+    externalQuest: {
+        dashboard: Scalars['Boolean']
+        report: Scalars['Boolean']
+        forecast: Scalars['Boolean']
+    }
 }
 
 
@@ -66,6 +81,10 @@ export type ActivateAutoRefresh = {
     type: 'ACTIVATE_AUTO_REFRESH', 
     payload: Scalars['Boolean']
 }
+export type SetSwitchAndActivator = {
+    type: 'SET_SWITCH_AND_ACTIVATOR'
+    payload: Scalars['Boolean']
+}
 export type SetRenewDashboard = {
     type: 'SET_RENEW_DASHBOARD', 
     payload: Scalars['Boolean']
@@ -73,4 +92,11 @@ export type SetRenewDashboard = {
 export type SetRenewReport = {
     type: 'SET_RENEW_REPORT'
     payload: Scalars['Boolean']
+}
+export type SetExternalQuest = {
+    type: 'SET_EXTERNAL_QUEST', 
+    payload: {
+        key: ExternalQuestType, 
+        bool: Scalars['Boolean']
+    }
 }

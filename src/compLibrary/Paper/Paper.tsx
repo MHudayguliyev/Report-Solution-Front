@@ -7,6 +7,7 @@ const cx = classNames.bind(styles);
 
 type PaperProps = {
    children: React.ReactNode
+   name?: string
    /** @defaultValue false */
    circle?: boolean
    /** @defaultValue false */
@@ -35,11 +36,13 @@ type PaperProps = {
    style?: CSSProperties
    className?: string
    removeShadow?: boolean
+   containerRef?:any
 }
 
 const Paper = (props: PaperProps): JSX.Element => {
    const {
       children,
+      name, 
       rounded = false,
       topRounded = false,
       bottomRounded = false,
@@ -54,11 +57,12 @@ const Paper = (props: PaperProps): JSX.Element => {
       fullHeight = false,
       style,
       className = '',
-      removeShadow = false
+      removeShadow = false, 
+      containerRef
    } = props;
 
    return (
-      <div style={style} className={`${className} ${cx({
+      <div id={name} ref={containerRef} style={style} className={`${className} ${cx({
          paper: true,
          rounded: rounded,
          topRounded: topRounded,

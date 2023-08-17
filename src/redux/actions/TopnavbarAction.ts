@@ -1,6 +1,27 @@
 import { UserFirms, UserFirmsList } from "@app/api/Types/queryReturnTypes/UserFirms";
-import { ActivateAutoRefresh,  DisconnectedType,  SetDashboardDate, SetFirmsList, SetReceiver, SetRenewDashboard, SetRenewReport, SetReportEndDate, SetReportStartDate, SetSwitched, SetTimetorefetch, UpdateFirmsList, UsualType } from "../types/TopnavbarTypes";
+import { ActivateAutoRefresh,  DisconnectedType,  ExternalQuestType,  SetDashboardDate, SetExternalQuest, SetFirmsList, SetReceiver, SetRenewDashboard, SetRenewReport, SetReportEndDate, SetReportStartDate, SetSwitchAndActivator, SetSwitched, SetTimetorefetch, UpdateFirmsList, UsualType } from "../types/TopnavbarTypes";
 import { DateType } from "../types";
+
+const makeExternalQuest = ({key, bool}: {key: ExternalQuestType, bool: boolean}): SetExternalQuest =>  {
+    return {
+        type: 'SET_EXTERNAL_QUEST', 
+        payload: {
+            key, bool
+        }
+    }
+}
+const setScrollY = (position: number) => {
+    return {
+        type: 'SET_SCROLLY', 
+        payload: position
+    }
+}
+const runLayoutScrollY = ({state, position}:{state: boolean, position: number}) => {
+    return {
+        type: 'RUN_LAYOUT_SCROLLY', 
+        payload: {state, position}
+    }
+}
 
 const setFirmsList = (data: UserFirms<string>[]): SetFirmsList => {
     return {
@@ -8,13 +29,19 @@ const setFirmsList = (data: UserFirms<string>[]): SetFirmsList => {
         payload: data
     }
 }
-const updateFirmsOnDisconnect = (disClient: DisconnectedType, t: any): UpdateFirmsList =>  {
+const updateFirmsOnDisconnect = (disClient: DisconnectedType, t: Function): UpdateFirmsList =>  {
     return {
         type: 'UPDATE_FIRMS_LIST', 
         payload: {
             disconnected_client: disClient, 
             translation: t
         }
+    }
+}
+const setSwitchAndActivator = (state: boolean): SetSwitchAndActivator => {
+    return {
+        type: 'SET_SWITCH_AND_ACTIVATOR', 
+        payload: state
     }
 }
 const setReceiver = (receiver: UsualType): SetReceiver => {
@@ -75,6 +102,7 @@ const exportDefault = {
 setFirmsList,updateFirmsOnDisconnect, setReceiver, 
 setDashboardDate, setReportStartDate, setReportEndDate, 
 setTimetorefetch, setSwitched, activateAutoRefresh,
-setRenewDashboard, setRenewReport
+setSwitchAndActivator,setScrollY,runLayoutScrollY,
+makeExternalQuest,setRenewDashboard,setRenewReport,
 }
 export default exportDefault

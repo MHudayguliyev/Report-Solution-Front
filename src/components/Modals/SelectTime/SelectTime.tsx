@@ -59,7 +59,7 @@ const DeleteConfirm = (props: DeleteConfirmInterface) => {
     >
       <div className={styles.timerModal}>
         <ul>
-          {/* <li className={styles.radioInput}><input checked={time==='1'}  onChange={e => setTime(e.target.value)} type="radio" name="time" value="1" className={styles.radioInput}/> 1 minut <br /></li> */}
+          {/* <li className={styles.radioInput}><input checked={timer==='1'}  onChange={e => setTimer(e.target.value)} type="radio" name="time" value="1" className={styles.radioInput}/> 1 minut <br /></li> */}
           <li className={styles.radioInput}><input checked={timer==='5'}  onChange={e => setTimer(e.target.value)} type="radio" name="time" value="5" className={styles.radioInput}/> 5 {t('minutes')} <br /></li>
           <li className={styles.radioInput}><input checked={timer==='15'} onChange={e => setTimer(e.target.value)} type="radio" name="time" value="15" className={styles.radioInput}/> 15 {t('minutes')} <br /></li>
           <li className={styles.radioInput}><input checked={timer==='30'} onChange={e => setTimer(e.target.value)} type="radio" name="time" value="30" className={styles.radioInput}/> 30 {t('minutes')} <br /></li>

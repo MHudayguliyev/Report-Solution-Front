@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useState } from "react"
+import React, { ReactNode, useEffect, useState, useRef } from "react"
 import Layout from "./Layout/Layout"
 import { useNavigate } from "@tanstack/react-location"
 // helpers
@@ -6,10 +6,16 @@ import Preloader from "@app/compLibrary/Preloader/Preloader"
 // custom styles
 import styles from './AuthMiddleware.module.scss';
 // action creator
+import AuthAction from '@redux/actions/AuthAction'
 import ThemeAction from "@redux/actions/ThemeAction";
 // typed hooks from redux
 import { useAppDispatch, useAppSelector } from "@app/hooks/redux_hooks";
+// moment js
 import moment from "moment"
+// socket context
+import SocketContext from "@app/socket/context";
+import { ConnectToSocket, SocketType } from "@app/socket/socket";
+import { deleteFromStorage, getFromStorage } from "@utils/storage";
 
 type AuthmiddlewareProps = {
    children: ReactNode
@@ -24,9 +30,10 @@ const Authmiddleware = (props: AuthmiddlewareProps) => {
    } = props;
 
    const [loading, setLoading] = useState(true);
+   const [socket, setSocket] = useState<SocketType | any>()
    const navigate = useNavigate();
 
-   // for controlling theme of application
+   const isAuthorized = useAppSelector(state => state.authReducer.isAuthorized)
    const themeReducer = useAppSelector((state) => state.themeReducer);
    const dispatch = useAppDispatch();
 
@@ -54,21 +61,25 @@ const Authmiddleware = (props: AuthmiddlewareProps) => {
    useEffect(() => {
       setLoading(true)
       const now = moment(new Date()).format("YYYY-MM-DD HH:mm:ss")
-      const tokenExpired = localStorage.getItem('accessTokenExpirationDate')
+      const tokenExpired = getFromStorage('accessTokenExpirationDate')
       if(tokenExpired){
          if(tokenExpired===now){
-            localStorage.removeItem('accessTokenExpirationDate');
-            localStorage.removeItem('authUser');
-            localStorage.removeItem('persist:dashboard')
-            localStorage.removeItem('persist:report')
+            deleteFromStorage()
+            dispatch(AuthAction.setAuth(false))
             navigate({ to: '/', replace: true })
          }
-      }else navigate({to: '/', replace: true})
+      }else {
+         deleteFromStorage()
+         dispatch(AuthAction.setAuth(false))
+         navigate({to: '/', replace: true})
+      }
       setLoading(false)
+      setSocket(ConnectToSocket())
    }, []);
-   
+
    return (
-      <div className={`${themeReducer.mode} ${themeReducer.color}`}>
+      <SocketContext.Provider value={isAuthorized ? socket : null}>
+         <div className={`${themeReducer.mode} ${themeReducer.color}`}>
          {
             loading ?
                <div className={styles.preloaderWrapper}>
@@ -85,6 +96,7 @@ const Authmiddleware = (props: AuthmiddlewareProps) => {
                   </>
          }
       </div>
+      </SocketContext.Provider>
    )
 }
 

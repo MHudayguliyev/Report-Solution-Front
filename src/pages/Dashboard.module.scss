@@ -1,5 +1,11 @@
 @use '../styles//globalBreakPoints.scss' as *;
 @use '../styles/global.scss' as *;
+
+// .wrapper {
+//     height: 2000px;
+//     overflow-y: scroll
+// }
+
 .tableHeight {
     height: 296px;
     @media screen and (max-width: $desktop) {

@@ -64,29 +64,29 @@ const useStyles = makeStyles(theme => ({
 
 
 type TableProps = {
-    show: boolean;
-    setShow: Function
+    show: boolean
+    setShow: (scrollY: number) => void
     translation: Function
-    data: any,
-    isLoading: boolean,
-    tableName?: any,
+    data: any
+    isLoading: boolean
+    tableName?: any
     onLanguageChange?: Function | any
-    paperData: {typeID: number | null, paperName: string},
+    paperData: {typeID: number | null, paperName: string, yPosition?: number},
     /** @defaultValue false */
-    enableColumnResizing? : boolean,
+    enableColumnResizing? : boolean
     /** @defaultValue false */
     enableStickyHeader?: boolean
     /** @defaultValue comfortable */
     density?: 'compact' | 'comfortable' | 'spacious',
     /** @defaultValue false */
-    renderCustomActions?: boolean,
+    renderCustomActions?: boolean
     /** @defaultValue false */
     renderBottomToolbarActions?: boolean
     /** @defaultValue 250px */
     heightToExtract?: '600' | '550' | '500' | '475' | '400' | '350' | '250' | '200' | '150' | '100'
     /** for report page */
     dropdownData?: FieldType[]
-    tabs?: Localization[],
+    tabs?: Localization[]
     field?: FieldType
 }
 
@@ -230,7 +230,7 @@ const MaterialTable = (props: TableProps) => {
                       topToolBar: renderCustomActions || tabs?.length
                     })}>
                       {renderCustomActions && <span title='back' 
-                      onClick={() => {setShow(); setShowSearch(false)}}   
+                      onClick={() => {setShow(paperData?.yPosition ?? 0); setShowSearch(false)}}   
                       className={cx({
                         chevron__left: true, 
                         whitify: theme.mode === 'theme-mode-dark'

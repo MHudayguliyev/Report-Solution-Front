@@ -1,4 +1,7 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+//@ts-nocheck
+import React, { useEffect, useMemo, useRef, useState, useContext } from "react";
+// socket context
+import SocketContext from "@app/socket/context";
 // custom styles
 import styles from "./TopNavbar.module.scss";
 import classNames from "classnames/bind";
@@ -36,8 +39,8 @@ import FormAction from "@app/redux/actions/FormAction";
 //moment
 import moment from "moment";
 import { GetUser, GetUserActions, GetUserFirms, GetUserSubcsStatus } from "@app/api/Queries/Getters";
-import { CheckObjOrArrForNull, isStrEmpty, checkDisconnectedClient } from "@utils/helpers";
-import { UserFirms, UserFirmsList } from "@app/api/Types/queryReturnTypes/UserFirms";
+import { CheckObjOrArrForNull, isStrEmpty, checkDisconnectedClient, leastFirmConnected, getUserDevice, CheckIfArray } from "@utils/helpers";
+import { UserFirms} from "@app/api/Types/queryReturnTypes/UserFirms";
 import { TbAdjustmentsHorizontal } from "react-icons/tb";
 import UserProfile from "../UserProfile/UserProfile";
 import Themes from "../Themes/Themes";
@@ -46,39 +49,64 @@ import useClickOutside from "@app/hooks/useClickOutsideDropdown";
 import CustomTooltip from "@app/compLibrary/Tooltip/CustomTooltip";
 import { Localization } from "@app/redux/types/ReportTypes";
 // socket conn
-import {socket} from '@app/socket/socket'
+import { SocketType} from '@app/socket/socket'
+import { DisconnectedType, ReconnectedType } from "@redux/types/TopnavbarTypes";
 import Firms from "../Modals/Firms/Firms";
-import { DisconnectedType } from "@redux/types/TopnavbarTypes";
+// auth storage getter 
+import { deleteFromStorage, getFromStorage } from "@utils/storage";
+/// list JSON
+import { list } from "@app/assets/JsonData/papers";
 
-const refetchData = ({socket,dispatch,path,receiver,endPoint,date,field}: {socket: any,dispatch: Function,path: string,receiver: {value: string},endPoint:string,date:any | {startDate: any, endDate: any} | Date,field?:{value: string, label: Localization}}) => {
+type RefetchFNType = {
+  socket: any
+  dispatch: Function
+  endPoint:string
+  receiver: {value: string}
+  date:{startDate: any, endDate: any} | any | Date
+  field?:{value: string, label: Localization}
+  /** @defaultValue false */
+  renewDashboard?: boolean
+  /** @defaultValue false */
+  renewReport?:boolean
+}
+
+const RefetchFN = (props:RefetchFNType) => {
+  const {
+    socket, 
+    dispatch, 
+    endPoint,
+    receiver, 
+    date, 
+    field, 
+    renewDashboard = false, 
+    renewReport = false
+  } = props
+
   const message = {
-    roomName: receiver?.value,endPoint,
-    date,field: field?.value ?? ""
+    roomName: receiver.value,endPoint,
+    date,field: field?.value ?? "", list
   }
+
+  if(renewReport)
+    delete message.list  
+  if(renewDashboard)
+    delete message.field
   socket.emit('request_initial_data', message)
-  if(path==='/dashboard'){
+  if(renewDashboard)
     dispatch(DashboardAction.setDashboardSettings({task: 'load', bool: true}))
-  }else if(path==='/report'){
+  if(renewReport)
     dispatch(ReportAction.setReportDataLoading(true))
-  }else if(path==='/forecast'){
-    /// HELLO FORECAST
-  }
 }
 
 const renderUserToggle = () => {
   let userName;
-  try {
-    const authUser = localStorage.getItem('authUser') || '';
-    userName = JSON.parse(authUser);
-  } catch (err) {
-    userName = { user_name: 'Who are you?' }
-  }
+  userName = getFromStorage('user_name')
   return (
     <div className={styles.topnav__right_user}>
       <div className={styles.topnav__right_user__image}>
         <img src={user_image} alt="" />
       </div>
-      <div className={styles.topnav__right_user__name}>{userName.user_name}</div>
+      <div className={styles.topnav__right_user__name}>{typeof userName !== 'string' ? 'Who are you?' : userName}</div>
     </div>
   )
 };
@@ -93,14 +121,31 @@ const TopNavbar = () => {
   const match = useMatch();
   const dispatch = useAppDispatch();
   const language = i18n.language
+  // socket 
+  const socket:SocketType|any = useContext(SocketContext)
+
   /// redux states
+  const purchSaleOrdLoading = useAppSelector(state => state.dashboardReducer.purchSaleOrdLoading)
+  const purchSaleRetLoading = useAppSelector(state => state.dashboardReducer.purchSaleRetLoading)
+  const stockCostLoading = useAppSelector(state => state.dashboardReducer.stockCostLoading)
+  const saleOrdTotalLoading = useAppSelector(state => state.dashboardReducer.saleOrdTotalLoading)
+  const paymentsReceivedLoading = useAppSelector(state => state.dashboardReducer.paymentsReceivedLoading)
+  const paymentsMadeLoading = useAppSelector(state => state.dashboardReducer.paymentsMadeLoading)
+  const creditsLoading = useAppSelector(state => state.dashboardReducer.creditsLoading)
+  const debtsLoading = useAppSelector(state => state.dashboardReducer.debtsLoading)
+  const employeesBalanceLoading = useAppSelector(state => state.dashboardReducer.employeesBalanceLoading)
+  const expensesLoding = useAppSelector(state => state.dashboardReducer.expensesLoding)
+  const cashesLoading = useAppSelector(state => state.dashboardReducer.cashesLoading)
+
+
   const refetchUserData = useAppSelector(state => state.authReducer.refetchUserData)
   const isDtlTblOpen = useAppSelector(state => state.dashboardReducer.isDtlTblOpen)
   const isDetsLoading = useAppSelector(state => state.dashboardReducer.detailsLoading)
+  const reportData = useAppSelector(state => state.reportReducer.reportData)
   const isReportsDataLoading = useAppSelector(state => state.reportReducer.isReportsDataLoading)
   const receiver = useAppSelector(state => state.topNavbarReducer.receiver)
   const isOpenSideBar = useAppSelector(state => state.themeReducer.isOpenSidebar);
-  const isShowTimeModal = useAppSelector((state: any) => state.formsReducer.showTimeModal)
+  const isShowTimeModal = useAppSelector(state => state.formsReducer.showTimeModal)
   const activeIndex = useAppSelector(state => state.reportReducer.activeTabIndex)
 
   const renewDashboard = useAppSelector(state => state.topNavbarReducer.renewDashboard)
@@ -109,7 +154,6 @@ const TopNavbar = () => {
   const switched = useAppSelector(state => state.topNavbarReducer.switched)
   const time = useAppSelector(state => state.topNavbarReducer.timeToRefetch)
   const firmsList = useAppSelector(state => state.topNavbarReducer.firmsList)
-  const cashesLoading = useAppSelector(state => state.dashboardReducer.cashesLoading)
   const date: any = useAppSelector(state => state.topNavbarReducer.dashboardDate)
   const startDate:any = useAppSelector(state => state.topNavbarReducer.reportStartDate)
   const endDate:any = useAppSelector(state => state.topNavbarReducer.reportEndDate)
@@ -119,7 +163,10 @@ const TopNavbar = () => {
  
   /// use states go here...
   const [isMinDay, setIsMinDay] = useState<boolean>(false)
-  const [isReconnected, setReconnected] = useState<boolean>(false)
+  const [isReconnected, setReconnected] = useState<ReconnectedType>({
+    state: false, 
+    room: ""
+  })
   const [subscDate, setSubscDate] = useState<string | number>()
   const [subscFullDate, setSubscFullDate] = useState<string | number | any>()
   const [disClient, setDisClient] = useState<DisconnectedType>({
@@ -128,6 +175,9 @@ const TopNavbar = () => {
 
   const menu_ref: any = useRef(null);
   const menu_toggle_ref: any = useRef(null);
+  const loading_ref:any = useRef(null)
+
+  /// states
   const [menuName, setMenuName] = useState<'profile'|'filter'|'theme'>('theme')
   const [disableOutClick, setDisableOutClick] = useState<boolean>(false)
   const [logoutModal, setLogoutModal] = useState<boolean>(false)
@@ -135,15 +185,19 @@ const TopNavbar = () => {
   const [showSidebar, setShowSidebar] = useClickOutside(menu_ref, menu_toggle_ref, disableOutClick)
 
   const authUser = JSON.parse(localStorage.getItem('authUser')!) || ""
-  const userGuid:string = authUser?.user_guid ?? ""
-    // queries
+  const userPhone = getFromStorage('user_phone')
+  const userGuid = getFromStorage('user_guid')
+
+  // queries
     const {
       data: firmsData,
       isLoading, 
       isError,
       refetch: refetchFirmsData
-    } = useQuery(['getUserFirms', userGuid, isReconnected], 
-    () => GetUserFirms(userGuid), {enabled: !!userGuid || isReconnected})
+    } = useQuery(['getUserFirms', userGuid, isReconnected.state], 
+    () => GetUserFirms(userGuid), 
+    {enabled: !!userGuid || isReconnected.state, refetchOnWindowFocus: true},
+    )
 
     const {
       data: userSubscData,
@@ -168,7 +222,24 @@ const TopNavbar = () => {
     } = useQuery('getUserAction', () => GetUserActions(userGuid), {enabled: !!userGuid})
 
 
-    
+  const loadingMem = useMemo(() => {
+    return {
+      purchSaleOrdLoading,purchSaleRetLoading,stockCostLoading,
+      saleOrdTotalLoading,paymentsReceivedLoading,paymentsMadeLoading,
+      creditsLoading,debtsLoading,employeesBalanceLoading,
+      expensesLoding,cashesLoading, isReportsDataLoading
+    }
+  }, [
+    purchSaleOrdLoading,purchSaleRetLoading,stockCostLoading,
+    saleOrdTotalLoading,paymentsReceivedLoading,paymentsMadeLoading,
+    creditsLoading,debtsLoading,employeesBalanceLoading,
+    expensesLoding,cashesLoading, isReportsDataLoading
+  ])
+
+  useEffect(() => {
+    loading_ref.current = loadingMem
+  }, [loadingMem])
+
   useEffect(() => {
     if(!switched){
       if(!autoRefreshActivated && time !== '5'){
@@ -183,7 +254,6 @@ const TopNavbar = () => {
     else setDisableOutClick(false)
   }, [menuName])
 
-
   useEffect(() => {
     if(!socket) return
     const getFirms = (firms: UserFirms<string>[]) => {
@@ -193,36 +263,47 @@ const TopNavbar = () => {
       const {room, connected, last_conn_dt} = response
       setDisClient(prev => ({...prev, room, connected, last_conn_dt}))
     }
-    const reconnected = (state: boolean) => {
-      setReconnected(state)
+    const reconnected = ({state,room}: ReconnectedType) => {
+      setReconnected(prevState => ({...prevState, state, room}))
     } 
+    const logOut = () => {
+      console.log('log out message from socket io')
+      deleteFromStorage()
+      socket.disconnect()
+      window.location.reload()  
+    }
 
-    socket.on('list_clients', getFirms)
+    socket.on('receive_updated_firms', getFirms)
     socket.on('disconnection_message', disconnectMess)
     socket.on('reconnected', reconnected)
+    socket.on('logOut', logOut)
     return () => {
-      socket.off('list_clients', getFirms)
+      socket.off('receive_updated_firms', getFirms)
       socket.off('disconnection_message', disconnectMess)
       socket.off('reconnected', reconnected)
+      socket.off('logOut', logOut)
     }
   }, [socket])
 
   useEffect(() => {
-    if(isReconnected){
+    if(isReconnected.state){
       refetchFirmsData()
-      setReconnected(!isReconnected)
-      toast.success(t('reconnected'), {duration: 2*1000})
+      for(let firm of firmsList){
+        if(firm.value === isReconnected.room)
+          toast.success(firm.firm_fullname + ' ' + t('reconnected'), {duration: 2*1000})
+      }
+      setReconnected(prev => ({...prev, room:"", state:false}))
     }
   }, [isReconnected])
 
   useEffect(() => {
     if(!isLoading && !isError)
       if(socket)
-        socket.emit('request_clients', firmsData)
+        socket.emit('update_firms', {
+          uiFirms: firmsData, userPhone, userDevice: getUserDevice()
+        })
   }, [firmsData])
 
-
-  /// note: this side effect is to set receiver in case it isn't connected  
   useEffect(() => {
     if(!receiver.connected && CheckObjOrArrForNull(firmsList)){
       for(let i = 0; i < firmsList.length; i++){
@@ -236,22 +317,57 @@ const TopNavbar = () => {
         } 
       }
     }
+    else if(receiver.connected && CheckObjOrArrForNull(firmsList)){
+      if(leastFirmConnected(firmsList)){
+        let receiverClone = {...receiver}
+        for(let i = 0; i < firmsList.length; i++){
+          const firm = firmsList[i]
+          if(firm.value === receiverClone.value && !firm.connected){
+            for(let j = 0; j < firmsList.length; j++){
+              const innerFirm = firmsList[j]
+              if(innerFirm.connected){
+                receiverClone = {
+                  connected: innerFirm.connected,
+                  value: innerFirm.value,
+                  label: innerFirm.label
+                }
+                dispatch(TopnavbarAction.setSwitchAndActivator(false))
+                dispatch(TopnavbarAction.setRenewDashboard(true));
+                break;
+              }
+            }
+          }
+        }
+        dispatch(TopnavbarAction.setReceiver(receiverClone)); 
+      }else if(!leastFirmConnected(firmsList)){ // if no firm is connected and receiver cache stays connected, remove cache
+        dispatch(TopnavbarAction.setSwitchAndActivator(false))
+        dispatch(TopnavbarAction.setReceiver({
+          connected: false, 
+          value: "", 
+          label: ""
+        }))
+        dispatch(DashboardAction.setDashboardSettings({task: 'emptify'}))
+      }
+    }
   }, [firmsList])
 
   useEffect(() => {
-    if((renewDashboard || renewReport) && isStrEmpty(receiver.value)){
+    if(receiver.connected){
       const initEndPoint = '/get'
-      const path = match.pathname
-      if(path==='/dashboard'){  /// not the dashboard details
+      if(renewDashboard){
         const endPoint = `${initEndPoint}/dashboard/`
-        refetchData({socket,dispatch,path,receiver,endPoint,date})
-      }else if(path==='/report'){ ///details run here
+        RefetchFN({socket,dispatch,receiver,endPoint,date,renewDashboard})
+      }
+      if(renewReport){
         dispatch(ReportAction.setReportData([]))
         const endPoint = `${initEndPoint}/report/${endUrl}`
-        refetchData({socket,dispatch,path,receiver,endPoint,field,date: {startDate,endDate}})
+        RefetchFN({socket,dispatch,receiver,endPoint,field,date: {startDate,endDate},renewReport})
       }
     }
-  }, [renewDashboard, renewReport])
+  }, [
+    renewDashboard, 
+    renewReport, 
+  ])
 
   useEffect(() => {
     if(autoRefreshActivated && receiver.connected){
@@ -261,14 +377,31 @@ const TopNavbar = () => {
       if(path==='/dashboard'){
         const endPoint = `${initEndPoint}/dashboard/`
         const interval = setInterval(() => {
-          refetchData({socket,dispatch,path,receiver,endPoint,date}) 
+          const {
+            purchSaleOrdLoading,purchSaleRetLoading,stockCostLoading,
+            saleOrdTotalLoading,paymentsReceivedLoading,paymentsMadeLoading,
+            creditsLoading,debtsLoading,employeesBalanceLoading,
+            expensesLoding,cashesLoading
+          } = loading_ref.current
+
+          if(
+              !purchSaleOrdLoading&&!purchSaleRetLoading&&
+              !stockCostLoading&&!saleOrdTotalLoading&&
+              !paymentsReceivedLoading&&!paymentsMadeLoading&&
+              !creditsLoading&&!debtsLoading&&!employeesBalanceLoading&&
+              !expensesLoding&&!cashesLoading
+          )
+            RefetchFN({socket,dispatch,receiver,endPoint,date,renewDashboard: true}) 
         }, timer)
         return () => clearInterval(interval)
       }
       else if(path==='/report'){
         const endPoint = `${initEndPoint}/report/${endUrl}`
         const interval = setInterval(() => {
-          refetchData({socket,dispatch,path,receiver,endPoint,field,date: {startDate,endDate}})
+          if(!loading_ref.current.isReportsDataLoading){
+            dispatch(ReportAction.setReportData([]))
+            RefetchFN({socket,dispatch,receiver,endPoint,field,date: {startDate,endDate},renewReport:true})
+          }
         }, timer) 
         return () => clearInterval(interval)
       }
@@ -283,7 +416,20 @@ const TopNavbar = () => {
   useEffect(() => {
     if(checkDisconnectedClient(disClient) && CheckObjOrArrForNull(firmsList)){
       dispatch(TopnavbarAction.updateFirmsOnDisconnect(disClient, t))
-      dispatch(DashboardAction.setDashboardSettings({task: 'both', bool: false}))
+      if(disClient.room === receiver.value){
+        dispatch(DashboardAction.setDashboardSettings({task: 'both', bool: false}))
+        dispatch(TopnavbarAction.setSwitchAndActivator(false))
+        dispatch(TopnavbarAction.setReceiver({
+          value:"",
+          label:"",
+          connected:false
+        }))
+      }
+      if(CheckIfArray(reportData) || isReportsDataLoading){
+        dispatch(ReportAction.setReportTable({data: [], loading: false}))
+        dispatch(TopnavbarAction.setRenewReport(false))
+      }
+        
       if(fetcher.details || fetcher.refetch)
         dispatch(DashboardAction.liberateFetcher())
       setDisClient(prev => ({...prev, room: "", connected: false, last_conn_dt: ""}))
@@ -341,12 +487,18 @@ const TopNavbar = () => {
       toast.error(t('subscribeFirst'))
     else {
 
-      if(isStrEmpty(receiver.value) && receiver.connected){
+      if(receiver.connected){
         if(match.pathname === '/dashboard'){
-          
             if(isDtlTblOpen && !isDetsLoading)
               dispatch(DashboardAction.fetchData('details', true))
-            else if(!isDtlTblOpen && !cashesLoading) 
+            else if(
+              !isDtlTblOpen && 
+              (!purchSaleOrdLoading&&!purchSaleRetLoading&&
+              !stockCostLoading&&!saleOrdTotalLoading&&
+              !paymentsReceivedLoading&&!paymentsMadeLoading&&
+              !creditsLoading&&!debtsLoading&&!employeesBalanceLoading&&
+              !expensesLoding&&!cashesLoading)
+            ) 
               dispatch(TopnavbarAction.setRenewDashboard(true))
         }else if(match.pathname === '/report' && !isReportsDataLoading){
           dispatch(TopnavbarAction.setRenewReport(true))
@@ -369,11 +521,7 @@ const TopNavbar = () => {
   }, [new Date()])
 
   const userProfileItself = useMemo((): JSX.Element => {
-    if(
-      (!usrPrivateLoading && !usrPrivateError) 
-      // (!isActionsLoading && !isActionsError)
-    ) {
-      
+    if(!usrPrivateLoading && !usrPrivateError){
     return (
       <UserProfile 
         userData={userPrivateData?.[0] ?? {}} 
@@ -382,9 +530,8 @@ const TopNavbar = () => {
         onSuccess={(newValues) => {
           const {user_email, user_name, user_login} = newValues
           localStorage.setItem('authUser', JSON.stringify({
-            ...authUser, user_name
+            ...authUser, user_name, user_phone: user_login.substring(4)
           }))
-          localStorage.setItem('UserPhone', user_login.replace('+993', ''))
           refetchUserSubsc()
           refetchUserPrivateData()
         }}
