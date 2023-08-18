@@ -6,7 +6,7 @@ import styles from "./SideBar.module.scss";
 // fake data for demonstration
 import sidebar_items from "@app/assets/JsonData/sidebar_routes";
 // company logo
-import logo from "@app/assets/images/logo.png";
+import logo from "@app/assets/images/hasabym_transparent.png";
 // custom components
 import SidebarItem from "./SidebarItem/SidebarItem";
 // typed redux hooks
