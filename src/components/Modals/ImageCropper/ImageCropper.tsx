@@ -4,6 +4,16 @@ import { Button, Modal } from "@app/compLibrary";
 
 // styles
 import styles from './ImageCropper.module.scss'
+async function dataURLtoBlob(dataURL:any, fileName:string) {
+    const byteString = atob(dataURL.split(',')[1]);
+    const mimeString = dataURL.split(',')[0].split(':')[1].split(';')[0];
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    }
+    return new File([ab],fileName, {type: mimeString});
+}
 
 type Settings<T> = {
     /** @defaultValue 250 */
@@ -17,11 +27,14 @@ type Settings<T> = {
 type ImageCropperProps<T> = {
     show: boolean
     setShow: (state: boolean) => void
-    onSuccess: (canvas: string) => void
+    onSuccess: (formData: FormData) => void
     translate: Function
     params: Settings<T>
     image: any | undefined
-    inputRef?: any, 
+    imageFile:{
+        fileName:string
+    }
+    inputRef?: any
 }
 type CropType = {
     scale: number, 
@@ -34,6 +47,7 @@ const ImageCropper = (props: ImageCropperProps<number>) => {
         show = false, 
         setShow, 
         image,
+        imageFile,
         onSuccess,
         translate,
         inputRef
@@ -45,10 +59,13 @@ const ImageCropper = (props: ImageCropperProps<number>) => {
     const editorRef:any = useRef(null);
     const rotateInterval = useRef<any>(null);
 
-    const handleImageCrop = () => {
+    const handleImageCrop = async () => {
         if (editorRef.current) {
             const canvas = editorRef.current.getImageScaledToCanvas().toDataURL();
-            onSuccess(canvas)
+            const file = await dataURLtoBlob(canvas,imageFile.fileName)
+            const formData = new FormData()
+            formData.append('userAvatar', file)
+            onSuccess(formData)
             setShow(false)
             setCrop(prev => ({...prev, scale: 1, rotation: 0}))
         }
@@ -74,7 +91,7 @@ const ImageCropper = (props: ImageCropperProps<number>) => {
         <Modal 
             isOpen={show}
             close={() => setShow(false)}
-            style={{width: '50vh', minHeight: '50vh'}}
+            style={{width: '400px'}}
         >
             <div className={styles.container}>
                 <div className={styles.modal__header}>

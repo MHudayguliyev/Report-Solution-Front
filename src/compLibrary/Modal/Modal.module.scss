@@ -28,10 +28,12 @@
    background-color: var(--second-bg);
    width: 80%;
    height: auto;
-   padding: toRem(14);
    @media screen and (max-width: $desktop) {
       width:auto;
    }
+}
+.contentPadding {
+   padding: toRem(14);
 }
 
 .fullScreen {
@@ -52,7 +54,6 @@
 
 .modalBody {
    padding: toRem(14) 0;
-
 }
 
 .modalFooter {

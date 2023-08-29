@@ -1,3 +1,4 @@
+import adminIcon from '@app/components/Icons/Admin/Admin'
 export default [
   {
     display_name: {
@@ -19,6 +20,21 @@ export default [
     icon: 'bx bx-user-pin',
     sub: []
   },
+  {
+    display_name: {
+      en: 'Admin',
+      ru: 'Admin',
+      tm: 'Admin'
+    },
+    route: '/administrator',
+    svg: adminIcon(), 
+    icon: '',
+    sub: [],
+  },
+
+]
+
+
   // {
   //   display_name: {
   //     en: 'Map',
@@ -40,4 +56,3 @@ export default [
   //   icon: 'bx bx-cog',
   //   sub: []
   // }
-]

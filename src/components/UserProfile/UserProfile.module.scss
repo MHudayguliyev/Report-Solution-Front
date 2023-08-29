@@ -3,8 +3,7 @@
 
 .profile {
     width: 700px;
-    // height: 10vh;
-    
+    margin-top: -30px;
     button{
         text-transform: capitalize;
         text-align: center;
@@ -20,8 +19,8 @@
 .profile__form{
     display: flex;
     gap: 10px;
-    align-items: start;
-    padding: 10px;
+    align-items: flex-start;
+    padding: 0 0 10px 0;
 }
 
 .profile__item {
@@ -29,9 +28,15 @@
     justify-content: space-between;
     align-items: center;
     padding: 10px;
+    width: 370px;
     .set_color_blackish {
         color: var(--input-color-dark)
     }    
+}
+.the__form {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
 }
 
 .user__info {
@@ -39,7 +44,7 @@
     position: relative;
     padding: 7px;
     border-radius: 7px;
-    background: var(--second-bg);
+    background: var(--main-bg);
 }
 
 .submit__btn, .enableEditBtn{
@@ -49,8 +54,6 @@
     float: right;
 
     .child {
-        // text-align: center;
-        // color: red;
         display: flex;
         justify-content: center;
     }
@@ -69,8 +72,6 @@
     }
 }
 
-
-
 .error {
     height: 29px;
     width: 200px;
@@ -81,7 +82,6 @@
 }
 
 .inputStyle, .field {
-    // flex: 1;
     border-radius: 8px;
     font-size: 16px;
     font-family: 'Panton', sans-serif;
@@ -91,8 +91,8 @@
     transition: all .2s ease-in-out;
 }
 
-.inputStyle {
-    width: 300px;
+.inputStyle{
+    width: 250px;
     padding-right:10px;
     font-family: 'Panton' sans-serif;
     background: transparent;
@@ -100,11 +100,12 @@
 }
 
 .field {
-    border: 1px solid #ccc;
     background: rgb(228, 228, 228);
     border: none;
 }
-
+.userLogin {
+    width: 250px;
+}
 
 @keyframes anime {
     0% {
@@ -124,11 +125,13 @@
     text-transform: capitalize;
 }
 .user__img {
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     padding: 15px;
-    background-color: var(--second-bg);
+    background-color: var(--main-bg);
     border-radius: 7px;
-    height: 180px;
+    height: 133px;
     .img__part {
         position: relative;
         img {
@@ -141,7 +144,7 @@
         i {
             position: absolute;
             top: 40px;
-            left: 44px;
+            left: 40px;
             font-size: 22px;
             color: var(--trash-icon-bg);
             transition: all 0.2s ease-in;
@@ -162,26 +165,6 @@
 
 
 }
-
-.user_upload {
-    // border: 1px solid var(--main-color);
-    // padding: 4px 6px;
-    // display: flex;
-    // align-items: center;
-    // color: var(--main-color);
-    // opacity: 1;
-    // border-radius: 8px;
-    // &:hover {
-    //     background-color: var(--main-color);
-    //     color: white;
-    // }
-}
-.role_name {
-    width: 220px;
-    text-indent: 15px;
-    padding: 10px 0;
-    font-weight: 500;
-}
 .dropwDownRole {
     width: 200px;
 	background: rgb(228, 228, 228);
@@ -201,7 +184,6 @@
 }
 
 .actions {
-    // border: 1px solid red;
     display: flex;
     justify-content: end;
     align-items: center;

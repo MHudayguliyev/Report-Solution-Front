@@ -19,7 +19,7 @@ import toast from 'react-hot-toast'
 import { UserFirmsList } from '@app/api/Types/queryReturnTypes/UserFirms'
 import { UsualType } from '@app/redux/types/TopnavbarTypes'
 // utils 
-import { ArraysChecker,  CheckIfArray,  CheckObjOrArrForNull, delay, getDate, isNullOrUndefined, isStrEmpty  } from '@utils/helpers'
+import { ArraysChecker,  CheckIfArray,  CheckObjOrArrForNull, delay, getDate, isDateValid, isNullOrUndefined, isStrEmpty  } from '@utils/helpers'
 import Nofirm from '@icons/Nodataicon/Nofirm'
 
 
@@ -155,7 +155,7 @@ const Firms = (props: FirmsModalType) => {
                                                 connectedAt: item.connected,
                                                 notConnected: !item.connected
                                             })}>{
-                                                item.connected ? getDate(item.connected_at) : item.connected_at
+                                                isDateValid(item.connected_at) ? getDate(item.connected_at) : item.connected_at 
                                             }</div>                             
                                         </div>
                                     </div>
@@ -185,8 +185,6 @@ const Firms = (props: FirmsModalType) => {
                                             || (ArraysChecker(dashboardDataArrays))
                                             ) 
                                         ){
-                                            if(renewDashboard)
-                                                dispatch(TopnavbarAction.setRenewDashboard(false))
                                             dispatch(DashboardAction.setDashboardSettings({task: 'both', bool: false}))
                                             delay(ms).then(() => dispatch(TopnavbarAction.setRenewDashboard(true)))
                                         }
@@ -199,15 +197,23 @@ const Firms = (props: FirmsModalType) => {
 
                                     }else if(match.pathname === '/report'){
                                         if(CheckIfArray(reportData) || isReportsDataLoading){
-                                            console.log('here i am')    
                                             dispatch(TopnavbarAction.setRenewReport(false))
                                             dispatch(ReportAction.setReportDataLoading(false))
                                             delay(ms).then(() =>dispatch(TopnavbarAction.setRenewReport(true)))
                                         }
-                                        if(ArraysChecker(dashboardDataArrays))
-                                            dispatch(TopnavbarAction.setRenewDashboard(true))
-                       
-                                            
+                                        if( (
+                                            purchSaleOrdLoading||purchSaleRetLoading||
+                                            stockCostLoading||saleOrdTotalLoading||
+                                            paymentsReceivedLoading||paymentsMadeLoading||
+                                            creditsLoading||debtsLoading||employeesBalanceLoading||
+                                            expensesLoding||cashesLoading
+                                            || (ArraysChecker(dashboardDataArrays))
+                                            ) )
+                                           {
+                                            console.log('came here')
+                                            dispatch(DashboardAction.setDashboardSettings({task: 'both', bool: false}))
+                                            delay(ms).then(() => dispatch(TopnavbarAction.setRenewDashboard(true)))
+                                           }
                                     }else if(match.pathname === '/forecast'){
                                         console.log('Hello forecast')
                                     }

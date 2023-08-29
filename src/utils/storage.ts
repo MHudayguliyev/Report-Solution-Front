@@ -1,3 +1,4 @@
+import { authStorageKeyTypes } from "@app/Types/utils";
 import { useAppSelector } from "@app/hooks/redux_hooks";
 import { InitialDashboardState } from "@app/redux/types/DashboardTypes";
 import moment from "moment";
@@ -25,10 +26,10 @@ export const setToStorage = (storage: any) => {
     localStorage.setItem('storage', JSON.stringify(storage));
 }
 
-export const getFromStorage = (key?:string) => {
+export const getFromStorage = (key:authStorageKeyTypes|any) => {
   const authUser = JSON.parse(localStorage.getItem('authUser')!) || ""
   if(key !== ''){
-    const result = authUser?.[key as string] ?? ""
+    const result = authUser?.[key as keyof authStorageKeyTypes] ?? ""
     return result
   }
   return authUser

@@ -50,6 +50,10 @@
   "firms": "Firma saýlaň",
   "active": "Aktiw",
   "inactive": "Aktiw däl",
+  "cancelled": "Ýatyryldy", 
+  "notCancelled": "Ýatyrylmadyk",
+  "expired": "Möhleti gutardy", 
+  "notExpired": "Möhleti gutarmady",
   "all": "Hemmesi",
   "makeOrder": "Sargyt goşmak",
   "shortName": "Gysga ady",
@@ -156,6 +160,7 @@
   "verify_code": "Barlag kody",
   "send_again": "Kody gaýtadan ugrat",
   "selectRole": "Rol saýlaň",
+  "selectUsers": "Ulanyjylary saýlaň", 
   "new_pass": "Täze parol",
   "conf_pass": "Paroly tassykla",
   "send_code": "Kod ugratmak",
@@ -188,8 +193,12 @@
   "creditsFromSale": "Satuwdan algylar",
   "employeesBalance": "Işgärler balansy",
   "cashesAmount": "Nagt pullar",
+  "adders": {   
+    "invoice": "fakturasy",
+    "credFromSale": "(Müşderiler b/ç)",
+    "debtsFromPurch": "(Üpjün edijiler b/ç)"
+  },
   "status": "Statusy",
-
   "clearAll": "Hemmesini arassala",
   "noUser": "Bu telefon belgili ulanyjy ýok",
   "passIncorrect": "Parol nädogry",

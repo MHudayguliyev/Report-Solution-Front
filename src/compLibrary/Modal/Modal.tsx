@@ -24,6 +24,8 @@ type ModalProps = {
    footer?: ReactNode
    /** @default false */
    fullScreen?: boolean
+   /** @default false */
+   removePadding?: boolean
    className?: string
    style?: CSSProperties
    styleOfModalBody?:CSSProperties
@@ -37,6 +39,7 @@ const Modal = (props: ModalProps) => {
       header,
       footer,
       fullScreen = false,
+      removePadding = false,
       className = '',
       style,
       styleOfModalBody
@@ -75,7 +78,8 @@ const Modal = (props: ModalProps) => {
          <div style={style} className={`${className} ${cx({
                modalContent: true,
                modalAnimation: isOpen,
-               fullScreen: fullScreen
+               fullScreen: fullScreen,
+               contentPadding: !removePadding
             })}
          `}>
             <div className={styles.modalHeader} style={{ justifyContent: !!header ? 'space-between' : 'flex-end' }}>
@@ -86,7 +90,9 @@ const Modal = (props: ModalProps) => {
                   <i className='bx bx-x'></i>
                </Button>
             </div>
-            <div style={styleOfModalBody} className={styles.modalBody}>
+            <div style={styleOfModalBody} className={cx({
+               modalBody: !removePadding
+            })}>
                {children}
             </div>
             <div className={styles.modalFooter}>

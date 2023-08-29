@@ -9,6 +9,7 @@ import Report from "@app/pages/Report/Report";
 import CheckAuthMiddleware from "./CheckAuthMiddleware";
 import Map from '@app/pages/Map/Map'
 import Forecast from "@app/pages/Forecast/Forecast";
+import Admin from "@app/pages/Admin/Admin";
 
 const routes: Route[] = [
    {
@@ -40,7 +41,14 @@ const routes: Route[] = [
       element: (
          <Authmiddleware>
             <Map /> 
-            {/* Salama Maksat */}
+         </Authmiddleware>
+      )
+   },
+   {
+      path: '/administrator',
+      element: (
+         <Authmiddleware>
+            <Admin /> 
          </Authmiddleware>
       )
    },

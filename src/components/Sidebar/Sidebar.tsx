@@ -19,6 +19,7 @@ import { useTranslation } from "react-i18next";
 import { Language } from "@app/Types/Language";
 /// redux
 import DashboardAction from '@app/redux/actions/DashboardAction'
+import { getFromStorage } from "@utils/storage";
 
 
 
@@ -45,9 +46,8 @@ const Sidebar = () => {
 
   // for translation
   const { i18n } = useTranslation();
-
   const language: Language = i18n.language as Language;
-  const match = useMatch();
+  const userRole = getFromStorage('role_name')
 
   return (
     <>
@@ -64,27 +64,32 @@ const Sidebar = () => {
             </div>
           </a>
           {/* Side bar items */}
-          {sidebar_items.map((item, index) => (
-            <Link
-              style={{ width: "100%" }}
-              onClick={() => {
-                setOwn(item.route);
-                toggleSidebar()
-                if(isDtlTblOpen)
-                  dispatch(DashboardAction.openDtlTbl(false))
-              }}
-              to={item.route}
-              key={index}
-              className={styles.sidebarLink}
-            >
-              <SidebarItem
-                title={item.display_name[language]}
-                icon={item.icon ?? ''}
-                // image={item?.image ?? ""}
-                active={index === activeItem}
-              />
-            </Link>
-          ))}
+          {sidebar_items.map((item, index) => {
+            if(item.route === '/administrator' && userRole !== 'Admin')
+              return null
+            return (
+              <Link
+                style={{ width: "100%" }}
+                onClick={() => {
+                  setOwn(item.route);
+                  toggleSidebar()
+                  if(isDtlTblOpen)
+                    dispatch(DashboardAction.openDtlTbl(false))
+                }}
+                to={item.route}
+                key={index}
+                className={styles.sidebarLink}
+              >
+                <SidebarItem
+                  title={item.display_name[language]}
+                  icon={item.icon ?? ''}
+                  svg={item.svg ? item.svg : ""}
+                  active={index === activeItem}
+                />
+              </Link>
+            )
+          }
+          )}
         </div>
       </div>
     </>

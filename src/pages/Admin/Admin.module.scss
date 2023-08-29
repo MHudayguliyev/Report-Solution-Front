@@ -1,0 +1,35 @@
+@use '../../styles/globalBreakPoints.scss' as *;
+.wrapper {
+    margin-top: 70px;
+    overflow: hidden;
+    // padding-bottom: 20px;
+    .tables {
+        display: flex;
+        // border: 1px solid red;
+        gap: 6px;
+        .firms {
+            width: 50%;
+        }
+        .users {
+            width: 50%;
+        }
+        // @media screen and (max-width: $minDesktop) {
+        //     .firms, .users {
+        //         width: 60%;
+        //     }
+        // }
+
+    }
+
+    .tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        cursor: pointer;
+        padding: 3px 0;
+        
+        .active {
+            color: var(--main-color)
+        }
+    }
+}

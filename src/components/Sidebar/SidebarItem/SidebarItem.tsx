@@ -9,12 +9,13 @@ const cx = className.bind(styles);
 type SidebarItemProps = {
   title: string;
   icon: string;
-  image?: {white:string, black:string} | any;
+  image?: any;
+  svg?: any;
   active: boolean;
 };
 
 const SidebarItem = (props: SidebarItemProps): JSX.Element => {
-  const { title, icon, active, image } = props;
+  const { title, icon, active, image,svg } = props;
 
   const themeMode = useAppSelector(state => state.themeReducer.mode)
 
@@ -29,12 +30,12 @@ const SidebarItem = (props: SidebarItemProps): JSX.Element => {
         {
           image ?
           <img 
-            src={themeMode==='theme-mode-light'? image.black : themeMode==='theme-mode-dark'?image.white : image} 
+            src={image} 
             className={styles.sidebar_item_image}
             alt="sidebar icon" 
             width={29.5} 
             height={29}/> : 
-            <i className={icon}></i>
+            icon ? <i className={icon}></i> : svg
         }
         <span className={styles.title}>{title}</span>
       </div>

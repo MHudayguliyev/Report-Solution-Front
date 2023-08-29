@@ -2,12 +2,14 @@ import hash from 'object-hash'
 import DashboardAction from '@redux/actions/DashboardAction'
 import {  ResponseType } from '@app/Types/utils';
 import { UserFirmsList } from '@app/api/Types/queryReturnTypes/UserFirms';
-import { UsualType } from '@app/redux/types/TopnavbarTypes';
 import { papers } from '@app/assets/JsonData/papers';
 import moment from 'moment';
 
 export function getDate(date: Date | string) {
    return date !== null ? moment(new Date(date)).format('DD.MM.YYYY hh:mm') : date
+}
+export function isDateValid(date:Date|string){
+   return moment(date).isValid()
 }
 export function resetFormikValue(initValues: any, valuesToSet: any, setFieldValue: Function, setFieldTouched: Function) {
    for(let key of Object.keys(initValues)){
@@ -110,7 +112,7 @@ export const ArraysChecker = (arrays: any[]) => {
       if(CheckIfArray(array))
          counter++
    }
-
+   console.log('counter ', counter)
    if(counter >= 1)
       return true
    return false
@@ -126,153 +128,153 @@ export const leastFirmConnected = (firms: UserFirmsList<string>[]) => {
    return false
 }
 
-export const setDashboardData = ({dispatch,response,receiver}: {dispatch:Function,response: ResponseType,receiver: UsualType}) => {
+export const setDashboardData = ({dispatch,response}: {dispatch:Function,response: ResponseType}) => {
    const ms = 1000  
    const {cred: {name, type_id}, data} = response
 
-      switch(name){
-         case papers[0]:
+   switch(name){
+      case papers[0]:
+         delay(ms).then(() => {
+            if(CheckIfArray(data)){
+               dispatch(DashboardAction.setPurchSaleOrders(data)) 
+               dispatch(DashboardAction.setPurchSaleOrdErr(false))
+            }else {
+               dispatch(DashboardAction.setPurchSaleOrders([])) 
+               dispatch(DashboardAction.setPurchSaleOrdErr(true))
+            }
+            dispatch(DashboardAction.setPurchSaleOrdLoading(false))
+         })
+         break;
+
+      case papers[1]:
+         delay(ms).then(() => {
+            if(CheckIfArray(data)){
+               dispatch(DashboardAction.setPurchSalesReturns(data))
+               dispatch(DashboardAction.setPurchSalesRetErr(false))
+            }else {
+               dispatch(DashboardAction.setPurchSalesReturns([]))
+               dispatch(DashboardAction.setPurchSalesRetErr(true))
+            }
+            dispatch(DashboardAction.setPurchSalesRetLoading(false))
+         }) 
+         break;
+
+      case papers[6]:
+         delay(ms).then(() => {
+            if(CheckIfArray(data)){
+               dispatch(DashboardAction.setOrdCountTotalByStatus(data))
+               dispatch(DashboardAction.setOrdCountTotalErr(false))
+            }else {
+               dispatch(DashboardAction.setOrdCountTotalByStatus([]))
+               dispatch(DashboardAction.setOrdCountTotalErr(true))
+            }
+            dispatch(DashboardAction.setOrdCountTotalLoading(false))
+         })
+         break;
+
+      case papers[2]:
+         delay(ms).then(() => {
+            if(CheckIfArray(data)){
+               dispatch(DashboardAction.setStockCostTotal(data))
+               dispatch(DashboardAction.setStockErr(false))
+            }else {
+               dispatch(DashboardAction.setStockCostTotal([]))
+               dispatch(DashboardAction.setStockErr(true))
+            }
+            dispatch(DashboardAction.setStockLoading(false))
+         }) 
+         break;
+      
+      case papers[3]:
+         if(type_id===11){
             delay(ms).then(() => {
                if(CheckIfArray(data)){
-                  dispatch(DashboardAction.setPurchSaleOrders(data)) 
-                  dispatch(DashboardAction.setPurchSaleOrdErr(false))
+                  dispatch(DashboardAction.setPaymentsReceived(data))
+                  dispatch(DashboardAction.setPaymentsReceivedErr(false))
                }else {
-                  dispatch(DashboardAction.setPurchSaleOrders([])) 
-                  dispatch(DashboardAction.setPurchSaleOrdErr(true))
+                  dispatch(DashboardAction.setPaymentsReceived([]))
+                  dispatch(DashboardAction.setPaymentsReceivedErr(true))
                }
-               dispatch(DashboardAction.setPurchSaleOrdLoading(false))
+               dispatch(DashboardAction.setPaymentsReceivedLoading(false))
             })
-            break;
-   
-         case papers[1]:
+         }else if(type_id===12){
             delay(ms).then(() => {
                if(CheckIfArray(data)){
-                  dispatch(DashboardAction.setPurchSalesReturns(data))
-                  dispatch(DashboardAction.setPurchSalesRetErr(false))
+                  dispatch(DashboardAction.setPaymentMade(data))
+                  dispatch(DashboardAction.setPaymentsMadeErr(false))
                }else {
-                  dispatch(DashboardAction.setPurchSalesReturns([]))
-                  dispatch(DashboardAction.setPurchSalesRetErr(true))
+                  dispatch(DashboardAction.setPaymentMade([]))
+                  dispatch(DashboardAction.setPaymentsMadeErr(true))
                }
-               dispatch(DashboardAction.setPurchSalesRetLoading(false))
-            }) 
-            break;
-   
-         case papers[6]:
-            delay(ms).then(() => {
-               if(CheckIfArray(data)){
-                  dispatch(DashboardAction.setOrdCountTotalByStatus(data))
-                  dispatch(DashboardAction.setOrdCountTotalErr(false))
-               }else {
-                  dispatch(DashboardAction.setOrdCountTotalByStatus([]))
-                  dispatch(DashboardAction.setOrdCountTotalErr(true))
-               }
-               dispatch(DashboardAction.setOrdCountTotalLoading(false))
+               dispatch(DashboardAction.setPaymentsMadeLoading(false))
             })
-            break;
-   
-         case papers[2]:
+         }
+         break;
+
+      case papers[4]:
+         if(type_id===1){
             delay(ms).then(() => {
                if(CheckIfArray(data)){
-                  dispatch(DashboardAction.setStockCostTotal(data))
-                  dispatch(DashboardAction.setStockErr(false))
+                  dispatch(DashboardAction.setDebtsFromPurchase(data))
+                  dispatch(DashboardAction.setDebtsErr(false))
                }else {
-                  dispatch(DashboardAction.setStockCostTotal([]))
-                  dispatch(DashboardAction.setStockErr(true))
+                  dispatch(DashboardAction.setDebtsFromPurchase([]))
+                  dispatch(DashboardAction.setDebtsErr(true))
                }
-               dispatch(DashboardAction.setStockLoading(false))
-            }) 
-            break;
-         
-         case papers[3]:
-            if(type_id===11){
-               delay(ms).then(() => {
-                  if(CheckIfArray(data)){
-                     dispatch(DashboardAction.setPaymentsReceived(data))
-                     dispatch(DashboardAction.setPaymentsReceivedErr(false))
-                  }else {
-                     dispatch(DashboardAction.setPaymentsReceived([]))
-                     dispatch(DashboardAction.setPaymentsReceivedErr(true))
-                  }
-                  dispatch(DashboardAction.setPaymentsReceivedLoading(false))
-               })
-            }else if(type_id===12){
-               delay(ms).then(() => {
-                  if(CheckIfArray(data)){
-                     dispatch(DashboardAction.setPaymentMade(data))
-                     dispatch(DashboardAction.setPaymentsMadeErr(false))
-                  }else {
-                     dispatch(DashboardAction.setPaymentMade([]))
-                     dispatch(DashboardAction.setPaymentsMadeErr(true))
-                  }
-                  dispatch(DashboardAction.setPaymentsMadeLoading(false))
-               })
-            }
-            break;
-   
-         case papers[4]:
-            if(type_id===1){
-               delay(ms).then(() => {
-                  if(CheckIfArray(data)){
-                     dispatch(DashboardAction.setDebtsFromPurchase(data))
-                     dispatch(DashboardAction.setDebtsErr(false))
-                  }else {
-                     dispatch(DashboardAction.setDebtsFromPurchase([]))
-                     dispatch(DashboardAction.setDebtsErr(true))
-                  }
-                  dispatch(DashboardAction.setDebtsLoading(false))
-               })
-            }else if(type_id===2){
-               delay(ms).then(() => {
-                  if(CheckIfArray(data)){
-                     dispatch(DashboardAction.setCreditsFromSale(data))
-                     dispatch(DashboardAction.setCreditsErr(false))
-                  }else {
-                     dispatch(DashboardAction.setCreditsFromSale([]))
-                     dispatch(DashboardAction.setCreditsErr(true))
-                  }
-                  dispatch(DashboardAction.setCreditsLoading(false))
-               })
-            }else if(type_id===4){
-               delay(ms).then(() => {
-                  if(CheckIfArray(data)){
-                     dispatch(DashboardAction.setEmployeesBalance(data))
-                     dispatch(DashboardAction.setEmployeesBalanceErr(false))
-                  }else {
-                     dispatch(DashboardAction.setEmployeesBalance([]))
-                     dispatch(DashboardAction.setEmployeesBalanceErr(true))
-                  }
-                  dispatch(DashboardAction.setEmployeesBalanceLoading(false))
-               })
-            }
-            break;
-   
-         case papers[5]:
-            if(type_id===8){
-               delay(ms).then(() => {
-                  if(CheckIfArray(data)){
-   
-                     dispatch(DashboardAction.setCashesAmount(data))
-                     dispatch(DashboardAction.setCashesErr(false))
-                  }else {
-                     dispatch(DashboardAction.setCashesAmount([]))
-                     dispatch(DashboardAction.setCashesErr(true))
-                  }
-                  dispatch(DashboardAction.setCashesLoading(false))
-               })
-            }else if(type_id===25){
-               delay(ms).then(() => {
-                  if(CheckIfArray(data)){
-                     dispatch(DashboardAction.setExpensesAmount(data))
-                     dispatch(DashboardAction.setExpensesErr(false))
-                  }else {
-                     dispatch(DashboardAction.setExpensesAmount([]))
-                     dispatch(DashboardAction.setExpensesErr(true))
-                  }
-                  dispatch(DashboardAction.setExpensesLoading(false))
-               })
-            }
-            break;
-         default: 
-           break;
-       }
+               dispatch(DashboardAction.setDebtsLoading(false))
+            })
+         }else if(type_id===2){
+            delay(ms).then(() => {
+               if(CheckIfArray(data)){
+                  dispatch(DashboardAction.setCreditsFromSale(data))
+                  dispatch(DashboardAction.setCreditsErr(false))
+               }else {
+                  dispatch(DashboardAction.setCreditsFromSale([]))
+                  dispatch(DashboardAction.setCreditsErr(true))
+               }
+               dispatch(DashboardAction.setCreditsLoading(false))
+            })
+         }else if(type_id===4){
+            delay(ms).then(() => {
+               if(CheckIfArray(data)){
+                  dispatch(DashboardAction.setEmployeesBalance(data))
+                  dispatch(DashboardAction.setEmployeesBalanceErr(false))
+               }else {
+                  dispatch(DashboardAction.setEmployeesBalance([]))
+                  dispatch(DashboardAction.setEmployeesBalanceErr(true))
+               }
+               dispatch(DashboardAction.setEmployeesBalanceLoading(false))
+            })
+         }
+         break;
+
+      case papers[5]:
+         if(type_id===8){
+            delay(ms).then(() => {
+               if(CheckIfArray(data)){
+
+                  dispatch(DashboardAction.setCashesAmount(data))
+                  dispatch(DashboardAction.setCashesErr(false))
+               }else {
+                  dispatch(DashboardAction.setCashesAmount([]))
+                  dispatch(DashboardAction.setCashesErr(true))
+               }
+               dispatch(DashboardAction.setCashesLoading(false))
+            })
+         }else if(type_id===25){
+            delay(ms).then(() => {
+               if(CheckIfArray(data)){
+                  dispatch(DashboardAction.setExpensesAmount(data))
+                  dispatch(DashboardAction.setExpensesErr(false))
+               }else {
+                  dispatch(DashboardAction.setExpensesAmount([]))
+                  dispatch(DashboardAction.setExpensesErr(true))
+               }
+               dispatch(DashboardAction.setExpensesLoading(false))
+            })
+         }
+         break;
+      default: 
+         break;
+      }
 }  

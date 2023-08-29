@@ -74,7 +74,6 @@ const Report = () => {
       const {data, cred: {roomName}} = initialReportDetails
       if(roomName===receiver.value){
         dispatch(ReportAction.setReportData(data))
-        dispatch(TopnavbarAction.setRenewReport(false))
         dispatch(ReportAction.setReportDataLoading(false))
         setInitialReportDetails(prev => ({...prev, data: [], cred: {...prev.cred, roomName: ""}}))
       }
@@ -96,6 +95,7 @@ const Report = () => {
           density={'compact'}
           heightToExtract='250'
           tabs={tabs}
+          onTabChange={index => dispatch(ReportAction.setTabActiveIndex(index))}
           dropdownData={fields}
           field={field}
         />

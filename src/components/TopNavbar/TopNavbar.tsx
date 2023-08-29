@@ -30,6 +30,7 @@ import SelectTime from '@app/components/Modals/SelectTime/SelectTime'
 import { useTranslation } from "react-i18next";
 import { useAppDispatch, useAppSelector } from "@app/hooks/redux_hooks";
 // Action creators
+import AdminAction from '@redux/actions/AdminAction'
 import TopnavbarAction from '@redux/actions/TopnavbarAction'
 import AuthAction from '@redux/actions/AuthAction'
 import DashboardAction from '@redux/actions/DashboardAction'
@@ -38,7 +39,7 @@ import ThemeAction from "@app/redux/actions/ThemeAction";
 import FormAction from "@app/redux/actions/FormAction";
 //moment
 import moment from "moment";
-import { GetUser, GetUserActions, GetUserFirms, GetUserSubcsStatus } from "@app/api/Queries/Getters";
+import { DeleteAvatar, GetUser, GetUserActions, GetUserAvatar, GetUserFirms, GetUserSubcsStatus } from "@app/api/Queries/Getters";
 import { CheckObjOrArrForNull, isStrEmpty, checkDisconnectedClient, leastFirmConnected, getUserDevice, CheckIfArray } from "@utils/helpers";
 import { UserFirms} from "@app/api/Types/queryReturnTypes/UserFirms";
 import { TbAdjustmentsHorizontal } from "react-icons/tb";
@@ -91,20 +92,26 @@ const RefetchFN = (props:RefetchFNType) => {
     delete message.list  
   if(renewDashboard)
     delete message.field
+
+  // console.log("room in message", message.roomName)
   socket.emit('request_initial_data', message)
-  if(renewDashboard)
+  if(renewDashboard){
     dispatch(DashboardAction.setDashboardSettings({task: 'load', bool: true}))
-  if(renewReport)
+    dispatch(TopnavbarAction.setRenewDashboard(false))
+  }
+  if(renewReport){
     dispatch(ReportAction.setReportDataLoading(true))
+    dispatch(TopnavbarAction.setRenewReport(false))
+  }
 }
 
-const renderUserToggle = () => {
+const renderUserToggle = (avatar: string) => {
   let userName;
   userName = getFromStorage('user_name')
   return (
     <div className={styles.topnav__right_user}>
       <div className={styles.topnav__right_user__image}>
-        <img src={user_image} alt="" />
+        <img src={avatar!== '' ?avatar : user_image} alt="" />
       </div>
       <div className={styles.topnav__right_user__name}>{typeof userName !== 'string' ? 'Who are you?' : userName}</div>
     </div>
@@ -123,7 +130,7 @@ const TopNavbar = () => {
   const language = i18n.language
   // socket 
   const socket:SocketType|any = useContext(SocketContext)
-
+  
   /// redux states
   const purchSaleOrdLoading = useAppSelector(state => state.dashboardReducer.purchSaleOrdLoading)
   const purchSaleRetLoading = useAppSelector(state => state.dashboardReducer.purchSaleRetLoading)
@@ -160,6 +167,9 @@ const TopNavbar = () => {
   const endUrl = useAppSelector(state => state.reportReducer.endUrl)
   const field = useAppSelector(state => state.reportReducer.field)
   const fetcher = useAppSelector(state => state.dashboardReducer.fetchData)
+  /// admin selector 
+  const adminSelectedUserGuid = useAppSelector(state => state.adminReducer.userGuid)
+  const forceUpdateUserGuid = useAppSelector(state => state.adminReducer.forceUpdateUserGuid)
  
   /// use states go here...
   const [isMinDay, setIsMinDay] = useState<boolean>(false)
@@ -178,6 +188,8 @@ const TopNavbar = () => {
   const loading_ref:any = useRef(null)
 
   /// states
+  const [avatar, setAvatar] = useState<string>('')
+  const [userLogo, setUserLogo] = useState<string>('')
   const [menuName, setMenuName] = useState<'profile'|'filter'|'theme'>('theme')
   const [disableOutClick, setDisableOutClick] = useState<boolean>(false)
   const [logoutModal, setLogoutModal] = useState<boolean>(false)
@@ -196,8 +208,7 @@ const TopNavbar = () => {
       refetch: refetchFirmsData
     } = useQuery(['getUserFirms', userGuid, isReconnected.state], 
     () => GetUserFirms(userGuid), 
-    {enabled: !!userGuid || isReconnected.state, refetchOnWindowFocus: true},
-    )
+    {enabled: !!userGuid || isReconnected.state, refetchOnWindowFocus: true})
 
     const {
       data: userSubscData,
@@ -206,21 +217,33 @@ const TopNavbar = () => {
       isError: isUserSubscError
     } = useQuery('getUserSubscData', 
     () => GetUserSubcsStatus(userGuid), {enabled: !!userGuid})
+
     const {
       data: userPrivateData,
       isLoading: usrPrivateLoading, 
       isError: usrPrivateError,
       refetch: refetchUserPrivateData
-    } = useQuery('getUserPrivateData', 
-    () => GetUser(userGuid), {enabled: !!userGuid})
+    } = useQuery(['getUserPrivateData', menuName, adminSelectedUserGuid, userGuid], 
+    () => GetUser(isStrEmpty(adminSelectedUserGuid) ? adminSelectedUserGuid : userGuid), 
+    {enabled: menuName==='profile' && (!!adminSelectedUserGuid || !!userGuid) })
 
     const {
       data: userActions,
       isLoading: isActionsLoading, 
       isError: isActionsError,
       refetch: refetchUserActions
-    } = useQuery('getUserAction', () => GetUserActions(userGuid), {enabled: !!userGuid})
+    } = useQuery(['getUserAction', menuName, adminSelectedUserGuid, userGuid], 
+    () => GetUserActions(isStrEmpty(adminSelectedUserGuid) ? adminSelectedUserGuid : userGuid), 
+    {enabled: menuName==='profile'&& (!!adminSelectedUserGuid || !!userGuid) })
 
+    const {
+      data: userAvatar,
+      isLoading: isAvatarLoading, 
+      isError: isAvatarLoadError,
+      refetch: refetchAvatar
+    } = useQuery(['getUserAvatar',adminSelectedUserGuid, userGuid], 
+    () => GetUserAvatar(isStrEmpty(adminSelectedUserGuid) ? adminSelectedUserGuid : userGuid), 
+    {enabled: !!adminSelectedUserGuid || !!userGuid })
 
   const loadingMem = useMemo(() => {
     return {
@@ -235,6 +258,33 @@ const TopNavbar = () => {
     creditsLoading,debtsLoading,employeesBalanceLoading,
     expensesLoding,cashesLoading, isReportsDataLoading
   ])
+
+
+  /// side effects
+  useEffect(() => {
+    if( // open user selected by admin in Admin Page
+      isStrEmpty(adminSelectedUserGuid)
+    ){
+      if(forceUpdateUserGuid)
+        dispatch(AdminAction.forceUpdateUserGuid(!forceUpdateUserGuid))
+      setShowSidebar(true)
+      setMenuName('profile')
+    }
+  }, [
+    adminSelectedUserGuid, 
+    forceUpdateUserGuid
+  ])
+
+  useEffect(() => {
+    if(!isAvatarLoading && !isAvatarLoadError){
+      if(isStrEmpty(adminSelectedUserGuid))
+        setAvatar(userAvatar)
+      else {
+        setAvatar(userAvatar)
+        setUserLogo(userAvatar)
+      }
+    }
+  }, [userAvatar])
 
   useEffect(() => {
     loading_ref.current = loadingMem
@@ -267,7 +317,7 @@ const TopNavbar = () => {
       setReconnected(prevState => ({...prevState, state, room}))
     } 
     const logOut = () => {
-      console.log('log out message from socket io')
+      console.log('log out message')
       deleteFromStorage()
       socket.disconnect()
       window.location.reload()  
@@ -305,6 +355,8 @@ const TopNavbar = () => {
   }, [firmsData])
 
   useEffect(() => {
+    // console.log('firmsList',firmsList)
+
     if(!receiver.connected && CheckObjOrArrForNull(firmsList)){
       for(let i = 0; i < firmsList.length; i++){
         const firm = firmsList[i]
@@ -511,6 +563,7 @@ const TopNavbar = () => {
 
   }
 
+
   /// usememo components
   const maxDate = useMemo(() => {
     let oneYearAfter = moment(new Date()).add(1,'years')
@@ -521,27 +574,45 @@ const TopNavbar = () => {
   }, [new Date()])
 
   const userProfileItself = useMemo((): JSX.Element => {
-    if(!usrPrivateLoading && !usrPrivateError){
     return (
       <UserProfile 
         userData={userPrivateData?.[0] ?? {}} 
         userActions={{data: userActions, loading: isActionsLoading, error: isActionsError}}
-        userGuid={userGuid}
+        userGuid={isStrEmpty(adminSelectedUserGuid) ? adminSelectedUserGuid : userGuid}
         onSuccess={(newValues) => {
-          const {user_email, user_name, user_login} = newValues
-          localStorage.setItem('authUser', JSON.stringify({
-            ...authUser, user_name, user_phone: user_login.substring(4)
-          }))
-          refetchUserSubsc()
-          refetchUserPrivateData()
+          if(isStrEmpty(adminSelectedUserGuid)) // if admin mode 
+            dispatch(AdminAction.setRefetchState(true)) // command to refetch users
+          else {
+            const {user_name} = newValues
+            localStorage.setItem('authUser', JSON.stringify({
+              ...authUser, user_name
+            }))
+            refetchUserSubsc()
+            refetchUserPrivateData()
+          }
+        }}
+        onUpload={() => refetchAvatar()}
+        onDelete={async (userGuid) => {
+          try {
+              const response = await DeleteAvatar(userGuid)
+              // console.log('res', response)
+              if(response.status === 200)
+                setAvatar(user_image)
+           
+          } catch (error) {
+              console.log('err', error)
+          }
         }}
         showSideabar={showSidebar}
+        avatar={isStrEmpty(avatar) ? avatar : user_image}
       />
     )
-    }
-
-    return <></>
-  }, [userPrivateData, userActions, showSidebar])
+  }, [
+    userPrivateData, 
+    userActions, 
+    showSidebar,
+    avatar
+  ])
 
   const timeModalItself = useMemo((): JSX.Element => {
     return isShowTimeModal ? (
@@ -744,7 +815,14 @@ const TopNavbar = () => {
       }
 
       <div className={styles.footer}>
-        <div  className={styles.notification_item} onClick={() => {setShowSidebar(true), setMenuName('profile')}}>
+        <div  className={styles.notification_item} 
+          onClick={() => {
+            if(isStrEmpty(adminSelectedUserGuid))
+              dispatch(AdminAction.setUserGuid(''))
+            setShowSidebar(true);
+            setMenuName('profile')
+          }}
+        >
           <i className='bx bx-user'></i>
           <h4>{t('profile')}</h4>
         </div> 
@@ -791,7 +869,7 @@ const TopNavbar = () => {
           <div className={styles.topnav__right_item}>
             {/* User dropdown */}
             <Dropdown
-              customToggle={() => renderUserToggle()}
+              customToggle={() => renderUserToggle(userLogo)}
               contentData={user_menu}
               renderBody={renderUserMenu}
               onClick={() => dispatch(AuthAction.refetchUserData(!refetchUserData))}
@@ -809,7 +887,12 @@ const TopNavbar = () => {
               }
             />
           </div>
-          <div className={styles.topnav__right_item} onClick={() => {setShowSidebar(true), setMenuName('theme')}}>
+          <div className={styles.topnav__right_item} 
+            onClick={() => {
+              setShowSidebar(true);
+              setMenuName('theme')
+            }}
+          >
             <i className="bx bx-palette"></i>
           </div>
               

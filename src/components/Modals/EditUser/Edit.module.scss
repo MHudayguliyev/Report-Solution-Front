@@ -1,0 +1,169 @@
+@use "../../../styles/globalBreakPoints.scss" as *;
+@use "../../../styles/globalTypography.scss" as typo;
+
+.editModal {
+  width: 20%;
+  height: 400px;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  @media screen and (max-width: $mdDesktop) {
+    width: 30%;
+  }
+  @media screen and (max-width: $desktop) {
+      width: 40%;
+      .operationSelect {
+        margin-left: 3px;
+      }
+  }
+
+  .header {
+    width: 550px;
+    font-size: 24px;
+    font-family: "Panton";
+    text-align: center;
+    color: var(--txt-color);
+  }
+
+  &::-webkit-scrollbar {
+    width: 5px;
+    background-color: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background-color: var(--main-color);
+  }
+
+  .wrapper {
+    .user {
+      display: flex;;
+      justify-content: space-between;
+      padding: 10px;
+      border-bottom: 1.5px solid var(--txt-color-dark);
+      color: var(--txt-color);
+      @media screen and (max-width: $tablet) {
+          flex-direction: column;
+          gap: 6px;
+
+          .userLogin {
+            margin-left: 20px;
+          }
+      }
+
+      .userName{
+        min-width: 100px;
+        display: flex;
+        gap: 6px;
+      }
+    }
+
+
+    .submitters {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px;
+      @media screen and (max-width: $tablet) {
+        flex-direction: column;
+        gap: 6px;
+
+      }
+
+      .field {
+        border:none;
+        padding: 5px;
+        background: rgb(228, 228, 228);
+        border-radius: var(--border-radius-sm);
+      }
+      .submit {
+        display: flex;
+        justify-content: center;
+      }
+
+      .error {
+        font-size: typo.$fontSizeSmall + px;
+        color: var(--main-color-red);
+        margin-bottom: -6px;
+      }
+    }
+
+    .operationSelect {
+      padding: 5px 0;
+      margin: 10px 0 0 -8px;
+
+      @media screen and (max-width: $tablet) {
+        margin-left: 8px;
+      }
+
+      @media screen and (max-width: $desktop) {
+        margin-left: 3px;
+      }
+
+      .filterInput {
+        display: flex;
+        justify-content: space-between;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 8px;
+      }
+  
+      .filterSelect {
+        min-width: 160px;
+        margin-left: 10px;
+        @media screen and (max-width: $desktop) {
+          margin-left: 0;
+        }
+      }
+    }
+
+  }
+}
+
+.cant__affordWrapper {
+  padding: 10px;
+  background: var(--main-bg);
+  border-radius: 5px;
+  height: 300px;
+  overflow: auto;
+
+  &::-webkit-scrollbar {
+    width: 5px;
+    background-color: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background-color: var(--main-color);
+  }
+
+  h4 {
+    text-align: center;
+    margin-bottom: 8px;
+  }
+
+  .user {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px;
+    border-bottom: 1.5px solid var(--txt-color-dark);
+    color: var(--txt-color);
+    margin-bottom: 8px;
+
+    .userLogAndBalance {
+      display: flex;
+      flex-direction: column;
+      align-items: end;
+      .insufficientBalance {
+        color: var(--main-color-red);
+      }
+    }
+  }
+
+  .footer {
+    display: flex;
+    justify-content: end;
+    gap: 10px;
+  }
+}
+

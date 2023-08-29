@@ -5,7 +5,8 @@ import authToken from "./auth_token";
   }
   const privateConfig = {
     headers: {
-      Authorization: ""
+      "Authorization": "", 
+      "Content-type": "application/json"
     }, 
     withCredentials: false, 
   }
@@ -27,9 +28,15 @@ export const api = {
     const config = {...privateConfig, headers: {...privateConfig.headers, Authorization: token}, withCredentials}
     return axiosInstance.get(url, {...config}).then(response => response.data)
   },
-  postPrivate: async<T, R>({url, withCredentials,  data}: {url:string, withCredentials: boolean, data: T}): Promise<R> => {
+  postPrivate: async<T, R>({url,data,contentType = 'application/json',withCredentials}: {url:string, data: T,contentType?:string|any, withCredentials: boolean}): Promise<R> => {
     const token = 'Bearer ' + authToken();
-    const config = {...privateConfig, headers: {...privateConfig.headers, Authorization: token}, withCredentials}
+    const config = {...privateConfig,  
+      headers: {...privateConfig.headers, 
+        "Authorization": token, 
+        "Content-type": contentType}, 
+        withCredentials}
+      // console.log("config", config)
+      // console.log('data',data)
     return axiosInstance.post(url, {...data}, {...config}).then(response => response.data)
   }, 
   putPrivate: async<T, R>({url, data, withCredentials,}: {url:string, data: T, withCredentials: boolean}): Promise<R> => {

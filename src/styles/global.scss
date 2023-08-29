@@ -182,6 +182,23 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     height: 100vh;
 }
 
+// .go2072408551 {
+//     background: var(--second-bg);
+//     display: block;
+//     overflow-y: auto;
+//     overflow-x: hidden;
+//     height: 400px;
+//     &::-webkit-scrollbar {
+//         width: 5px;
+//         background-color: transparent;
+//       }
+    
+//       &::-webkit-scrollbar-thumb {
+//         border-radius: 10px;
+//         background-color: var(--main-color);
+//       }
+// }
+
 $columns: 12;
 $gap: 30px;
 $breakpoints: ( xs: 480px, sm: 768px, md: 960px, lg: 1170px, xl: 1280px);

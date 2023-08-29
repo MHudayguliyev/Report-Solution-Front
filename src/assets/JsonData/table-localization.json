@@ -4,7 +4,7 @@
         {"accessorKey": "pnr_name", "en": "Pnr name", "tm": "M.ady","ru": "Имя партнера"},
         {"accessorKey": "ord_code","en": "Ord code","tm": "Kody", "ru": "Код заказа"},
         {"accessorKey": "ord_date","en": "Ord date","tm": "Wagty", "ru": "Дата заказа"},
-        {"accessorKey": "wh_name","en": "Wh name","tm": "Ammar|Masyn", "ru": "Имя склада"},
+        {"accessorKey": "wh_name","en": "Wh name","tm": "Ammar | Maşyn", "ru": "Имя склада"},
         {"accessorKey": "salesman_name","en": "Salesmanname","tm": "Isgar|Kassir", "ru": "Имя продавца"},
         {"accessorKey": "ord_status_name","en": "Ord status name","tm": "Statusy", "ru": "Название статуса заказа"},
         {"accessorKey": "ord_mat_amount","en": "Ord mat amount","tm": "Haryt mukdary", "ru": "Количество заказа"},
@@ -18,8 +18,8 @@
         {"accessorKey": "pnr_name", "en": "Pnr name", "tm": "M.ady","ru": "Имя партнера"},
         {"accessorKey": "inv_code", "en": "Inv code", "tm": "Kody","ru": "Код инвойса"},
         {"accessorKey": "inv_date", "en": "Inv date", "tm": "Wagty","ru": "Дата инвойса"},
-        {"accessorKey": "wh_name", "en": "Wh name", "tm": "Ammar|Masyn","ru": "Имя склада"},
-        {"accessorKey": "salesman_name", "en": "Salesman name", "tm": "Isgar|Kassir","ru": "Имя сотрудника"},
+        {"accessorKey": "wh_name", "en": "Wh name", "tm": "Ammar | Maşyn","ru": "Имя склада"},
+        {"accessorKey": "salesman_name", "en": "Salesman name", "tm": "Işgär | Kassir","ru": "Имя сотрудника"},
         {"accessorKey": "inv_mat_amount", "en": "Inv mat amount", "tm": "Haryt mukdary","ru": "Количество фактуры"},
         {"accessorKey": "inv_nettotal", "en": "Inv nettotal", "tm": "Jemi bahasy","ru": "Сумма фактуры"},
         {"accessorKey": "inv_desc", "en": "Inv desc", "tm": "Belligi","ru": "Описание фактуры"},
@@ -30,9 +30,9 @@
         {"accessorKey": "material_code", "en": "Code", "tm": "Kody","ru": "Код материала"},
         {"accessorKey": "material_name", "en": "Name", "tm": "Ady","ru": "Название материала"},
         {"accessorKey": "unit_det_code", "en": "Unit det code", "tm": "Ölçeg birligi","ru": "Ед.измерения"},
-        {"accessorKey": "stock_total_amount", "en": "Stock total amount", "tm": "Stok(mudary)","ru": "Остаток(кол-во)"},
-        {"accessorKey": "cost_unit_price", "en": "Cost unit price", "tm": "Stok(orta baha)","ru": "Остаток(ср.сумма)"},
-        {"accessorKey": "stock_cost_total", "en": "Stock cost total", "tm": "Stok(jemi baha)","ru": "Остаток(сумма)"}
+        {"accessorKey": "stock_total_amount", "en": "Stock total amount", "tm": "Stok (mudary)","ru": "Остаток (кол-во)"},
+        {"accessorKey": "cost_unit_price", "en": "Cost unit price", "tm": "Stok (orta baha)","ru": "Остаток (ср.сумма)"},
+        {"accessorKey": "stock_cost_total", "en": "Stock cost total", "tm": "Stok (jemi baha)","ru": "Остаток (сумма)"}
     ],
     "payments_received_made": [
         {"accessorKey": "pnr_or_empl_code", "en": "Pnr or empl_code", "tm": "M.kody","ru": "Код партнера"},
@@ -49,6 +49,13 @@
         {"accessorKey": "is_prepayment","en": "Is_prepayment","tm": "Partner code tm", "ru": "Partner code ru"}
     ],
     "credits_debts_empl_balance": [
+        {"accessorKey": "pnr_code", "en": "Code", "tm": "Kody","ru": "Код"},
+        {"accessorKey": "pnr_name", "en": "Name", "tm": "Ady","ru": "Имя"},
+        {"accessorKey": "pnr_balance", "en": "Balance", "tm": "Balansy","ru": "Баланс"},
+        {"accessorKey": "pnr_tel_numbers", "en": "Tel numbers", "tm": "Telefony","ru": "Телефон"},
+        {"accessorKey": "pnr_address", "en": "Address", "tm": "Salgysy","ru": "Адрес"}
+    ],
+    "employers": [
         {"accessorKey": "pnr_code", "en": "Pnr code", "tm": "I.kody","ru": "Код партнера"},
         {"accessorKey": "pnr_name", "en": "Pnr name", "tm": "I.ady","ru": "Имя партнера"},
         {"accessorKey": "pnr_balance", "en": "Pnr balance", "tm": "I.balansy","ru": "Баланс партнера"},
@@ -56,40 +63,85 @@
         {"accessorKey": "pnr_address", "en": "Pnr address", "tm": "I.salgysy","ru": "Адрес партнера"}
     ],
     "expenses_cashes_amount": [
-        {"accessorKey": "acc_card_name", "en": "Acc card name", "tm": "Kassa ady","ru": "Наименование кассы"},
-        {"accessorKey": "acc_type_name", "en": "Acc type name", "tm": "Kassa kody","ru": "Код кассы"},
-        {"accessorKey": "acc_card_balance", "en": "Acc card balance", "tm": "Kassa balansy","ru": "Баланс кассы"}
+        {"accessorKey": "acc_card_name", "en": "Cash name", "tm": "Kassa ady","ru": "Наименование кассы"},
+        {"accessorKey": "acc_type_name", "en": "Cash type", "tm": "Kassa kody","ru": "Код кассы"},
+        {"accessorKey": "debit_value", "en": "Debit", "tm": "Debet","ru": "Дебет"}, 
+        {"accessorKey": "credit_value", "en": "Credit", "tm": "Kredit","ru": "Кредит"}, 
+        {"accessorKey": "total_balance", "en": "Dif (Debit-credit)", "tm": "Tapawut (Debet-kredit)","ru": "Разница (Дебет-кредит)"}
     ],
-    
+    "expenses": [
+        {"accessorKey": "acc_card_name", "en": "Cash name", "tm": "Kassa ady","ru": "Наименование кассы"},
+        {"accessorKey": "acc_type_name", "en": "Cash type", "tm": "Kassa kody","ru": "Код кассы"},
+        {"accessorKey": "debit_value", "en": "Debit", "tm": "Debet","ru": "Дебет"}, 
+        {"accessorKey": "credit_value", "en": "Credit", "tm": "Kredit","ru": "Кредит"}, 
+        {"accessorKey": "total_balance", "en": "Balance", "tm": "Balansy","ru": "Баланс"}
+    ],
     "user_actions": [
         {"accessorKey": "action_name", "en": "Name", "tm": "Ady","ru": "Имя"},
         {"accessorKey": "action_amount", "en": "Amount", "tm": "Mukdary","ru": "Сумма"},
         {"accessorKey": "user_balance", "en": "Balance", "tm": "Balansy","ru": "Баланс"},
         {"accessorKey": "action_crt_mdf_dt", "en": "Date", "tm": "Senesi/wagty","ru": "Дата/время"}
     ],
-
+    "firms": [
+        {"accessorKey": "firm_fullname", "en": "Name", "tm": "Ady","ru": "Имя"},
+        {"accessorKey": "firm_tel_num1", "en": "Tel.number", "tm": "Tel.nomeri","ru": "Телефон"},
+        {"accessorKey": "firm_address", "en": "Address", "tm": "Salgysy","ru": "Адрес"}
+    ],
+    "users": [
+        {"accessorKey": "user_name", "en": "Name", "tm": "Ady","ru": "Имя"},
+        {"accessorKey": "user_login", "en": "Tel.number", "tm": "Tel.nomeri","ru": "Телефон"},
+        {"accessorKey": "role_name", "en": "Role", "tm": "Roly","ru": "Роль"}
+    ],
+    "allUsers": [
+        {"accessorKey": "user_name", "en": "Name", "tm": "Ady","ru": "Имя"},
+        {"accessorKey": "user_login", "en": "Tel.number", "tm": "Tel.nomeri","ru": "Телефон"},
+        {"accessorKey": "role_name", "en": "Role", "tm": "Roly","ru": "Роль"},
+        {"accessorKey": "user_email", "en": "Email", "tm": "Email-y","ru": "Почта"},
+        {"accessorKey": "user_balance", "en": "Balance", "tm": "Balansy","ru": "Баланс"},
+        {"accessorKey": "is_user_active", "en": "Active statuses", "tm": "is_user_active","ru": "Статусы активности"},
+        {"accessorKey": "is_user_confirm", "en": "Confirmation statuses", "tm": "is_user_confirm","ru": "Статусы подтверждения"},
+        {"accessorKey": "subsc_name", "en": "Subsription name", "tm": "Podpiskanyň ady","ru": "Название подписки"},
+        {"accessorKey": "subsc_start_date", "en": "Start date", "tm": "Podpiskanyň ýazylyş senesi","ru": "Дата начала подписки"},
+        {"accessorKey": "subsc_end_date", "en": "End date", "tm": "Podpiskanyň gutarýan senesi","ru": "Дата окончания подписки"}
+    ],
+    "subscriptions": [
+        {"accessorKey": "subsc_name", "en": "Name", "tm": "Ady","ru": "Имя"},
+        {"accessorKey": "subsc_desc", "en": "Description", "tm": "Düşündirişi","ru": "Описание"},
+        {"accessorKey": "subsc_valid_in_days", "en": "subsc_valid_in_days", "tm": "subsc_valid_in_days","ru": "subsc_valid_in_days"},
+        {"accessorKey": "subsc_price_value", "en": "Price", "tm": "Bahasy","ru": "Стоимость"},
+        {"accessorKey": "is_subsc_active", "en": "Status", "tm": "Status","ru": "Статус"}
+    ],
+    "usersOfSubscription": [
+        {"accessorKey": "user_name", "en": "Name", "tm": "Ady","ru": "Имя"},
+        {"accessorKey": "user_login", "en": "Tel.number", "tm": "Tel.nomeri","ru": "Телефон"},
+        {"accessorKey": "role_name", "en": "Role", "tm": "Roly","ru": "Роль"},
+        {"accessorKey": "subsc_purch_price", "en": "Purch price", "tm": "subsc_purch_price","ru": "Цена покупки"},
+        {"accessorKey": "is_subsc_expired", "en": "Expired", "tm": "is_subsc_expired","ru": "is_subsc_expired"},
+        {"accessorKey": "is_subsc_canceled", "en": "Cancelled", "tm": "is_subsc_canceled","ru": "is_subsc_canceled"}
+    ],
+    
     "mat_stock_amount_cost": {
         "material": [
             {"accessorKey": "material_code", "en": "Code", "tm": "Kody","ru": "Код материала"},
             {"accessorKey": "material_name", "en": "Name", "tm": "Ady","ru": "Название материала"},
             {"accessorKey": "unit_det_code", "en": "Unit det code", "tm": "Ölçeg birligi","ru": "Ед.измерения"},
-            {"accessorKey": "stock_total_amount", "en": "Stock total amount", "tm": "Stok(mukdary)","ru": "Остаток(кол-во)"},
-            {"accessorKey": "cost_unit_price", "en": "Cost unit price", "tm": "Stok(orta baha)","ru": "Остаток(ср.сумма)"},
-            {"accessorKey": "stock_cost_total", "en": "Stock cost total", "tm": "Stok(jemi baha)","ru": "Остаток(сумма)"}
+            {"accessorKey": "stock_total_amount", "en": "Stock total amount", "tm": "Stok (mukdary)","ru": "Остаток (кол-во)"},
+            {"accessorKey": "cost_unit_price", "en": "Cost unit price", "tm": "Stok (orta baha)","ru": "Остаток (ср.сумма)"},
+            {"accessorKey": "stock_cost_total", "en": "Stock cost total", "tm": "Stok (jemi baha)","ru": "Остаток (сумма)"}
         ],
         "category": [
             {"accessorKey": "spe_code", "en": "Code", "tm": "Kody","ru": "Код"},
             {"accessorKey": "unit_det_code", "en": "Unit det code", "tm": "Ölçeg birligi","ru": "Ед.измерения"},
-            {"accessorKey": "stock_total_amount", "en": "Stock total amount", "tm": "Stok(mukdary)","ru": "Остаток(кол-во)"},
-            {"accessorKey": "cost_unit_price", "en": "Cost unit price", "tm": "Stok(orta baha)","ru": "Остаток(ср.сумма)"},
-            {"accessorKey": "stock_cost_total", "en": "Stock cost total", "tm": "Stok(jemi baha)","ru": "Остаток(сумма)"}
+            {"accessorKey": "stock_total_amount", "en": "Stock total amount", "tm": "Stok (mukdary)","ru": "Остаток (кол-во)"},
+            {"accessorKey": "cost_unit_price", "en": "Cost unit price", "tm": "Stok (orta baha)","ru": "Остаток (ср.сумма)"},
+            {"accessorKey": "stock_cost_total", "en": "Stock cost total", "tm": "Stok (jemi baha)","ru": "Остаток (сумма)"}
         ],
         "group": [
             {"accessorKey": "group_code", "en": "Code", "tm": "Kody","ru": "Код"},
             {"accessorKey": "unit_det_code", "en": "Unit det code", "tm": "Ölçeg birligi","ru": "Ед.измерения"},
-            {"accessorKey": "stock_total_amount", "en": "Stock total amount", "tm": "Stok(mukdary)","ru": "Остаток(кол-во)"},
-            {"accessorKey": "cost_unit_price", "en": "Cost unit price", "tm": "Stok(orta baha)","ru": "Остаток(ср.сумма)"},
-            {"accessorKey": "stock_cost_total", "en": "Stock cost total", "tm": "Stok(jemi baha)","ru": "Остаток(сумма)"}
+            {"accessorKey": "stock_total_amount", "en": "Stock total amount", "tm": "Stok (mukdary)","ru": "Остаток (кол-во)"},
+            {"accessorKey": "cost_unit_price", "en": "Cost unit price", "tm": "Stok (orta baha)","ru": "Остаток (ср.сумма)"},
+            {"accessorKey": "stock_cost_total", "en": "Stock cost total", "tm": "Stok (jemi baha)","ru": "Остаток (сумма)"}
         ]
     },
 
@@ -98,32 +150,32 @@
             {"accessorKey": "material_name", "en": "Name", "tm": "Ady","ru": "Название материала"},
             {"accessorKey": "material_code", "en": "Code", "tm": "Kody","ru": "Код материала"},
             {"accessorKey": "unit_det_code", "en": "Unit det code", "tm": "Ölçeg birligi","ru": "Ед.измерения"},
-            {"accessorKey": "stock_cost_total", "en": "Stock cost total", "tm": "Stok(jemi baha)","ru": "Остаток(сумма)"},
+            {"accessorKey": "stock_cost_total", "en": "Stock cost total", "tm": "Stok (jemi baha)","ru": "Остаток (сумма)"},
             {"accessorKey": "sold_to_mtrls_in_amount", "en": "Sold by amount", "tm": "Satylan(mukdar)","ru": "Продано (кол)"},
-            {"accessorKey": "sold_to_mtrls_by_sum", "en": "Sold by sum", "tm": "Satylan(jemi baha)","ru": "Продано(общая цена)"},
-            {"accessorKey": "gross_profit_total", "en": "Gross profit_total", "tm": "Girdeji(jemi)","ru": "Доход (всего)"},
+            {"accessorKey": "sold_to_mtrls_by_sum", "en": "Sold by sum", "tm": "Satylan (jemi baha)","ru": "Продано (общая цена)"},
+            {"accessorKey": "gross_profit_total", "en": "Gross profit_total", "tm": "Girdeji (jemi)","ru": "Доход (всего)"},
             {"accessorKey": "gross_profit_percent", "en": "Gross profit percent", "tm": "Goşulan gymmat(%)","ru": "Цена единицы стоимости"},
-            {"accessorKey": "profitability_percent", "en": "Profitability percent", "tm": "Düşwüntlilik(Peýdalylyk)(%)","ru": "Прибыльность(%)"}
+            {"accessorKey": "profitability_percent", "en": "Profitability percent", "tm": "Düşwüntlilik (Peýdalylyk)(%)","ru": "Прибыльность(%)"}
         ],
         "category": [
             {"accessorKey": "spe_code", "en": "Code", "tm": "Kody","ru": "Код"},
             {"accessorKey": "unit_det_code", "en": "Unit det code", "tm": "Ölçeg birligi","ru": "Ед.измерения"},
-            {"accessorKey": "stock_cost_total", "en": "Stock cost total", "tm": "Stok(jemi baha)","ru": "Остаток(сумма)"},
-            {"accessorKey": "sold_to_mtrls_in_amount", "en": "Sold by amount", "tm": "Satylan(mukdar)","ru": "Продано (кол)"},
-            {"accessorKey": "sold_to_mtrls_by_sum", "en": "Sold by sum", "tm": "Satylan(jemi baha)","ru": "Продано(общая цена)"},
-            {"accessorKey": "gross_profit_total", "en": "Gross profit total", "tm": "Girdeji(jemi)","ru": "Доход (всего)"},
+            {"accessorKey": "stock_cost_total", "en": "Stock cost total", "tm": "Stok (jemi baha)","ru": "Остаток (сумма)"},
+            {"accessorKey": "sold_to_mtrls_in_amount", "en": "Sold by amount", "tm": "Satylan (mukdar)","ru": "Продано (кол)"},
+            {"accessorKey": "sold_to_mtrls_by_sum", "en": "Sold by sum", "tm": "Satylan (jemi baha)","ru": "Продано (общая цена)"},
+            {"accessorKey": "gross_profit_total", "en": "Gross profit total", "tm": "Girdeji (jemi)","ru": "Доход (всего)"},
             {"accessorKey": "gross_profit_percent", "en": "Gross profit percent", "tm": "Goşulan gymmat(%)","ru": "Цена единицы стоимости"},
-            {"accessorKey": "profitability_percent", "en": "Profitability percent", "tm": "Düşwüntlilik(Peýdalylyk)(%)","ru": "Прибыльность(%)"}
+            {"accessorKey": "profitability_percent", "en": "Profitability percent", "tm": "Düşwüntlilik (Peýdalylyk)(%)","ru": "Прибыльность(%)"}
         ],
         "group": [
             {"accessorKey": "group_code", "en": "Code", "tm": "Kody","ru": "Код"},
             {"accessorKey": "unit_det_code", "en": "Unit det code", "tm": "Ölçeg birligi","ru": "Ед.измерения"},
-            {"accessorKey": "stock_cost_total", "en": "Stock cost total", "tm": "Stok(jemi baha)","ru": "Остаток(сумма)"},
-            {"accessorKey": "sold_to_mtrls_in_amount", "en": "Sold by amount", "tm": "Satylan(mukdar)","ru": "Продано (кол)"},
-            {"accessorKey": "sold_to_mtrls_by_sum", "en": "Sold by sum", "tm": "Satylan(jemi baha)","ru": "Продано(общая цена)"},
-            {"accessorKey": "gross_profit_total", "en": "Gross profit total", "tm": "Girdeji(jemi)","ru": "Доход (всего)"},
+            {"accessorKey": "stock_cost_total", "en": "Stock cost total", "tm": "Stok (jemi baha)","ru": "Остаток (сумма)"},
+            {"accessorKey": "sold_to_mtrls_in_amount", "en": "Sold by amount", "tm": "Satylan (mukdar)","ru": "Продано (кол)"},
+            {"accessorKey": "sold_to_mtrls_by_sum", "en": "Sold by sum", "tm": "Satylan (jemi baha)","ru": "Продано (общая цена)"},
+            {"accessorKey": "gross_profit_total", "en": "Gross profit total", "tm": "Girdeji (jemi)","ru": "Доход (всего)"},
             {"accessorKey": "gross_profit_percent", "en": "Gross profit percent", "tm": "Goşulan gymmat(%)","ru": "Цена единицы стоимости"},
-            {"accessorKey": "profitability_percent", "en": "Profitability percent", "tm": "Düşwüntlilik(Peýdalylyk)(%)","ru": "Прибыльность(%)"}
+            {"accessorKey": "profitability_percent", "en": "Profitability percent", "tm": "Düşwüntlilik (Peýdalylyk)(%)","ru": "Прибыльность(%)"}
         ]
     }
 }

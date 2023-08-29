@@ -1,6 +1,6 @@
 import React, { ReactNode, useEffect, useState, useRef } from "react"
 import Layout from "./Layout/Layout"
-import { useNavigate } from "@tanstack/react-location"
+import { useMatch, useNavigate } from "@tanstack/react-location"
 // helpers
 import Preloader from "@app/compLibrary/Preloader/Preloader"
 // custom styles
@@ -16,6 +16,7 @@ import moment from "moment"
 import SocketContext from "@app/socket/context";
 import { ConnectToSocket, SocketType } from "@app/socket/socket";
 import { deleteFromStorage, getFromStorage } from "@utils/storage";
+import { ReceiverRefContext } from "@app/context";
 
 type AuthmiddlewareProps = {
    children: ReactNode
@@ -29,13 +30,17 @@ const Authmiddleware = (props: AuthmiddlewareProps) => {
       withLayout = true
    } = props;
 
+   const receiverRef:any = useRef(null)
+
    const [loading, setLoading] = useState(true);
    const [socket, setSocket] = useState<SocketType | any>()
    const navigate = useNavigate();
+   const dispatch = useAppDispatch();
+   const match = useMatch()
 
    const isAuthorized = useAppSelector(state => state.authReducer.isAuthorized)
    const themeReducer = useAppSelector((state) => state.themeReducer);
-   const dispatch = useAppDispatch();
+   const receiver = useAppSelector(state => state.topNavbarReducer.receiver)
 
 
    useEffect(() => {
@@ -62,12 +67,14 @@ const Authmiddleware = (props: AuthmiddlewareProps) => {
       setLoading(true)
       const now = moment(new Date()).format("YYYY-MM-DD HH:mm:ss")
       const tokenExpired = getFromStorage('accessTokenExpirationDate')
+      const userRole = getFromStorage('role_name')
       if(tokenExpired){
          if(tokenExpired===now){
             deleteFromStorage()
             dispatch(AuthAction.setAuth(false))
             navigate({ to: '/', replace: true })
-         }
+         }else if(match.pathname==='/administrator' && userRole !== 'Admin')
+            navigate({to : '/dashboard', replace: true}) // redirect user to dashboard page if not Admin
       }else {
          deleteFromStorage()
          dispatch(AuthAction.setAuth(false))
@@ -77,25 +84,33 @@ const Authmiddleware = (props: AuthmiddlewareProps) => {
       setSocket(ConnectToSocket())
    }, []);
 
+   useEffect(() => {
+      receiverRef.current = receiver
+   }, [receiver])
+
    return (
       <SocketContext.Provider value={isAuthorized ? socket : null}>
-         <div className={`${themeReducer.mode} ${themeReducer.color}`}>
-         {
-            loading ?
-               <div className={styles.preloaderWrapper}>
-                  <Preloader />
-               </div>
-               :
-               withLayout ?
-                  <Layout>
-                     {children}
-                  </Layout>
-                  :
-                  <>
-                     {children}
-                  </>
-         }
-      </div>
+         
+         <ReceiverRefContext.Provider value={isAuthorized ? receiverRef : null}>
+            <div className={`${themeReducer.mode} ${themeReducer.color}`}>
+               {
+                  loading ?
+                     <div className={styles.preloaderWrapper}>
+                        <Preloader />
+                     </div>
+                     :
+                     withLayout ?
+                        <Layout>
+                           {children}
+                        </Layout>
+                        :
+                        <>
+                           {children}
+                        </>
+               }
+            </div>
+         </ReceiverRefContext.Provider>
+      
       </SocketContext.Provider>
    )
 }

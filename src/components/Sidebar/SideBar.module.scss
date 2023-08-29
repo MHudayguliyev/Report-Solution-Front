@@ -55,7 +55,7 @@
 }
 
 .sidebar__logoWrapper {
-    height: 100px;
+    height: 75px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -63,7 +63,7 @@
 }
 
 .sidebar__logo {
-    height: 70px;
+    height: 50px;
     @media screen and (max-width: $tablet) {
         height: 55px;
     }

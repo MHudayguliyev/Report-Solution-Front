@@ -34,6 +34,7 @@ interface DropDownSelectProps<T> {
    disabled?: boolean,
    position?: 'up' | 'down'
    language?: string
+   transformOrigin?: 'topRight' | 'topLeft' | 'bottomRight' | "bottomLeft"
 }
 
 function DropDownSelect<T extends SearchValues[]>(props: DropDownSelectProps<T>) {
@@ -51,6 +52,7 @@ function DropDownSelect<T extends SearchValues[]>(props: DropDownSelectProps<T>)
       isInputField,
       disabled,
       position = 'down',
+      transformOrigin = 'topRight',
       language,
    } = props;
 
@@ -81,7 +83,7 @@ function DropDownSelect<T extends SearchValues[]>(props: DropDownSelectProps<T>)
    }, [mainTitle])
 
    return (
-      <Dropdown upPosition={position==='up'} disabled={disabled} dropDownContentStyle={dropDownContentStyle} customToggle={() => {
+      <Dropdown transformOrigin={transformOrigin} upPosition={position==='up'} disabled={disabled} dropDownContentStyle={dropDownContentStyle} customToggle={() => {
          return (
             <div className={styles.toggleWrapper}>
                <span className={

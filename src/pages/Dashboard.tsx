@@ -20,14 +20,9 @@ import Status from '@app/components/Status/Status'
 // sockets
 import { SocketType} from '@app/socket/socket'
 import { FetcherType } from '@app/redux/types/DashboardTypes'
-import { ResponseType } from '@app/Types/utils';
+import { ResponseType, TableNameType } from '@app/Types/utils';
 import { UsualType } from '@app/redux/types/TopnavbarTypes';
-
-
-type TableNameType = {
-  value:string, 
-  label:string
-}
+import { ReceiverRefContext } from '@app/context';
 
 type PaperDataType = {
   typeID:string | any
@@ -37,9 +32,9 @@ type PaperDataType = {
 const Dashboard = () => {
   const dispatch = useAppDispatch()
   const {t} = useTranslation()
-  const receiverRef:any = useRef(null)
   ///socket 
   const socket:SocketType|any = useContext(SocketContext)
+  const receiverRef: UsualType|any = useContext(ReceiverRefContext)
 
   /// redux states
   const scrollY = useAppSelector(state => state.topNavbarReducer.scrollY)
@@ -118,23 +113,23 @@ const Dashboard = () => {
     dispatch(DashboardAction.openDtlTbl(state))
   }
 
+
   useEffect(() => {
     if(!socket) return 
     const getInitData = (response:ResponseType) => {
-      const receiver: UsualType = receiverRef.current
-      if(response.cred.roomName === receiver.value){  
-        setDashboardData({dispatch, response,receiver})
-        dispatch(TopnavbarAction.setRenewDashboard(false))
-      }
+      // console.log("receiverRef ", receiverRef.current)
+      const receiver:UsualType = receiverRef.current
+      if(response.cred.roomName === receiver.value) 
+        setDashboardData({dispatch, response})  
     }
     const getDetails = (response: ResponseType) => {
       setInitialDetails(response)
     }
     const getRefetchedData = (response: ResponseType) => {
-      console.log('response', response)
+      // console.log('response', response)
       const receiver: UsualType = receiverRef.current
       if(response.cred.roomName === receiver.value)
-        setDashboardData({dispatch, response,receiver})
+        setDashboardData({dispatch, response})
     }
     socket.on('receive_initial_data', getInitData)
     socket.on('receive_detail_data', getDetails)
@@ -145,15 +140,16 @@ const Dashboard = () => {
     }
   }, [socket])
 
-
-  useEffect(() => {
-    receiverRef.current = receiver
-  }, [receiver])
-
   useEffect(() => {
     if(isStrEmpty(initialDetails.cred.name as string)){
       const {cred: {name, type_id}, data} = initialDetails
-      if(name===paperData.paperName && type_id===paperData.typeID)
+      let paperClone = paperData.paperName
+      if(paperClone==='employers')
+        paperClone = 'credits_debts_empl_balance'
+      else if(paperClone === 'expenses')
+        paperClone = 'expenses_cashes_amount'
+
+      if(name===paperClone && type_id===paperData.typeID)
         dispatch(DashboardAction.setDashboardTable({data, loading:false}))
       setInitialDetails(prev => ({...prev, data:[],cred: {...prev.cred, type_id:0,name:""}}))
     }
@@ -167,7 +163,9 @@ const Dashboard = () => {
         endPoint: '/get/dashboard/',
         data: {
           type_id: paperData.typeID,
-          name: paperData.paperName,
+          name: paperData.paperName==='employers' ? papers[4] : 
+                  paperData.paperName==='expenses' ? papers[5] : 
+                    paperData.paperName,
           date: dashboardDate
         }
       }
@@ -203,7 +201,7 @@ const Dashboard = () => {
         }}
         enableColumnResizing
         enableStickyHeader
-        renderCustomActions
+        renderCustomDashboardActions
         density={'compact'}
       />
     )
@@ -555,7 +553,7 @@ const Dashboard = () => {
                                     openDetails(true)
                                     setNameFN({label:t('expensesAmount'), value: 'expensesAmount'})
                                   }
-                                  setPaperFN({typeID: 2, paperName: papers[5], yPosition: scrollY})
+                                  setPaperFN({typeID: 2, paperName: 'expenses', yPosition: scrollY})
                             }}>
                               <NewStatusCard 
                                 title={t('expensesAmount')}
@@ -636,7 +634,7 @@ const Dashboard = () => {
                                     openDetails(true)
                                     setNameFN({label:t('employeesBalance'), value: 'employeesBalance'})
                                   }
-                                  setPaperFN({typeID: 4, paperName: papers[4], yPosition: scrollY})
+                                  setPaperFN({typeID: 4, paperName: 'employers', yPosition: scrollY})
                             }}>
                             <NewStatusCard 
                                 title={t('employeesBalance')}
