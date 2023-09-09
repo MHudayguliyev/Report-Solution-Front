@@ -1,0 +1,88 @@
+@use '../../styles/globalBreakPoints.scss' as *;
+ .paper,
+.removeShadow {
+    position: relative;
+    box-shadow: var(--box-shadow);
+    -webkit-box-shadow: var(--box-shadow);
+    -moz-box-shadow: var(--box-shadow);
+    // background-color: var(--main-bg)
+        background-color: var(--cart-checked-bg);
+}
+
+.removeShadow {
+    box-shadow: none;
+    border: 1px solid #ccc
+}
+
+.fullWidth {
+    width: 100%;
+}
+
+.fullHeight {
+    height: 100%;
+}
+
+.circle {
+    border-radius: 50%;
+}
+
+.rounded {
+    border-radius: var(--border-radius);
+}
+
+.topRounded {
+    border-top-left-radius: var(--border-radius);
+    border-top-right-radius: var(--border-radius);
+}
+
+.bottomRounded {
+    border-bottom-left-radius: var(--border-radius);
+    border-bottom-right-radius: var(--border-radius);
+}
+
+.leftRounded {
+    border-top-left-radius: var(--border-radius);
+    border-bottom-left-radius: var(--border-radius);
+    @media screen and (max-width: $desktop){
+        border-bottom-left-radius: 0;
+        border-top-right-radius: var(--border-radius);
+    }
+}
+
+.rightRounded {
+    border-top-right-radius: var(--border-radius);
+    border-bottom-right-radius: var(--border-radius);
+    @media screen and (max-width: $desktop) {
+        border-top-right-radius: 0;
+        border-bottom-left-radius: var(--border-radius);
+       
+    }
+}
+
+.topRightRounded {
+    border-top-right-radius: var(--border-radius);
+    @media screen and (max-width: $desktop) {
+        border-top-right-radius: 0;
+    }
+}
+
+.topLeftRounded {
+    border-top-left-radius: var(--border-radius);
+    @media screen and (max-width: $desktop) {
+        border-top-right-radius: var(--border-radius)
+    }
+}
+
+.bottomRightRounded {
+    border-bottom-right-radius: var(--border-radius);
+    @media screen and (max-width: $desktop) {
+        border-bottom-left-radius: var(--border-radius);
+    }
+}
+
+.bottomLeftRounded {
+    border-bottom-left-radius: var(--border-radius);
+    @media screen and (max-width: $desktop) {
+        border-bottom-left-radius: 0;
+    }
+}

@@ -1,0 +1,29 @@
+.status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    span {
+        display: block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+    }
+}
+.orange {
+   background-color: orange;
+}
+.tomato {
+    background-color: tomato;
+}
+.blue {
+    background-color: blue;
+}
+.green {
+    background-color: green;
+}
+.red {
+    background-color: red;
+}
+
+
+ 

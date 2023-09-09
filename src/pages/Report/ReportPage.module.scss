@@ -1,0 +1,30 @@
+@use '../../styles/globalBreakPoints.scss' as *;
+
+
+.tabs {
+    margin-top: 85px;
+    position: relative;
+}
+.tabButtons {
+    border: 1px solid;
+    z-index: 999;
+    position: absolute;
+}
+
+.filterInput {
+    width: 250px;
+    display: flex;
+    justify-content: space-between;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 8px;
+}
+
+.filterSelect {
+    min-width: 160px;
+    max-width: 160px;
+    margin-left: 10px;
+    @media screen and (max-width: $desktop) {
+         margin-left: 0;
+    }
+}

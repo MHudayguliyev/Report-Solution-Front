@@ -1,0 +1,136 @@
+@use '../../../styles/globalTypography.scss' as Typo;
+@use '../../../styles/globalBreakPoints.scss' as *; 
+.firmsModal {
+    max-width: 550px;
+    @media screen and (max-width: $minTablet) {
+        max-width: 450px;
+    }
+    @media screen and (max-width: $minMobile) {
+        max-width: 350px;
+    }
+    @media screen and (max-width: $xxSmMobile) {
+        max-width: 290px;
+        margin: 0 50px;
+    }
+    @media screen and (max-width: $xxxSmMobile) {
+        margin: 0 40px;
+    }
+}
+
+.wrapper {
+    padding: 4px
+}
+
+.header {
+    width: 550px;
+    font-size: 24px;
+    font-family: 'Panton';
+    text-align: center;
+    color: var(--txt-color);
+}
+
+.item {
+    display: flex;
+    gap: 2px;
+    color: var(--txt-color);
+    .radio {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        width: 140px;
+        @media screen and (max-width: $minTablet) {
+            width: 185px;
+        }
+
+        .status {
+            color: var(--main-color-red);
+            cursor: pointer;
+            span {
+                font-weight: Typo.$fontWeightBold;
+            }
+        }
+        .connected {
+            color: var(--main-color-green)
+        }
+
+    }
+    .contents {
+        width: 100%;
+        padding: 4px;
+        .upper {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px;
+            @media screen and (max-width: $minTablet) {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            @media screen and (max-width: $xxSmMobile) {
+                align-items: start;
+            }
+
+            .firm_tels {
+                display: flex;
+                align-items: center;
+                font-size: Typo.$fontSizeMedium+px;
+                @media screen and (max-width: $minMobile) {
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
+            }
+        }
+        .bottom {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px;
+            @media screen and (max-width: $minTablet) {
+                flex-direction: column;
+                gap: 5px;
+            }
+            @media screen and (max-width: $xxSmMobile) {
+                align-items: start;
+            }
+            .connectedAt {
+                color: var(--main-color-green)
+            }
+            .notConnected {
+                color: var(--main-color-red);
+            }
+        }
+
+    }
+}
+
+.borderBottom {
+    border-bottom: 1.5px solid var(--txt-color-dark);
+}
+
+.fontWeightify {
+    font-weight: Typo.$fontWeightBold;
+    @media screen and (max-width: $xxSmMobile) {
+        width: 150px;
+    }
+}
+
+.action {
+    display: flex;
+    justify-content: center;
+    button {
+        width: 100px;
+        display: flex;
+        justify-content: center;
+    }
+}
+
+.noFirmFound {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    .notFoundTxt {
+        text-align: center;
+        color: var(--txt-color)
+    }
+}
+

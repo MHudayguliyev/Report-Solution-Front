@@ -1,0 +1,41 @@
+@use '../../styles/fonts.scss' as *;
+
+.dynamicTabs {
+  font-family: 'Panton' sans-serif;
+  margin-top: 90px;
+  position: relative;
+  button {
+    background-color: var(--main-bg);
+  }
+}
+
+.tabList {  
+    display: flex;  
+    gap: 10px;
+    justify-content: start;
+    padding: 0 1.25rem;
+    .tab {  
+      padding: 1rem 2rem;  
+      border: none;
+      opacity: .5;
+    }
+    .active {
+      border-bottom: 1px solid var(--main-color);
+      font-weight: bold;
+      color: var(--main-color);
+      opacity: 1;
+    }
+  }
+
+.panels {
+  // height: calc(100vh - 182px);
+  .tabPanel {
+    display: none;
+    // padding: 10px;
+  }
+  .active {
+    display: block;
+  }
+}
+
+  

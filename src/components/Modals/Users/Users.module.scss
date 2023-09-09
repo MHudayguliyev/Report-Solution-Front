@@ -1,0 +1,25 @@
+@use '../../../styles/globalBreakPoints.scss' as *;
+.modalWrapper {
+    width: 50%;
+    height: auto;
+   .header {
+        width: 1600px;
+        font-size: 24px;
+        font-family: 'Panton';
+        text-align: center;
+        color: var(--txt-color);
+   }
+
+   @media screen and (max-width: $desktop) {
+     width: 60%;
+   }
+   @media screen and (max-width: $minDesktop) {
+     width: 69%;
+   }
+   @media screen and (max-width: $tablet) {
+     width: 79%;
+   }
+   @media screen and (max-width: $mobile) {
+     width: 85%;
+   }
+}

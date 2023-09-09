@@ -1,0 +1,111 @@
+@use "../../../styles/globalBreakPoints.scss" as *;
+@use "../../../styles/globalTypography.scss" as typo;
+
+.editModal {
+  width: 30%;
+  height: 600px;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  @media screen and (max-width: $mdDesktop) {
+    width: 40%;
+  }
+  @media screen and (max-width: $desktop) {
+    width: 49%;
+  }
+  @media screen and (max-width: $lgTablet) {
+    width: 59%;
+  }
+  @media screen and (max-width: $minMobile) {
+    width: 69%;
+  }
+
+  .redify {
+    color: var(--main-color-red);
+  }
+
+  .header {
+    width: 550px;
+    font-size: 24px;
+    font-family: "Panton";
+    text-align: center;
+    color: var(--txt-color);
+  }
+
+  &::-webkit-scrollbar {
+    width: 5px;
+    background-color: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background-color: var(--main-color);
+  }
+
+  .wrapper {
+    .user {
+      display: flex;;
+      justify-content: space-between;
+      padding: 10px;
+      border-bottom: 1.5px solid var(--txt-color-dark);
+      color: var(--txt-color);
+      @media screen and (max-width: $tablet) {
+          flex-direction: column;
+          gap: 6px;
+
+          .userLogin {
+            margin-left: 20px;
+          }
+      }
+
+      .userName{
+        min-width: 100px;
+        display: flex;
+        gap: 6px;
+      }
+    }
+
+
+    .operation {
+      padding: 5px 0;
+      margin: 10px 0 0 -8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+
+      .submitters {
+        display: flex;
+      }
+
+      @media screen and (max-width: $minMobile) {
+        flex-direction: column;
+        .submitters {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+
+      .filterInput {
+        width: 450px;
+        display: flex;
+        justify-content: space-between;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 8px;
+        @media screen and (max-width: $minMobile) {
+          width: 100%;
+        }
+      }
+    
+      .filterSelect {
+          min-width: 160px;
+          max-width: 460px;
+          margin-left: 10px;
+          @media screen and (max-width: $minMobile) {
+            max-width: 360px;
+          }
+      }
+    }
+
+  }
+}

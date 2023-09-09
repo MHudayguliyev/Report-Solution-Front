@@ -1,0 +1,236 @@
+@use '../../styles/global.scss';
+@use '../../styles/globalAnimation.scss' as Ganimation;
+@use '../../styles/globalBreakPoints.scss' as *;
+@use '../../styles/globalShapes.scss' as shapes;
+@use '../../styles/globalTypography.scss' as typography;
+@use '../../styles/globalFunctions.scss' as *;
+
+.table__container {
+    // height: calc(100vh - 138px);
+    background-color: var(--main-bg);
+    position: relative;
+}
+.table {
+    height: auto;
+    // margin-top: 20px;
+    // padding-bottom: 20px;
+    scrollbar-width: thin;
+    scroll-behavior: smooth;
+    scrollbar-color: var(--theme) var(--main-color);
+    overflow-y: overlay;
+    overflow-x: hidden;
+    &::-webkit-scrollbar {
+       width: 8px;
+       background-color: transparent;
+     }
+     &::-webkit-scrollbar-track {
+       right: 5px;
+       border-radius: 5px;
+       background-color: transparent;
+     }
+     &::-webkit-scrollbar-track-piece {
+       background: transparent;
+     }
+     &::-webkit-scrollbar-thumb {
+       border-radius: 10px;
+     }
+     @media screen and (max-width: $minDesktop){
+       height: auto;
+     }
+     @media screen and (max-width: $tablet) {
+        // height: calc(100vh - 200px);
+        // padding-bottom: 80px;
+        margin: 0;
+     }
+}
+
+.chevron__left {
+    color: rgba(0, 0, 0, 0.54);
+    font-size: 20px;
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    &:hover {
+        border-radius: 50%;
+        background-color: rgba(0, 0, 0, 0.04);
+    }
+}
+
+.go__back_btn {
+    margin: 10px 10px 10px 0;
+    position: absolute;
+    top: 8px;
+    left: 10px;
+    z-index: 9999;
+}
+
+.noData {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    // border: 1px solid green;
+    width: 100%;
+    height: 74.5vh;
+    margin-top: 100px;
+    font-size: 1.5rem
+}
+
+.noData > i {
+    margin-bottom: 10px;
+    font-size: 3rem;
+ }
+
+.modalAnimation {
+    animation: modalAnimation Ganimation.$modalDuration ease;
+}
+
+@keyframes modalAnimation {
+    0% {
+       transform: scale(0);
+    }
+ 
+    100% {
+       transform: scale(1);
+    }
+ }
+ 
+ .topToolBar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+
+    .tableTitle {
+      height: 40px;
+      display: flex;
+      align-items: center;
+    }
+    .addMarginToTitle {
+      margin-left: 370px;
+
+      // @media screen and (max-width: $bigDesktop) {
+      //   margin-left: 200px;
+      // }
+
+      // @media screen and (max-width: $minDesktop) {
+      //   margin-left: 0;
+      // }
+    }
+
+    .rowActionsBtn {
+      display: flex;
+      gap: 6px;
+    }
+ }
+
+ .addWidthToTopToolbar { // relates to top toolbar
+    width: 57%;
+ }
+
+ .adminActionsWrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 3px;
+    margin-top: 8px;
+    cursor: pointer;
+ }
+
+ .filterInput {
+  width: 250px;
+  display: flex;
+  justify-content: space-between;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 8px;
+}
+.emptyContent {
+  width: 250px;
+}
+.filterSelect {
+  min-width: 160px;
+  max-width: 160px;
+  margin-left: 10px;
+  @media screen and (max-width: $desktop) {
+       margin-left: 0;
+  }
+}
+
+.dropDown {
+  display: flex;
+  align-content: center;
+  label {
+    margin: auto 0;
+  }
+}
+
+//  .addWidthTo
+
+ .globalSearch {
+    color: rgba(0, 0, 0, 0.54);
+    padding: 8px;
+    font-size: 22px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    &:hover {
+      border-radius: 50%;
+      background-color: rgba(0, 0, 0, 0.04);
+    } 
+ }
+
+ .rowActionEdit {
+  display: flex;
+  justify-content: center;
+ }
+
+ .whitify {
+  color: var(--txt-white)
+ }
+ .redify {
+  color: var(--main-color-red);
+  }
+ .tablePanel {
+   padding: 8px;
+    cursor: pointer;
+ }
+
+ .activeIndex {
+  color: var(--main-color)
+ }
+
+
+
+ .statuses {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .status {
+      display: block;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+    }
+    
+  .stateTrue {
+    background-color: var(--main-color-red);
+
+  }
+  .stateFalse{
+    background-color: var(--main-color-green);
+
+  }
+  .activeTrue {
+    background-color: var(--main-color-green);
+  }
+  .activeFalse{
+    background-color: var(--main-color-red);
+  }
+ }
+

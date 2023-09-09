@@ -1,0 +1,195 @@
+@use '../../styles/fonts.scss'  as *;
+@use '../../styles/globalBreakPoints.scss' as T; 
+
+.profile {
+    width: 700px;
+    margin-top: -30px;
+    button{
+        text-transform: capitalize;
+        text-align: center;
+    }
+
+    @media screen and (max-width: T.$minDesktop) {
+        width: 600px;
+    }
+}
+.profile__form {
+    position: relative;
+}
+.profile__form{
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 0 0 10px 0;
+}
+
+.profile__item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    width: 370px;
+    .set_color_blackish {
+        color: var(--input-color-dark)
+    }    
+}
+.the__form {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.user__info {
+    width: 100%;
+    position: relative;
+    padding: 7px;
+    border-radius: 7px;
+    background: var(--main-bg);
+}
+
+.submit__btn, .enableEditBtn{
+    margin-top: 15px;
+    display: flex;
+    align-items: center;
+    float: right;
+
+    .child {
+        display: flex;
+        justify-content: center;
+    }
+
+}
+.submit__btn{
+    gap: 3px;
+    button {
+        width: 112px;
+    }
+}
+.enableEditBtn {
+    gap: 15px;
+    button {
+        width: 150px;
+    }
+}
+
+.error {
+    height: 29px;
+    width: 200px;
+    font-size: 13px;
+    margin-top: 0.5px;
+    margin-bottom: -18px;
+    color: var(--main-color-red);
+}
+
+.inputStyle, .field {
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: 'Panton', sans-serif;
+    font-weight: 500;
+    height: 35px;
+    text-indent: 15px;
+    transition: all .2s ease-in-out;
+}
+
+.inputStyle{
+    width: 250px;
+    padding-right:10px;
+    font-family: 'Panton' sans-serif;
+    background: transparent;
+    font-size: 16px;
+}
+
+.field {
+    background: rgb(228, 228, 228);
+    border: none;
+}
+.userLogin {
+    width: 250px;
+}
+
+@keyframes anime {
+    0% {
+        width: 0%;
+    };
+    50% {
+        width: 0%;
+    }
+    100% {
+        width: 0%;
+    }
+}
+
+.img__upload__btn {
+    display: none;
+    margin-top: 15px;
+    text-transform: capitalize;
+}
+.user__img {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px;
+    background-color: var(--main-bg);
+    border-radius: 7px;
+    height: 133px;
+    .img__part {
+        position: relative;
+        img {
+            margin-bottom: 10px;
+            border-radius: 50%;
+            border: 1px solid #ccc; 
+            opacity: 1;
+            transition: all 0.2s ease-in;
+        }
+        i {
+            position: absolute;
+            top: 40px;
+            left: 40px;
+            font-size: 22px;
+            color: var(--trash-icon-bg);
+            transition: all 0.2s ease-in;
+            cursor: pointer;
+            display: none;
+        }
+
+        &:hover {
+            i {
+                display: block;
+            }
+            img {
+                opacity: 0.5;
+                pointer-events: none;
+            }
+        }
+    }
+
+
+}
+.dropwDownRole {
+    width: 200px;
+	background: rgb(228, 228, 228);
+	border: none;
+	border-radius: 8px;
+    padding: 10px;
+	font-size: 16px;
+	opacity: 1;
+	transition: all .2s ease-in-out;
+	select {
+		background-color: transparent;
+	    font-family: 'Panton', sans-serif;
+		width: 100%;
+		border:none;
+		font-size: 16px;
+	}
+}
+
+.actions {
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    gap: 3px;
+    margin-right: 10px;
+    img, button {
+        cursor: pointer;
+    }
+}

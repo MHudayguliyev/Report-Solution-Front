@@ -1,0 +1,74 @@
+@use '../../styles/globalBreakPoints.scss' as *;
+.wrapper {
+    margin: 70px 0 12px 0;
+    overflow: hidden;
+    border-bottom: 1px solid var(--main-color);
+    .tables {
+        display: flex;
+        gap: 6px;
+        .firms {
+            width: 50%;
+            border-left: 1px solid var(--main-color);
+        }
+        .users {
+            width: 50%;
+            border-right: 1px solid var(--main-color);
+        }
+        @media screen and (max-width: $desktop) {
+            flex-direction: column;
+            gap: 0;
+            .firms, .users {
+                width: 99.8%;
+            }
+            .firms{
+                border-right: 1px solid var(--main-color);
+            }
+            .users {
+                border-left: 1px solid var(--main-color)
+            }
+        }
+        @media screen and (max-width: $lgTablet) {
+            .firms, .users {
+                width: 99.7%;
+            }
+        }
+
+        @media screen and (max-width: $minMobile) {
+            .firms, .users {
+                width: 99.6%;
+            }
+        }
+
+    }
+
+    .allUsers {
+        border-right: 1px solid var(--main-color);
+        border-left: 1px solid var(--main-color);
+    }
+
+    .tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        align-items: center;
+        cursor: pointer;
+        margin-top: 12px;
+        border-bottom: 1px solid var(--main-color);
+
+        .tab {
+            padding: 10px;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            border-top: 1px solid var(--third-color-yellow);
+            border-right: 1px solid var(--third-color-yellow);
+            border-left: 1px solid var(--third-color-yellow);
+            color: var(--txt-color);
+        }
+        
+        .active {
+            color: #ffffff;
+            background-color: var(--main-color);
+            border: none
+        }
+    }
+}

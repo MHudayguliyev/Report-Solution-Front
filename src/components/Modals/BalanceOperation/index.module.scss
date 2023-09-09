@@ -1,0 +1,136 @@
+@use "../../../styles/globalBreakPoints.scss" as *;
+@use "../../../styles/globalTypography.scss" as typo;
+
+.editModal {
+  width: 30%;
+  height: 600px;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  @media screen and (max-width: $mdDesktop) {
+    width: 40%;
+  }
+  @media screen and (max-width: $desktop) {
+    width: 49%;
+  }
+  @media screen and (max-width: $lgTablet) {
+    width: 59%;
+  }
+  @media screen and (max-width: $minMobile) {
+    width: 69%;
+  }
+
+  .redify {
+    color: var(--main-color-red);
+  }
+
+  .header {
+    width: 550px;
+    font-size: 24px;
+    font-family: "Panton";
+    text-align: center;
+    color: var(--txt-color);
+  }
+
+  &::-webkit-scrollbar {
+    width: 5px;
+    background-color: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background-color: var(--main-color);
+  }
+
+  .wrapper {
+    .user {
+      display: flex;;
+      justify-content: space-between;
+      padding: 10px;
+      border-bottom: 1.5px solid var(--txt-color-dark);
+      color: var(--txt-color);
+      @media screen and (max-width: $tablet) {
+          flex-direction: column;
+          gap: 6px;
+
+          .userLogin {
+            margin-left: 20px;
+          }
+      }
+
+      .userName{
+        min-width: 100px;
+        display: flex;
+        gap: 6px;
+      }
+    }
+
+
+    .opeation {
+      padding: 5px 0;
+      margin: 10px 0 0 -8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      @media screen and (max-width: $lgTablet) {
+        flex-direction: column;
+        align-items: start;
+      }
+
+      @media screen and (max-width: $tablet) {
+        margin-left: 8px;
+      }
+
+      @media screen and (max-width: $desktop) {
+        margin-left: 3px;
+      }
+
+      .submitters {
+        display: flex;
+        padding: 5px 0;
+        gap: 4px;
+        // @media screen and (max-width: $tablet) {
+        //   flex-direction: column;
+        //   gap: 6px;
+        // }
+  
+        .field {
+          border:none;
+          padding: 8px;
+          background: rgb(228, 228, 228);
+          border-radius: var(--border-radius-sm);
+        }
+        .submit {
+          display: flex;
+          justify-content: center;
+        }
+  
+        .error {
+          font-size: typo.$fontSizeSmall + px;
+          color: var(--main-color-red);
+          margin-bottom: -6px;
+        }
+      }
+
+      .filterInput {
+        width: 250px;
+        display: flex;
+        justify-content: space-between;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 8px;
+    }
+    
+    .filterSelect {
+        min-width: 160px;
+        max-width: 160px;
+        margin-left: 10px;
+        @media screen and (max-width: $desktop) {
+             margin-left: 0;
+        }
+    }
+    }
+
+  }
+}
